@@ -22,16 +22,16 @@ public class UserController {
     private final UserService userService;
 
     //로그인은 추후 구현
-//    @PostMapping("/join")
-//    public ResponseEntity<?> join(@RequestBody UserDto userDto){
-//        return ResponseEntity.status(HttpStatus.OK)
-//                .body(userService.create(userDto));
-//    }
-//
-//    @GetMapping("/join")
-//    public ResponseEntity<List<User>> findAll(){
-//        List<User> list = userService.findAll();
-//        return ResponseEntity.status(HttpStatus.OK).body(list);
-//    }
+    @PostMapping("/join")
+    public ResponseEntity<?> join(@RequestBody UserDto userDto){
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(userService.create(userDto));
+    }
+
+    @GetMapping("/join")
+    public ResponseEntity<List<User>> findAll(){
+        List<User> list = userService.findAll();
+        return ResponseEntity.status(HttpStatus.OK).body(list);
+    }
 
 }
