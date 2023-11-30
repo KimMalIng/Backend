@@ -23,14 +23,14 @@ public class Calendar {
     private Integer month;
     private Integer day;
     private Integer week;
-    private Integer dayOfWeek; //0-6 월-일
+    private String dayOfWeek; //0-6 월-일
     private Boolean Holiday;
 
     @OneToMany(mappedBy = "calendar")
     private List<TimeTable> timeTables= new ArrayList<>();
 
     @Builder
-    public Calendar(Date date, Integer year, Integer month, Integer day, Integer week, Integer dayOfWeek, Boolean Holiday){
+    public Calendar(Date date, Integer year, Integer month, Integer day, Integer week, String dayOfWeek, Boolean Holiday){
         this.Date = date;
         this.year = year;
         this.month = month;
