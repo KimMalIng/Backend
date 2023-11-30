@@ -13,9 +13,15 @@ import java.util.List;
 public interface TimeTableRepository extends JpaRepository<TimeTable, Long> {
 
     @Query("SELECT t FROM TimeTable t WHERE t.calendar.Date BETWEEN :startDate AND :endDate")
-    List<TimeTable> findAllByCalendarDate(@Param("startDate") Date startDate, @Param("endDate") Date endDate);
+    List<TimeTable> findAllByCalendarDate(@Param("startDate") Date startDate,
+                                          @Param("endDate") Date endDate);
 
     @Query("SELECT Job FROM TimeTable t WHERE t.job.id=:userId")
     List<Job> findJobById(@Param("userId") Long user_id);
+
+    @Query("SELECT t FROM TimeTable t WHERE t.user.id =:userId AND t.calendar.Date BETWEEN :startDate AND :endDate")
+    List<TimeTable> findAllByCalendarDateAndUserId(@Param("startDate") Date startDate,
+                                                   @Param("endDate") Date endDate,
+                                                   @Param("userId") Long user_id);
 
 }

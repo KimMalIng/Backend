@@ -2,7 +2,7 @@ package com.capstone.AreyouP.Service;
 
 import com.capstone.AreyouP.DTO.EveryTime.TimeLine;
 import com.capstone.AreyouP.DTO.Schedule.AdjustmentDto;
-import com.capstone.AreyouP.DTO.Schedule.ScheduleDto;
+import com.capstone.AreyouP.DTO.Schedule.JobDto;
 import com.capstone.AreyouP.Domain.Job;
 import com.capstone.AreyouP.Domain.TimeTable;
 import com.capstone.AreyouP.Repository.TimeTableRepository;
@@ -22,7 +22,7 @@ public class TimeTableService {
 
     private final TimeTableRepository timeTableRepository;
 
-    public List<TimeLine> getTable(String startDate, String endDate) {
+    public List<TimeLine> getTable(String startDate, String endDate, Long user_id) {
         Date start = new Date();
         Date end = new Date();
         try {
@@ -33,12 +33,12 @@ public class TimeTableService {
         } catch (Exception e){
             System.out.println(e.getMessage());
         }
-        List<TimeTable> timeTables = timeTableRepository.findAllByCalendarDate(start, end);
+        List<TimeTable> timeTables = timeTableRepository.findAllByCalendarDateAndUserId(start, end, user_id);
         //내가 원하는 user에 대한 정보를 가져오려면 userId=? 인 것도 처리해주면 된다.
 
         List<TimeLine> timeLines = new ArrayList<>();
 
-        Map<String, List<ScheduleDto>> getJobsOfDay = new HashMap<>();
+        Map<String, List<JobDto>> getJobsOfDay = new HashMap<>();
         for (TimeTable table : timeTables){
             Date d = table.getCalendar().getDate();
             SimpleDateFormat sdf  = new SimpleDateFormat("yyyyMMdd");
@@ -46,7 +46,7 @@ public class TimeTableService {
 
             Job job = table.getJob();
             System.out.println(job);
-            ScheduleDto schedule = ScheduleDto.builder()
+            JobDto schedule = JobDto.builder()
                     .day(date)
                     .startTime(job.getStartTime())
                     .endTime(table.getJob().getEndTime())
@@ -58,14 +58,14 @@ public class TimeTableService {
             if (getJobsOfDay.containsKey(date)){
                 getJobsOfDay.get(date).add(schedule);
             } else{
-                List<ScheduleDto> scheduleDtos = new ArrayList<>();
-                scheduleDtos.add(schedule);
-                getJobsOfDay.put(date, scheduleDtos);
+                List<JobDto> jobDtos = new ArrayList<>();
+                jobDtos.add(schedule);
+                getJobsOfDay.put(date, jobDtos);
             }
 
         }
         System.out.println(getJobsOfDay);
-        for (Map.Entry<String, List<ScheduleDto>> entry : getJobsOfDay.entrySet()){
+        for (Map.Entry<String, List<JobDto>> entry : getJobsOfDay.entrySet()){
             TimeLine timeLine = new TimeLine();
             timeLine.setDay(entry.getKey());
             timeLine.setSubject(entry.getValue());
@@ -76,7 +76,7 @@ public class TimeTableService {
 
     }
 
-    public AdjustmentDto adjustSchedule(String startDate, String endDate) {
+    public AdjustmentDto adjustSchedule(String startDate, String endDate, Long user_id) {
         Date start = new Date();
         Date end = new Date();
         try {
@@ -87,13 +87,13 @@ public class TimeTableService {
         } catch (Exception e){
             System.out.println(e.getMessage());
         }
-        List<TimeTable> timeTables = timeTableRepository.findAllByCalendarDate(start, end);
+        List<TimeTable> timeTables = timeTableRepository.findAllByCalendarDateAndUserId(start, end, user_id);
         //내가 원하는 user에 대한 정보를 가져오려면 userId=? 인 것도 처리해주면 된다.
 
         AdjustmentDto timeLine = new AdjustmentDto();
         timeLine.setWeek_day(new ArrayList<>());
         timeLine.setSchedule(new ArrayList<>());
-        Map<String, List<ScheduleDto>> getJobsOfDay = new HashMap<>();
+        Map<String, List<JobDto>> getJobsOfDay = new HashMap<>();
 
         for (TimeTable table : timeTables){
             Date d = table.getCalendar().getDate();
@@ -102,7 +102,7 @@ public class TimeTableService {
 
             Job job = table.getJob();
             System.out.println(job);
-            ScheduleDto schedule = ScheduleDto.builder()
+            JobDto schedule = JobDto.builder()
                     .day(date)
                     .startTime(job.getStartTime())
                     .endTime(table.getJob().getEndTime())
@@ -114,18 +114,18 @@ public class TimeTableService {
             if (getJobsOfDay.containsKey(date)){
                 getJobsOfDay.get(date).add(schedule);
             } else{
-                List<ScheduleDto> scheduleDtos = new ArrayList<>();
-                scheduleDtos.add(schedule);
-                getJobsOfDay.put(date, scheduleDtos);
+                List<JobDto> jobDtos = new ArrayList<>();
+                jobDtos.add(schedule);
+                getJobsOfDay.put(date, jobDtos);
             }
 
         }
         System.out.println(getJobsOfDay);
 
-        for (Map.Entry<String, List<ScheduleDto>> entry : getJobsOfDay.entrySet()){
+        for (Map.Entry<String, List<JobDto>> entry : getJobsOfDay.entrySet()){
             timeLine.getWeek_day().add(entry.getKey());
-            for (ScheduleDto scheduleDto : entry.getValue()){
-                timeLine.getSchedule().add(scheduleDto);
+            for (JobDto jobDto : entry.getValue()){
+                timeLine.getSchedule().add(jobDto);
             }
         }
 
