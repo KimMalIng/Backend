@@ -7,11 +7,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,12 +21,12 @@ public class UserController {
 
     //로그인은 추후 구현
     @PostMapping("/join")
-    public ResponseEntity<?> join(@RequestBody UserDto userDto){
+    public ResponseEntity<?> join(@ModelAttribute UserDto userDto) throws IOException {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(userService.create(userDto));
     }
 
-    @GetMapping("/join")
+    @GetMapping("/")
     public ResponseEntity<List<User>> findAll(){
         List<User> list = userService.findAll();
         return ResponseEntity.status(HttpStatus.OK).body(list);
