@@ -12,6 +12,7 @@ import java.util.List;
 @Setter
 @Data
 @NoArgsConstructor
+@ToString(exclude = {"calendar","user","job"})
 public class TimeTable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

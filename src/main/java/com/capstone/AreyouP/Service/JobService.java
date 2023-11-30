@@ -2,7 +2,7 @@ package com.capstone.AreyouP.Service;
 
 import com.capstone.AreyouP.DTO.EveryTime.EveryTimeDto;
 import com.capstone.AreyouP.DTO.EveryTime.TimeLine;
-import com.capstone.AreyouP.DTO.ScheduleDto;
+import com.capstone.AreyouP.DTO.Schedule.ScheduleDto;
 import com.capstone.AreyouP.Domain.Calendar;
 import com.capstone.AreyouP.Domain.Job;
 import com.capstone.AreyouP.Domain.TimeTable;
@@ -25,11 +25,11 @@ public class JobService {
     private final CalendarRepository calendarRepository;
     private final TimeTableRepository timeTableRepository;
 
-    public List<Job> saveEveryTime(List<EveryTimeDto> everyTimeDtos) {
+    public String saveEveryTime(List<EveryTimeDto> everyTimeDtos) {
 
-        int year=0, semester = 0, day=0;
+        int year=0, semester = 0;
+        String day="";
         Job everyTimeJob = new Job();
-        Calendar calendar = new Calendar();
         EveryTimeDto everyTimeDto = everyTimeDtos.get(everyTimeDtos.size()-1);
         year = everyTimeDto.getYear();
         semester = Integer.parseInt(everyTimeDto.getSemester());
@@ -42,14 +42,13 @@ public class JobService {
         //user 정보는 아직 ,, calendar에 잘 들어가냐만 판단해보잣!
 
         for (TimeLine timeLine : timeLineList) {
-
-
+            everyTimeJobs.clear();
             List<ScheduleDto> subject = timeLine.getSubject();
             for (ScheduleDto everyTime : subject) {
                 everyTimeJob = Job.builder()
                         .startTime(everyTime.getStartTime())
                         .endTime(everyTime.getEndTime())
-                        .jobName(everyTime.getName())
+                        .name(everyTime.getName())
                         .label(0)
                         .build();
                 everyTimeJobs.add(everyTimeJob);
@@ -79,9 +78,13 @@ public class JobService {
                     default -> throw new IllegalStateException("Unexpected value: " + m);
                 };
                 for (int d=1; d<=ld; d++){
-                    if (dayOfWeekNum==7) dayOfWeekNum=0;
-                    if (dayOfWeekNum-1 == day){
-                        boolean holiday= day == 6 || day == 7;
+                    Calendar calendar = new Calendar();
+                    if (dayOfWeekNum==8) dayOfWeekNum=0;
+                    int intDay = Integer.parseInt(day) == 6? 1 : Integer.parseInt(day)+2;
+                    if (dayOfWeekNum == intDay){
+                        // 0 월 1 화 2 수 3   4    5 토 6 일 intDay
+                        //      1 일 2 월 3 화 4 수 5 목 6 금 7 토 dayOfWeekNum
+                        boolean holiday= dayOfWeekNum==1 || dayOfWeekNum == 7;
                         String ymd = String.format("%04d",year)
                                 + String.format("%02d",m)
                                 + String.format("%02d",d);
@@ -116,7 +119,22 @@ public class JobService {
                 }
             }
         }
-        System.out.println("에브리타임 입력 완료");
-        return everyTimeJobs;
+//        System.out.println("에브리타임 입력 완료");
+        return "에브리타임 입력 완료";
+    }
+
+    public String saveJob(ScheduleDto scheduleDto) {
+        Job job = Job.builder()
+                .name(scheduleDto.getName())
+                .label(scheduleDto.getLabel())
+                .deadLine(scheduleDto.getDeadline())
+                .estimated_Time(scheduleDto.getEstimated_time())
+                .build();
+        jobRepository.save(job);
+        return "일정 저장 완료";
+    }
+
+    public List<Job> getJob(Long userId) {
+        return timeTableRepository.findJobById(userId);
     }
 }

@@ -1,6 +1,6 @@
 package com.capstone.AreyouP.DTO.EveryTime;
 
-import com.capstone.AreyouP.DTO.ScheduleDto;
+import com.capstone.AreyouP.DTO.Schedule.ScheduleDto;
 import lombok.*;
 
 import java.util.List;
@@ -11,6 +11,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TimeLine {
-    private Integer day;
+    private String day;
     private List<ScheduleDto> subject;
 }

@@ -15,6 +15,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @Entity
+@ToString
 public class Job {
     @Id
     @GeneratedValue
@@ -23,20 +24,25 @@ public class Job {
     private Integer label;
     private String startTime;
     private String endTime;
-    private String jobName;
+    private String name;
     private Date deadLine;
     private Integer estimated_Time;
+    private boolean isPrivate=false;
+    private boolean isComplete=false;
 
     @OneToMany(mappedBy = "job")
     private List<TimeTable> timeTables= new ArrayList<>();
 
+    @OneToMany(mappedBy = "job")
+    private List<Seperated_Job> seperatedJobList = new ArrayList<>();
+
     @Builder
-    public Job(Integer label, String startTime, String endTime, String jobName, Date deadLine, Integer estimated_Time){
+    public Job(Integer label, String startTime, String endTime, String name, Date deadLine, Integer estimated_Time){
         this.label = label;
         this.startTime = startTime;
         this.endTime = endTime;
         this.deadLine = deadLine;
-        this.jobName = jobName;
+        this.name = name;
         this.estimated_Time = estimated_Time;
 
     }
