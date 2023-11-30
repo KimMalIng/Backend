@@ -2,15 +2,20 @@ package com.capstone.AreyouP.Service;
 
 import com.capstone.AreyouP.DTO.EveryTime.EveryTimeDto;
 import com.capstone.AreyouP.DTO.EveryTime.TimeLine;
-import com.capstone.AreyouP.DTO.Schedule.ScheduleDto;
+import com.capstone.AreyouP.DTO.Schedule.JobDto;
 import com.capstone.AreyouP.Domain.Calendar;
 import com.capstone.AreyouP.Domain.Job;
 import com.capstone.AreyouP.Domain.TimeTable;
+import com.capstone.AreyouP.Domain.User;
 import com.capstone.AreyouP.Repository.CalendarRepository;
 import com.capstone.AreyouP.Repository.JobRepository;
 import com.capstone.AreyouP.Repository.TimeTableRepository;
+import com.capstone.AreyouP.Repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.annotations.NotFound;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
@@ -24,27 +29,30 @@ public class JobService {
     private final JobRepository jobRepository;
     private final CalendarRepository calendarRepository;
     private final TimeTableRepository timeTableRepository;
+    private final UserRepository userRepository;
 
-    public String saveEveryTime(List<EveryTimeDto> everyTimeDtos) {
+    public String saveEveryTime(List<EveryTimeDto> everyTimeDtos, Long user_id) {
+
+        //캘린더, 유저, job 정보를 timetable repository에 저장
+        //year, semester에 따라 3.2 - 6.14 9.1 - 12.14 판단 가능, day에 따라 해당 날짜 중 같은 요일에 저장될 수 있도록
+        //user 정보는 아직 ,, calendar에 잘 들어가냐만 판단해보잣!
+
+        User user = userRepository.findById(user_id)
+                .orElseThrow(()-> new EntityNotFoundException("사용자를 찾을 수 없습니다"));
 
         int year=0, semester = 0;
-        String day="";
-        Job everyTimeJob = new Job();
+        String day;
+        Job everyTimeJob;
         EveryTimeDto everyTimeDto = everyTimeDtos.get(everyTimeDtos.size()-1);
         year = everyTimeDto.getYear();
         semester = Integer.parseInt(everyTimeDto.getSemester());
         List<TimeLine> timeLineList = everyTimeDto.getTimeline();
         List<Job> everyTimeJobs = new ArrayList<>();
 
-
-        //캘린더, 유저, job 정보를 timetable repository에 저장
-        //year, semester에 따라 3.2 - 6.14 9.1 - 12.14 판단 가능, day에 따라 해당 날짜 중 같은 요일에 저장될 수 있도록
-        //user 정보는 아직 ,, calendar에 잘 들어가냐만 판단해보잣!
-
         for (TimeLine timeLine : timeLineList) {
             everyTimeJobs.clear();
-            List<ScheduleDto> subject = timeLine.getSubject();
-            for (ScheduleDto everyTime : subject) {
+            List<JobDto> subject = timeLine.getSubject();
+            for (JobDto everyTime : subject) {
                 everyTimeJob = Job.builder()
                         .startTime(everyTime.getStartTime())
                         .endTime(everyTime.getEndTime())
@@ -79,12 +87,11 @@ public class JobService {
                 };
                 for (int d=1; d<=ld; d++){
                     Calendar calendar = new Calendar();
-                    if (dayOfWeekNum==8) dayOfWeekNum=0;
-                    int intDay = Integer.parseInt(day) == 6? 1 : Integer.parseInt(day)+2;
+                    if (dayOfWeekNum==7) dayOfWeekNum=0;
+                    int intDay = Integer.parseInt(day) == 6? 1 : Integer.parseInt(day)+1;
                     if (dayOfWeekNum == intDay){
-                        // 0 월 1 화 2 수 3   4    5 토 6 일 intDay
-                        //      1 일 2 월 3 화 4 수 5 목 6 금 7 토 dayOfWeekNum
-                        boolean holiday= dayOfWeekNum==1 || dayOfWeekNum == 7;
+                        // 0 일 1 월 2 화 3 수 4 목 5 금 6 토 dayOfWeekNum
+                        boolean holiday= dayOfWeekNum==6 || dayOfWeekNum == 0;
                         String ymd = String.format("%04d",year)
                                 + String.format("%02d",m)
                                 + String.format("%02d",d);
@@ -97,7 +104,7 @@ public class JobService {
                                     .month(m)
                                     .day(d)
                                     .week(week++)
-                                    .dayOfWeek(day)
+                                    .dayOfWeek(String.valueOf(intDay))
                                     .Holiday(holiday)
                                     .build();
                             calendarRepository.save(calendar);
@@ -108,27 +115,25 @@ public class JobService {
                             TimeTable table = TimeTable.builder()
                                     .calendar(calendar)
                                     .job(e)
-                                    .user(null)
+                                    .user(user)
                                     .build();
                             timeTableRepository.save(table);
                         }
 
                     }
-
                     dayOfWeekNum+=1;
                 }
             }
         }
-//        System.out.println("에브리타임 입력 완료");
         return "에브리타임 입력 완료";
     }
 
-    public String saveJob(ScheduleDto scheduleDto) {
+    public String saveJob(JobDto jobDto) {
         Job job = Job.builder()
-                .name(scheduleDto.getName())
-                .label(scheduleDto.getLabel())
-                .deadLine(scheduleDto.getDeadline())
-                .estimated_Time(scheduleDto.getEstimated_time())
+                .name(jobDto.getName())
+                .label(jobDto.getLabel())
+                .deadLine(jobDto.getDeadline())
+                .estimated_Time(jobDto.getEstimated_time())
                 .build();
         jobRepository.save(job);
         return "일정 저장 완료";
@@ -136,5 +141,38 @@ public class JobService {
 
     public List<Job> getJob(Long userId) {
         return timeTableRepository.findJobById(userId);
+    }
+
+    @Transactional
+    public Job modifyJob(JobDto jobDto) {
+        Job job = Job.builder()
+                .label(jobDto.getLabel())
+                .name(jobDto.getName())
+                .deadLine(jobDto.getDeadline())
+                .startTime(jobDto.getStartTime())
+                .endTime(jobDto.getEndTime())
+                .isPrivate(jobDto.isPrivate())
+                .isComplete(jobDto.isComplete())
+                .build();
+
+        jobRepository.save(job);
+        return job;
+    }
+
+    public void deleteJob(Long jobId) {
+        jobRepository.deleteById(jobId);
+    }
+
+    @Transactional
+    public Boolean completeJob(Long jobId) {
+        Job job = jobRepository.findById(jobId)
+                .orElseThrow(()-> new EntityNotFoundException("일정을 찾을 수 없습니다."));
+        boolean isComplete = job.isComplete();
+        isComplete = !isComplete;
+        Job j = Job.builder()
+                .isComplete(isComplete)
+                .build();
+        jobRepository.save(j);
+        return isComplete;
     }
 }

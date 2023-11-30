@@ -21,9 +21,9 @@ public class Job {
     @GeneratedValue
     private Long id;
 
-    private Integer label;
     private String startTime;
     private String endTime;
+    private Integer label;
     private String name;
     private Date deadLine;
     private Integer estimated_Time;
@@ -37,13 +37,18 @@ public class Job {
     private List<Seperated_Job> seperatedJobList = new ArrayList<>();
 
     @Builder
-    public Job(Integer label, String startTime, String endTime, String name, Date deadLine, Integer estimated_Time){
+    public Job(Integer label, String startTime,
+               String endTime, String name,
+               Date deadLine, Integer estimated_Time,
+               boolean isPrivate, boolean isComplete){
         this.label = label;
         this.startTime = startTime;
         this.endTime = endTime;
         this.deadLine = deadLine;
         this.name = name;
         this.estimated_Time = estimated_Time;
+        this.isPrivate = isPrivate;
+        this.isComplete = isComplete;
 
     }
 
