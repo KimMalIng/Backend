@@ -11,5 +11,5 @@ import java.util.List;
 @AllArgsConstructor
 public class AdjustmentDto {
     private List<String> Week_day;
-    private List<ScheduleDto> Schedule;
+    private List<JobDto> Schedule;
 }

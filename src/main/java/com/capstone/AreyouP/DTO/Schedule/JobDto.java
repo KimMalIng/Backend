@@ -8,7 +8,7 @@ import java.util.Date;
 @Setter
 @ToString
 @NoArgsConstructor
-public class ScheduleDto {
+public class JobDto {
     private String day;
     private String startTime;
     private String endTime;
@@ -16,10 +16,13 @@ public class ScheduleDto {
     private String name;
     private Date deadline;
     private Integer estimated_time;
+    private boolean isPrivate;
+    private boolean isComplete;
 
     @Builder
-    public ScheduleDto(String day, String startTime, String endTime, Integer label,
-                       String name, Date deadline, Integer Estimated_time){
+    public JobDto(String day, String startTime, String endTime, Integer label,
+                  String name, Date deadline, Integer Estimated_time,
+                  boolean isPrivate, boolean isComplete){
         this.day = day;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -27,5 +30,7 @@ public class ScheduleDto {
         this.name = name;
         this.deadline = deadline;
         this.estimated_time = Estimated_time;
+        this.isPrivate = isPrivate;
+        this.isComplete = isComplete;
     }
 }
