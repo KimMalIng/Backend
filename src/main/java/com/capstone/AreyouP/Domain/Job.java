@@ -1,13 +1,11 @@
 package com.capstone.AreyouP.Domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import com.capstone.AreyouP.DTO.Schedule.JobDto;
+import jakarta.persistence.*;
 import lombok.*;
 
+import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -15,7 +13,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @Entity
-@ToString
+@ToString(exclude = {"timeTables", "seperatedJobList"})
 public class Job {
     @Id
     @GeneratedValue
@@ -25,31 +23,41 @@ public class Job {
     private String endTime;
     private Integer label;
     private String name;
-    private Date deadLine;
-    private Integer estimated_Time;
+    private String deadline;
+    private String estimated_time;
     private boolean isPrivate=false;
     private boolean isComplete=false;
 
     @OneToMany(mappedBy = "job")
     private List<TimeTable> timeTables= new ArrayList<>();
 
-    @OneToMany(mappedBy = "job")
-    private List<Seperated_Job> seperatedJobList = new ArrayList<>();
-
     @Builder
     public Job(Integer label, String startTime,
                String endTime, String name,
-               Date deadLine, Integer estimated_Time,
+               String deadline, String estimated_time,
                boolean isPrivate, boolean isComplete){
         this.label = label;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.deadLine = deadLine;
+        this.deadline = deadline;
         this.name = name;
-        this.estimated_Time = estimated_Time;
+        this.estimated_time = estimated_time;
         this.isPrivate = isPrivate;
         this.isComplete = isComplete;
 
+    }
+
+    public JobDto toJobDto(Job job) throws ParseException {
+        return JobDto.builder()
+                .startTime(job.getStartTime())
+                .endTime(job.getEndTime())
+                .label(job.getLabel())
+                .name(job.getName())
+                .deadline(String.valueOf(job.getDeadline()))
+                .estimated_time(job.getEstimated_time())
+                .isPrivate(job.isPrivate())
+                .isComplete(job.isComplete())
+                .build();
     }
 
 }

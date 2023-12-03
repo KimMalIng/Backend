@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
 import java.util.List;
 
 @Controller
@@ -22,18 +23,18 @@ public class JobController {
 
     @PostMapping("/{user_id}/everytime") //에브리타임 시간표 저장
     public ResponseEntity<?> saveEveryTime(@RequestBody List<EveryTimeDto> everyTimeDtoList,
-                                           @PathVariable Long user_id){
+                                           @PathVariable Long user_id) throws ParseException {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(jobService.saveEveryTime(everyTimeDtoList, user_id));
     }
 
-    @PostMapping("/") //입력된 일정  저장
+    @PostMapping("/save") //입력된 일정 저장
     public ResponseEntity<?> saveJob(@RequestBody JobDto jobDto){
-        return ResponseEntity.status(HttpStatus.OK).body(jobService.saveJob(jobDto));
-    }
+        return ResponseEntity.status(HttpStatus.OK).body(jobService.saveJob(jobDto, jobDto.getUser_id()));
+    } //일정 - 유저 의 정보만 timetable에 저장함. 추후 업데이트 된 일정으로 캘린더와 연결
 
-    @PostMapping("/get") //유저에 대한 일정 모두 반환
-    public ResponseEntity<List<Job>> getJob(@RequestParam Long user_id){
+    @GetMapping("/get/{user_id}") //유저에 대한 일정 모두 반환
+    public ResponseEntity<List<JobDto>> getJob(@PathVariable Long user_id) throws ParseException {
         return ResponseEntity.status(HttpStatus.OK).body(jobService.getJob(user_id));
     }
 

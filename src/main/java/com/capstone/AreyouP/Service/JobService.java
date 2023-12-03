@@ -14,9 +14,13 @@ import com.capstone.AreyouP.Repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.NotFound;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.expression.ExpressionException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Time;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -31,7 +35,7 @@ public class JobService {
     private final TimeTableRepository timeTableRepository;
     private final UserRepository userRepository;
 
-    public String saveEveryTime(List<EveryTimeDto> everyTimeDtos, Long user_id) {
+    public String saveEveryTime(List<EveryTimeDto> everyTimeDtos, Long user_id) throws ParseException {
 
         //캘린더, 유저, job 정보를 timetable repository에 저장
         //year, semester에 따라 3.2 - 6.14 9.1 - 12.14 판단 가능, day에 따라 해당 날짜 중 같은 요일에 저장될 수 있도록
@@ -49,14 +53,30 @@ public class JobService {
         List<TimeLine> timeLineList = everyTimeDto.getTimeline();
         List<Job> everyTimeJobs = new ArrayList<>();
 
+
+
         for (TimeLine timeLine : timeLineList) {
             everyTimeJobs.clear();
             List<JobDto> subject = timeLine.getSubject();
             for (JobDto everyTime : subject) {
+                SimpleDateFormat format = new SimpleDateFormat("HH:mm");
+                Date date1 = format.parse(everyTime.getStartTime());
+                Date date2 = format.parse(everyTime.getEndTime());
+
+                // 시간 차이 계산
+                long difference = date2.getTime() - date1.getTime();
+                int estimatedTimeInMinutes = (int) (difference / (60 * 1000));
+
+                int hours = estimatedTimeInMinutes / 60;
+                int minutes = estimatedTimeInMinutes % 60;
+
+                String estimated_Time =  String.format("%02d:%02d", hours, minutes);
+
                 everyTimeJob = Job.builder()
                         .startTime(everyTime.getStartTime())
                         .endTime(everyTime.getEndTime())
                         .name(everyTime.getName())
+                        .estimated_time(estimated_Time)
                         .label(0)
                         .build();
                 everyTimeJobs.add(everyTimeJob);
@@ -128,27 +148,44 @@ public class JobService {
         return "에브리타임 입력 완료";
     }
 
-    public String saveJob(JobDto jobDto) {
+    public String saveJob(JobDto jobDto, Long user_id) {
         Job job = Job.builder()
                 .name(jobDto.getName())
                 .label(jobDto.getLabel())
-                .deadLine(jobDto.getDeadline())
-                .estimated_Time(jobDto.getEstimated_time())
+                .deadline(jobDto.getDeadline())
+                .estimated_time(jobDto.getEstimated_time())
                 .build();
         jobRepository.save(job);
+        TimeTable timeTable = TimeTable.builder()
+                .job(job)
+                .user(userRepository.findById(user_id)
+                        .orElseThrow(() -> new ExpressionException("사용자를 찾을 수 없습니다.")))
+                .calendar(null)
+                .build();
+        timeTableRepository.save(timeTable);
         return "일정 저장 완료";
     }
 
-    public List<Job> getJob(Long userId) {
-        return timeTableRepository.findJobById(userId);
+    public List<JobDto> getJob(Long userId) throws ParseException {
+        List<Job> jobs = timeTableRepository.findJobByUserId(userId);
+        if (jobs.isEmpty()) throw new EntityNotFoundException("일정을 찾을 수 없습니다.");
+        else {
+            List<JobDto> jobDtos = new ArrayList<>();
+            for (Job j : jobs){
+                JobDto jobDto = j.toJobDto(j);
+                jobDtos.add(jobDto);
+            }
+            return jobDtos;
+        }
     }
 
     @Transactional
     public Job modifyJob(JobDto jobDto) {
+
         Job job = Job.builder()
                 .label(jobDto.getLabel())
                 .name(jobDto.getName())
-                .deadLine(jobDto.getDeadline())
+                .deadline(jobDto.getDeadline())
                 .startTime(jobDto.getStartTime())
                 .endTime(jobDto.getEndTime())
                 .isPrivate(jobDto.isPrivate())
