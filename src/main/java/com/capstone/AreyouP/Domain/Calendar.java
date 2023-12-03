@@ -13,11 +13,13 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @Entity
+@ToString(exclude="timeTables")
 public class Calendar {
     @Id
     @GeneratedValue
     private Long id;
 
+    @Column(unique=true)
     private Date Date;
     private Integer year;
     private Integer month;
