@@ -12,7 +12,7 @@ import java.util.List;
 @Setter
 @Data
 @NoArgsConstructor
-@ToString(exclude = {"calendar","user","job"})
+@ToString(exclude = {"calendar","user","job","seperatedJob"})
 public class TimeTable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,10 +30,15 @@ public class TimeTable {
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Job job;
 
+    @JsonIgnore
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private SeperatedJob seperatedJob;
+
     @Builder
-    public TimeTable(Calendar calendar, User user, Job job){
+    public TimeTable(SeperatedJob seperatedJob, Calendar calendar, User user, Job job){
         this.calendar = calendar;
         this.user = user;
         this.job = job;
+        this.seperatedJob = seperatedJob;
     }
 }
