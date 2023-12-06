@@ -33,7 +33,7 @@ import org.json.JSONObject;
 @RequiredArgsConstructor
 public class TimeTableService {
 
-    private static final String PATH = "C:\\Users\\minky\\Desktop\\민경\\졸업작품\\AreyouP\\src\\main\\resources\\genetic_python\\";
+    private static final String PATH = "src/main/resources/genetic_python/";
     private final TimeTableRepository timeTableRepository;
     private final SeperatedJobRepository seperatedJobRepository;
     private final JobRepository jobRepository;

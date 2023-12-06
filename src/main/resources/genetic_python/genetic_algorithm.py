@@ -669,8 +669,8 @@ class Schedule:
         return 0
 
 if __name__== "__main__":
-    read_path = "C:\\Users\\minky\\Desktop\\민경\\졸업작품\\AreyouP\\src\\main\\resources\\genetic_python\\data.json"
-    write_path = "C:\\Users\\minky\\Desktop\\민경\\졸업작품\\AreyouP\\src\\main\\resources\\genetic_python\\data.json"
+    read_path = "src/main/resources/genetic_python/data.json"
+    write_path = "src/main/resources/genetic_python/data.json"
     sch = Schedule(read_path)
     sch.execute_algorithm()
     sch.write_json(write_path)
