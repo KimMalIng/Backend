@@ -28,7 +28,7 @@ public class TimeTableController {
                         periodDto.getEndDate(), periodDto.getUser_id()));
     }
 
-    @GetMapping("/adjustment")
+    @PostMapping("/adjustment")
     public ResponseEntity<AdjustmentDto> adjustSchedule(@RequestBody PeriodDto periodDto) throws IOException, ParseException {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(timeTableService.adjustSchedule(periodDto));
