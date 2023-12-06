@@ -64,7 +64,7 @@ public class TimeTableService {
 
         try{
             Process process = Runtime.getRuntime().exec("python "+PATH+"genetic_algorithm.py");
-            Thread.sleep(1000);
+            Thread.sleep(2000);
             FileReader fr = new FileReader(PATH+"data.json");
             JSONParser parser = new JSONParser(fr);
             ObjectMapper mapper = new ObjectMapper();
