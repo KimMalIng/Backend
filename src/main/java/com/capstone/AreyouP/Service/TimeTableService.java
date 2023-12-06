@@ -33,7 +33,7 @@ import org.json.JSONObject;
 @RequiredArgsConstructor
 public class TimeTableService {
 
-    private static final String PATH = "src/main/resources/genetic_python/";
+    private static final String PATH = "C:\\Users\\minky\\Desktop\\민경\\졸업작품\\AreyouP\\src\\main\\resources\\genetic_python\\";
     private final TimeTableRepository timeTableRepository;
     private final SeperatedJobRepository seperatedJobRepository;
     private final JobRepository jobRepository;
@@ -64,7 +64,7 @@ public class TimeTableService {
 
         try{
             Process process = Runtime.getRuntime().exec("python "+PATH+"genetic_algorithm.py");
-            Thread.sleep(2000);
+            Thread.sleep(500);
             FileReader fr = new FileReader(PATH+"data.json");
             JSONParser parser = new JSONParser(fr);
             ObjectMapper mapper = new ObjectMapper();
@@ -253,7 +253,6 @@ public class TimeTableService {
             timeLine.getWeek_day().add(startLocalDate.format(formatter));
             startLocalDate = startLocalDate.plusDays(1);
         }
-
 
 
         for (TimeTable table : timeTables){
