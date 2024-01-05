@@ -1,4 +1,6 @@
 spring:
+  mvc:
+    static-path-pattern: /static/genetic_python/
   sql:
     init.mode: always
 #  profiles:

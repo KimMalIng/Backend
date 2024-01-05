@@ -297,7 +297,7 @@ public class TimeTableService {
                     .name(table.getJob().getName())
                     .deadline(String.valueOf(table.getJob().getDeadline()))
                     .estimated_time(table.getJob().getEstimated_time())
-                    .label(table.getJob().getLabel())
+                    .label((table.getJob().getLabel()!=0)?table.getJob().getLabel():0)
                     .build();
             timeLine.getSchedule().add(schedule);
         }

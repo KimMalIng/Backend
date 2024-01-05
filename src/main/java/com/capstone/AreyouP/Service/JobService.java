@@ -54,7 +54,6 @@ public class JobService {
         List<Job> everyTimeJobs = new ArrayList<>();
 
 
-
         for (TimeLine timeLine : timeLineList) {
             everyTimeJobs.clear();
             List<JobDto> subject = timeLine.getSubject();

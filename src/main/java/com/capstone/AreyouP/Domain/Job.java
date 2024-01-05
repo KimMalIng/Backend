@@ -13,7 +13,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @Entity
-@ToString(exclude = {"timeTables", "seperatedJobList"})
+@ToString(exclude = {"timeTables"})
 public class Job {
     @Id
     @GeneratedValue
@@ -27,6 +27,7 @@ public class Job {
     private String estimated_time;
     private boolean isPrivate=false;
     private boolean isComplete=false;
+    private boolean isFixed;
 
     @OneToMany(mappedBy = "job")
     private List<TimeTable> timeTables= new ArrayList<>();

@@ -47,4 +47,15 @@ public class UserService {
     public List<User> findAll() {
         return userRepository.findAll();
     }
+
+    public Object login(UserDto userDto) {
+        if (userRepository.findByUserId(userDto.getUserId()).isPresent()){
+            throw new UserDuplicateException("아이디가 이미 존재합니다");
+        }
+
+        String userId = userDto.getUserId();
+        String userPw = userDto.getUserPw();
+
+        return null;
+    }
 }

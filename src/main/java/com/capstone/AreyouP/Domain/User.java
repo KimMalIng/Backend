@@ -24,6 +24,7 @@ public class User {
     private Long id;
 
     private String userId;
+    //이메일
     private String userPw;
     private String name;
     private String nickname;
