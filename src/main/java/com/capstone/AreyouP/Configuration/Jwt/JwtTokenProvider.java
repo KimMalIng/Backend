@@ -27,7 +27,7 @@ public class JwtTokenProvider {
        long now = (new Date()).getTime();
 
 
-       Date accessTokenExpiresIn = new
+       Date accessTokenExpiresIn = new Date()
     }
 
 }
