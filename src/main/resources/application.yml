@@ -23,3 +23,6 @@ spring:
         dialect: org.hibernate.dialect.MySQL8Dialect
 #        format_sql: true
 #        default_batch_fetch_size: 100
+
+jwt:
+  secret: 4c5b2ff481b312ea29761161e97852289f2307cb7ee30e26417a1dfeeef4be18

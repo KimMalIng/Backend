@@ -1,4 +1,4 @@
-package com.capstone.AreyouP.Configuration;
+package com.capstone.AreyouP.Configuration.Jwt;
 
 import com.capstone.AreyouP.Domain.User;
 import com.capstone.AreyouP.Repository.UserRepository;
@@ -18,7 +18,6 @@ import org.springframework.web.filter.GenericFilterBean;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Component

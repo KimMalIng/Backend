@@ -22,7 +22,7 @@ public class OAuth2Attribute {
     public static OAuth2Attribute of(String provider, String attributeKey,
                                      Map<String, Object> attributes){
         if (provider.equals("kakao")) {
-            return ofKaKao("email", attributes);
+            return ofKaKao(attributeKey, attributes);
         }
         throw new RuntimeException();
     }

@@ -10,11 +10,12 @@ spring:
             client-id: 1ca922b87213dcdd6ecc7bc89a84113f
             client-secret: ssk6CQoCOdchGLhxiJrYS6GKDXhqkiNe
             redirect-uri: http://localhost:8080/login/oauth2/code/kakao
-            client-authentication-method: POST
+            client-authentication-method: client_secret_post
             authorization-grant-type: authorization_code
             scope:
               - profile_nickname
               - profile_image
+              - account_email
             client-name: Kakao
             provider: kakao
 
