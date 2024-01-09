@@ -6,20 +6,17 @@ import com.capstone.AreyouP.DTO.Schedule.JobDto;
 import com.capstone.AreyouP.Domain.Calendar;
 import com.capstone.AreyouP.Domain.Job;
 import com.capstone.AreyouP.Domain.TimeTable;
-import com.capstone.AreyouP.Domain.User;
+import com.capstone.AreyouP.Domain.Member.Member;
 import com.capstone.AreyouP.Repository.CalendarRepository;
 import com.capstone.AreyouP.Repository.JobRepository;
 import com.capstone.AreyouP.Repository.TimeTableRepository;
-import com.capstone.AreyouP.Repository.UserRepository;
+import com.capstone.AreyouP.Repository.MemberRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.annotations.NotFound;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ExpressionException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
@@ -33,7 +30,7 @@ public class JobService {
     private final JobRepository jobRepository;
     private final CalendarRepository calendarRepository;
     private final TimeTableRepository timeTableRepository;
-    private final UserRepository userRepository;
+    private final MemberRepository memberRepository;
 
     public String saveEveryTime(List<EveryTimeDto> everyTimeDtos, Long user_id) throws ParseException {
 
@@ -41,7 +38,7 @@ public class JobService {
         //year, semester에 따라 3.2 - 6.14 9.1 - 12.14 판단 가능, day에 따라 해당 날짜 중 같은 요일에 저장될 수 있도록
         //user 정보는 아직 ,, calendar에 잘 들어가냐만 판단해보잣!
 
-        User user = userRepository.findById(user_id)
+        Member member = memberRepository.findById(user_id)
                 .orElseThrow(()-> new EntityNotFoundException("사용자를 찾을 수 없습니다"));
 
         int year=0, semester = 0;
@@ -134,7 +131,7 @@ public class JobService {
                             TimeTable table = TimeTable.builder()
                                     .calendar(calendar)
                                     .job(e)
-                                    .user(user)
+                                    .member(member)
                                     .build();
                             timeTableRepository.save(table);
                         }
@@ -157,7 +154,7 @@ public class JobService {
         jobRepository.save(job);
         TimeTable timeTable = TimeTable.builder()
                 .job(job)
-                .user(userRepository.findById(user_id)
+                .member(memberRepository.findById(user_id)
                         .orElseThrow(() -> new ExpressionException("사용자를 찾을 수 없습니다.")))
                 .calendar(null)
                 .build();

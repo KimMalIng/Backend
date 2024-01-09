@@ -9,18 +9,14 @@ import com.capstone.AreyouP.Domain.Job;
 import com.capstone.AreyouP.Domain.SeperatedJob;
 import com.capstone.AreyouP.Domain.TimeTable;
 import com.capstone.AreyouP.Repository.*;
-import com.fasterxml.jackson.annotation.JsonAlias;
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.json.JSONParser;
 import org.apache.tomcat.util.json.ParseException;
-import org.json.JSONArray;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
-import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -38,7 +34,7 @@ public class TimeTableService {
     private final SeperatedJobRepository seperatedJobRepository;
     private final JobRepository jobRepository;
     private final CalendarRepository calendarRepository;
-    private final UserRepository userRepository;
+    private final MemberRepository memberRepository;
 
     public void saveFile(AdjustmentDto adjustmentDto) throws IOException {
         HashMap <String, Object> hashMap = new HashMap<>();
@@ -90,7 +86,7 @@ public class TimeTableService {
 //                            Job bigJob = new Job();
                             if (j.isPresent()){
 //                                bigJob = j.get();
-                                user_id = j.get().getTimeTables().get(0).getUser().getId();
+                                user_id = j.get().getTimeTables().get(0).getMember().getId();
                             }
                             seperatedJob = SeperatedJob.builder()
                                     .job_id(scheduleItem.getJob_id())
@@ -128,7 +124,7 @@ public class TimeTableService {
                             TimeTable t = TimeTable.builder()
                                     .calendar(c)
                                     .seperatedJob(seperatedJob)
-                                    .user(userRepository.findById(user_id).orElseThrow(
+                                    .member(memberRepository.findById(user_id).orElseThrow(
                                             ()-> new EntityNotFoundException("사용자를 찾을 수 없습니다.")))
                                     .build();
 
@@ -269,7 +265,7 @@ public class TimeTableService {
                 timeTableRepository.deleteById(table_id);
             } else {
                 JobDto schedule = JobDto.builder()
-                        .user_id(table.getUser().getId())
+                        .user_id(table.getMember().getId())
                         .job_id(job.getId())
                         .day(date)
                         .startTime(job.getStartTime())
@@ -290,7 +286,7 @@ public class TimeTableService {
             Job job = table.getJob();
             System.out.println(job);
             JobDto schedule = JobDto.builder()
-                    .user_id(table.getUser().getId())
+                    .user_id(table.getMember().getId())
                     .job_id(job.getId())
                     .startTime(job.getStartTime())
                     .endTime(table.getJob().getEndTime())

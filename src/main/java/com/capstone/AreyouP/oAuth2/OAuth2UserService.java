@@ -1,13 +1,15 @@
 package com.capstone.AreyouP.oAuth2;
 
-import com.capstone.AreyouP.oAuth2.OAuth2Attribute;
-import com.capstone.AreyouP.Domain.User;
-import com.capstone.AreyouP.Repository.UserRepository;
+import com.capstone.AreyouP.DTO.JwtTokenDto;
+import com.capstone.AreyouP.Domain.Member.Member;
+import com.capstone.AreyouP.Repository.MemberRepository;
+import com.capstone.AreyouP.Service.TokenService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
@@ -18,6 +20,7 @@ import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserServ
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 
 @Slf4j
 @Service
@@ -26,9 +29,8 @@ public class OAuth2UserService extends DefaultOAuth2UserService{
     //정상적인 유저 인증이 완료되면 여기로 오게 된다.
     //그 다음에 successhandler로 감
 
-    private final UserRepository userRepository;
-    private final HttpSession httpSession;
-
+    private final MemberRepository memberRepository;
+    private final TokenService tokenService;
     //OAuth2User에는 개인정보 요청이 들어있음
     //아래 메소드를 바탕으로 인증 처리
     @Override
@@ -42,8 +44,6 @@ public class OAuth2UserService extends DefaultOAuth2UserService{
 
         String id = oAuth2User.getAttributes().get("id").toString();
 
-        processOAuth2User(oAuth2User);//회원가입
-
         //SuccessHandler가 사용할 수 있도록 등록해준다.
         OAuth2Attribute oAuth2Attribute = OAuth2Attribute.of(registrationId, id, oAuth2User.getAttributes());
 
@@ -54,23 +54,8 @@ public class OAuth2UserService extends DefaultOAuth2UserService{
                 memberAttribute, "id");
     }
 
-    private void processOAuth2User(OAuth2User oAuth2User) throws JSONException {
-        Map<String, Object> attributes = oAuth2User.getAttributes();
-        Map<String, Object> properties = (Map<String, Object>) attributes.get("properties");
-        Long id = (Long) attributes.get("id");
-        String name = (String) properties.get("nickname");
 
-        Optional<User> userOptional = userRepository.findByUserId(String.valueOf(id));
-        if (userOptional.isEmpty()){
-            User user = User.builder()
-                    .userId(String.valueOf(id))
-                    .name(name)
-                    .build();
 
-            userRepository.save(user);
-        }
-
-    }
 
 
 

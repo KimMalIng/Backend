@@ -1,18 +1,16 @@
 package com.capstone.AreyouP.Domain;
 
+import com.capstone.AreyouP.Domain.Member.Member;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
 @Setter
 @Data
 @NoArgsConstructor
-@ToString(exclude = {"calendar","user","job","seperatedJob"})
+@ToString(exclude = {"calendar","member","job","seperatedJob"})
 public class TimeTable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,7 +22,7 @@ public class TimeTable {
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    private User user;
+    private Member member;
 
     @JsonIgnore
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -35,9 +33,9 @@ public class TimeTable {
     private SeperatedJob seperatedJob;
 
     @Builder
-    public TimeTable(SeperatedJob seperatedJob, Calendar calendar, User user, Job job){
+    public TimeTable(SeperatedJob seperatedJob, Calendar calendar, Member member, Job job){
         this.calendar = calendar;
-        this.user = user;
+        this.member = member;
         this.job = job;
         this.seperatedJob = seperatedJob;
     }

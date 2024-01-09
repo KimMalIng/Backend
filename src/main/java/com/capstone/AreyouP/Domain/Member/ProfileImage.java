@@ -1,4 +1,4 @@
-package com.capstone.AreyouP.Domain;
+package com.capstone.AreyouP.Domain.Member;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

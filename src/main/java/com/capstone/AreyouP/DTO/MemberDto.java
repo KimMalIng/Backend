@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDto {
+public class MemberDto {
     private String userId;
     private String userPw;
     private String name;
