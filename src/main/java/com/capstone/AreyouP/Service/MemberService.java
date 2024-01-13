@@ -2,14 +2,13 @@ package com.capstone.AreyouP.Service;
 
 import com.capstone.AreyouP.Configuration.Cookie.CookieUtils;
 import com.capstone.AreyouP.DTO.JwtTokenDto;
-import com.capstone.AreyouP.DTO.MemberDto;
+import com.capstone.AreyouP.DTO.Member.MemberDto;
 import com.capstone.AreyouP.Domain.Member.Member;
 import com.capstone.AreyouP.Domain.Member.ProfileImage;
 import com.capstone.AreyouP.Exception.UserDuplicateException;
 import com.capstone.AreyouP.Exception.UserNotFoundException;
 import com.capstone.AreyouP.Repository.ProfileImageRepository;
 import com.capstone.AreyouP.Repository.MemberRepository;
-import io.jsonwebtoken.Jwt;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;

@@ -1,6 +1,6 @@
 package com.capstone.AreyouP.Controller;
 
-import com.capstone.AreyouP.DTO.MemberDto;
+import com.capstone.AreyouP.DTO.Member.MemberDto;
 import com.capstone.AreyouP.Service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

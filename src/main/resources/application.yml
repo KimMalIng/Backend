@@ -1,4 +1,6 @@
 spring:
+  aop:
+    proxy-target-class: true
   mvc:
     static-path-pattern: /static/genetic_python/
   sql:

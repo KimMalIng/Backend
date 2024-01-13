@@ -1,21 +1,20 @@
 package com.capstone.AreyouP.Configuration.Jwt;
 
 import com.capstone.AreyouP.DTO.JwtTokenDto;
+import com.capstone.AreyouP.DTO.Member.AuthMemberDto;
+import com.capstone.AreyouP.DTO.Member.MemberDto;
 import com.capstone.AreyouP.Domain.Member.Member;
 import com.capstone.AreyouP.Repository.MemberRepository;
-import io.jsonwebtoken.Jwt;
+import com.capstone.AreyouP.Service.TokenService;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -23,7 +22,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Component
 @Slf4j
-public class JwtAuthFilter extends GenericFilterBean {
+public class JwtAuthFilter extends OncePerRequestFilter {
 
     /*클라이언트 요청 시 JWT 인증을 하기 위해 설치하는 커스텀 필터
     UsernamePasswordAuthenticationFilter 이전에 실행할 것
@@ -35,10 +34,11 @@ public class JwtAuthFilter extends GenericFilterBean {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final MemberRepository memberRepository;
-    private final HttpServletRequest httpServletRequest;
+    private final TokenService tokenService;
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+//    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         /*
         /users/login
         /users/join
@@ -46,9 +46,9 @@ public class JwtAuthFilter extends GenericFilterBean {
         아직 로그인이 안됐기 때문에 헤더를 확인할 필요 x
          */
 
-        if (httpServletRequest.getRequestURL().equals("/users/login") ||
-        httpServletRequest.getRequestURL().equals("/users/join")){
-            chain.doFilter(request,response);
+        if (request.getRequestURL().equals("/users/login") ||
+        request.getRequestURL().equals("/users/join")){
+            filterChain.doFilter(request,response);
             return;
         }
 
@@ -57,7 +57,7 @@ public class JwtAuthFilter extends GenericFilterBean {
         존재 -> AccessToken이 만료되었다는 뜻
         존재x or 유효x -> null
         */
-        String refreshToken = jwtTokenProvider.extractRefreshToken((HttpServletRequest) request)
+        String refreshToken = jwtTokenProvider.extractRefreshToken(request)
                 .filter(jwtTokenProvider::validateToken)
                 .orElse(null);
 
@@ -67,12 +67,12 @@ public class JwtAuthFilter extends GenericFilterBean {
         헤더에 넣어서 다시 보내기
          */
         if (refreshToken!=null){
-            Optional<Member> member = memberRepository.findByRefreshToken(refreshToken);
+            Optional<AuthMemberDto> member = memberRepository.findDTOByRefreshToken(refreshToken);
             if (member.isPresent()) {
                 JwtTokenDto jwt = reCreateAccessTokenAndRefreshToken(member.get());
                 String reCreateRefreshToken = jwt.getRefreshToken();
                 String reCreateAccessToken = jwt.getAccessToken();
-                jwtTokenProvider.sendAccessAndRefreshToken((HttpServletResponse) response, reCreateAccessToken, reCreateRefreshToken);
+                jwtTokenProvider.sendAccessAndRefreshToken(response, reCreateAccessToken, reCreateRefreshToken);
             }
         }
 
@@ -81,13 +81,13 @@ public class JwtAuthFilter extends GenericFilterBean {
          */
         else {
             //헤더에서 토큰 추출 후 유효성 확인
-            String token = jwtTokenProvider.resolveToken((HttpServletRequest) request);
+            String token = jwtTokenProvider.resolveToken(request);
             if (token != null && jwtTokenProvider.validateToken(token)) { //유효성 검증
                 Authentication auth = jwtTokenProvider.getAuthentication(token); //유저 정보 꺼내기
                 SecurityContextHolder.getContext().setAuthentication(auth);
                 //유효하면 Security Context에 저장 -> 요청을 처리하는 동안 인증 정보 유지
             }
-            chain.doFilter(request, response); //다음 필터로 요청을 전달
+            filterChain.doFilter(request, response); //다음 필터로 요청을 전달
         }
     }
 
@@ -95,12 +95,15 @@ public class JwtAuthFilter extends GenericFilterBean {
     * RefreshToken 재발급 및 DB 업데이트
     * AccessToken 재발급
     * */
-    @Transactional
-    private JwtTokenDto reCreateAccessTokenAndRefreshToken(Member user){
-        JwtTokenDto jwtTokenDto = jwtTokenProvider.generateToken((Authentication) user);
-        user.setRefreshToken(jwtTokenDto.getRefreshToken());
-        memberRepository.save(user);
-        return jwtTokenDto;
+    public JwtTokenDto reCreateAccessTokenAndRefreshToken(AuthMemberDto user){
+        Optional<Member> m = memberRepository.findByUserId(user.getUserId());
+        if (m.isPresent()){
+            JwtTokenDto jwtTokenDto = tokenService.signIn(user.getUserId(), user.getUserPw());
+            m.get().setRefreshToken(jwtTokenDto.getRefreshToken());
+            memberRepository.save(m.get());
+            return jwtTokenDto;
+        }
+        return null;
     }
 
 

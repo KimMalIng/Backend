@@ -20,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
@@ -78,7 +79,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     }
 
 
-    private JwtTokenDto processOAuth2User(OAuth2User oAuth2User) throws JSONException {
+
+    @Transactional
+    public JwtTokenDto processOAuth2User(OAuth2User oAuth2User) throws JSONException {
         Map<String, Object> attributes = oAuth2User.getAttributes();
         String id = (String) attributes.get("id");
         String name = (String) attributes.get("name");
@@ -87,17 +90,19 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         JwtTokenDto jwtTokenDto;
         Optional<Member> userOptional = memberRepository.findByUserId(id);
         if (userOptional.isEmpty()){
-
-            jwtTokenDto = tokenService.signIn(id, pw);
             Member member = Member.builder()
                     .userId(id)
                     .userPw(pw)
                     .name(name)
                     .roles("ROLE_USER")
-                    .refreshToken(jwtTokenDto.getRefreshToken())
                     .build();
 
             memberRepository.save(member);
+
+            jwtTokenDto = tokenService.signIn(id, pw);
+            member.setRefreshToken(jwtTokenDto.getRefreshToken());
+            memberRepository.save(member);
+
             log.info("회원가입 완료");
 
         } else {

@@ -35,12 +35,10 @@ public class JwtTokenProvider {
     public static final long ACCESSTOKEN_TIME = 1000*60*30;
     public static final long REFRESHTOKEN_TIME = 1000*60*60*24*7;
     private final Key key;
-    private final MemberRepository memberRepository;
 
     //application.yml에서 secret 값을 가져와서 key 에 저장
     public JwtTokenProvider(@Value("${jwt.secret}") String secretKey,
                             MemberRepository memberRepository){
-        this.memberRepository = memberRepository;
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
@@ -54,7 +52,7 @@ public class JwtTokenProvider {
 
        long now = (new Date()).getTime();
 
-       Date accessTokenExpiresIn = new Date(now+ACCESSTOKEN_TIME);
+       Date accessTokenExpiresIn = new Date(now+5000);
        String accessToken = Jwts.builder()
                .setSubject(authentication.getName())
                .claim("auth",authorities)
@@ -142,13 +140,17 @@ public class JwtTokenProvider {
             return true;
         } catch(SecurityException | MalformedJwtException e){
             log.info("Invalid JWT token", e);
+            e.getMessage();
         } catch(ExpiredJwtException e){
             log.info("Expired JWT Token", e);
+            e.getMessage();
         } catch(UnsupportedJwtException e){
             log.info("Unsupported JWT Token", e);
+            e.getMessage();
         } catch(IllegalArgumentException e){
             //토큰이 올바른 형식이 아니거나 claim이 비어있는 경우
             log.info("JWT claims string is empty", e);
+            e.getMessage();
         }
         return false;
     }
@@ -207,8 +209,8 @@ public class JwtTokenProvider {
     //헤더에서 RefreshToken 추출
     public Optional<String> extractRefreshToken (HttpServletRequest request){
         return Optional.ofNullable(request.getHeader("refreshToken"))
-                .filter(refresh -> refresh.startsWith("Bearer"))
-                .map(refresh -> refresh.replace("Bearer", ""));
+                .filter(refresh -> refresh.startsWith("Bearer "))
+                .map(refresh -> refresh.replace("Bearer ", ""));
     }
 
     //AccessToken에서 userId 추출

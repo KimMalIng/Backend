@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@ToString
 public class Member implements UserDetails {
     @Id
     @GeneratedValue

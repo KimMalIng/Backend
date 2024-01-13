@@ -1,4 +1,4 @@
-package com.capstone.AreyouP.DTO;
+package com.capstone.AreyouP.DTO.Member;
 
 import lombok.Getter;
 import lombok.Setter;
