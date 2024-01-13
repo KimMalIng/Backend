@@ -87,16 +87,18 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         JwtTokenDto jwtTokenDto;
         Optional<Member> userOptional = memberRepository.findByUserId(id);
         if (userOptional.isEmpty()){
+
+            jwtTokenDto = tokenService.signIn(id, pw);
             Member member = Member.builder()
                     .userId(id)
                     .userPw(pw)
                     .name(name)
                     .roles("ROLE_USER")
+                    .refreshToken(jwtTokenDto.getRefreshToken())
                     .build();
 
             memberRepository.save(member);
             log.info("회원가입 완료");
-            jwtTokenDto = tokenService.signIn(id, pw);
 
         } else {
             jwtTokenDto = tokenService.signIn(id, userOptional.get().getPassword());

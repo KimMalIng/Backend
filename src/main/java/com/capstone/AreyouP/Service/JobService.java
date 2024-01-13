@@ -141,7 +141,7 @@ public class JobService {
                 }
             }
         }
-        return "에브리타임 입력 완료";
+        return "School TimeTable Save";
     }
 
     public String saveJob(JobDto jobDto, Long user_id) {
@@ -159,7 +159,7 @@ public class JobService {
                 .calendar(null)
                 .build();
         timeTableRepository.save(timeTable);
-        return "일정 저장 완료";
+        return "Job Save";
     }
 
     public List<JobDto> getJob(Long userId) throws ParseException {

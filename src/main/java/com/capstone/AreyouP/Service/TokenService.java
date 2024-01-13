@@ -44,4 +44,11 @@ public class TokenService {
         return jwtTokenProvider.generateToken(authentication);
     }
 
+    public JwtTokenDto reissue(Authentication authentication){
+        String token = jwtTokenProvider.generateAccessToken(authentication);
+        JwtTokenDto jwtTokenDto = new JwtTokenDto();
+        jwtTokenDto.setAccessToken(token);
+        return jwtTokenDto;
+    }
+
 }

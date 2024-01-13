@@ -2,9 +2,15 @@ package com.capstone.AreyouP.Configuration.Jwt;
 
 import com.capstone.AreyouP.DTO.JwtTokenDto;
 import com.capstone.AreyouP.Domain.Member.Member;
+import com.capstone.AreyouP.Exception.UserNotFoundException;
+import com.capstone.AreyouP.Repository.MemberRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,6 +20,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
 
 import java.security.Key;
 import java.util.*;
@@ -22,10 +31,16 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 public class JwtTokenProvider {
+
+    public static final long ACCESSTOKEN_TIME = 1000*60*30;
+    public static final long REFRESHTOKEN_TIME = 1000*60*60*24*7;
     private final Key key;
+    private final MemberRepository memberRepository;
 
     //application.yml에서 secret 값을 가져와서 key 에 저장
-    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey){
+    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey,
+                            MemberRepository memberRepository){
+        this.memberRepository = memberRepository;
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
@@ -39,7 +54,7 @@ public class JwtTokenProvider {
 
        long now = (new Date()).getTime();
 
-       Date accessTokenExpiresIn = new Date(now+86400000); //유효기간 1일, 보통 30분인데 테스트를 위해
+       Date accessTokenExpiresIn = new Date(now+ACCESSTOKEN_TIME);
        String accessToken = Jwts.builder()
                .setSubject(authentication.getName())
                .claim("auth",authorities)
@@ -48,7 +63,7 @@ public class JwtTokenProvider {
                .compact();
 
        String refreshToken = Jwts.builder()
-               .setExpiration(new Date(now+8640000))
+               .setExpiration(new Date(now+REFRESHTOKEN_TIME))
                .signWith(key, SignatureAlgorithm.HS256)
                .compact();
 
@@ -57,6 +72,24 @@ public class JwtTokenProvider {
                .accessToken(accessToken)
                .refreshToken(refreshToken)
                .build();
+    }
+
+    //refreshToken 요청이 왔을 때 accessToken만 생성
+    public String generateAccessToken(Authentication authentication){
+        String authorities = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+
+        long now = (new Date()).getTime();
+
+        Date accessTokenExpiresIn = new Date(now+ACCESSTOKEN_TIME);
+
+        return Jwts.builder()
+                .setSubject(authentication.getName())
+                .claim("auth",authorities)
+                .setExpiration(accessTokenExpiresIn)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
     }
 
     //JWT 토큰을 복호화하여 토큰에 있는 사용자의 인증 정보를 꺼내는 메서드
@@ -88,6 +121,14 @@ public class JwtTokenProvider {
 
         //UsernameP~~ 객체 생성하여 주체와 권한 정보를 포함한 인증 객체 생성
         return new UsernamePasswordAuthenticationToken(principle, "", authorities);
+    }
+
+    public Long getExpiration(String accessToken){
+        Date expiration = Jwts.parserBuilder().setSigningKey(key)
+                .build().parseClaimsJws(accessToken).getBody().getExpiration();
+
+        long now = new Date().getTime();
+        return expiration.getTime() - now;
     }
 
     //토큰 유효성 검사
@@ -127,20 +168,62 @@ public class JwtTokenProvider {
         }
     }
 
-//    public String loginGenerateToken(Member m){
-//        Map<String, Object> claims = new HashMap<>();
-//        claims.put("loginId", m.getUserId());
-//        claims.put("loginPw", m.getUserPw());
-//        claims.put("id",m.getId());
-//        return Jwts.builder()
-//                .setHeaderParam("typ","JWT")
-//                .setClaims(claims)
-//                .setSubject("id")
-//                .setIssuedAt(new Date(System.currentTimeMillis()))
-//                .setExpiration(new Date(System.currentTimeMillis()+1000L*60*60))
-//                .signWith(SignatureAlgorithm.HS256, key)
-//                .compact();
-//    }
+    /*
+    * AccessToken 헤더에 실어서 보내기
+    */
+    public void sendAccessToken(HttpServletResponse response, String accessToken) {
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.setHeader("accessToken", accessToken);
+        log.info("재발급된 Access Token : {}", accessToken);
+    }
+
+    //Access + Refresh 헤더에 실어서 보내기
+    public void sendAccessAndRefreshToken(HttpServletResponse response, String accessToken, String refreshToken){
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.setHeader("accessToken", accessToken);
+        response.setHeader("refreshToken", refreshToken);
+        log.info("Access Token, Refresh Token 헤더 설정 완료");
+    }
+
+    //JWT 토큰을 추출
+    public String resolveToken(HttpServletRequest request) {
+        log.info("CHECK JWT : {}",request.getHeader("Authorization"));
+
+        String bearerToken = request.getHeader("Authorization");
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer")){
+            return bearerToken.substring(7);
+            //"Authorization"헤더에서 "Bearer" 접두사로 시작하는 토큰을 추출하여 반환
+        }
+        return null;
+    }
+
+    //헤더에서 AccessToken 추출 (위와 비슷?)
+    public Optional<String> extractAccessToken (HttpServletRequest request){
+        return Optional.ofNullable(request.getHeader("accessToken"))
+                .filter(refresh -> refresh.startsWith("Bearer"))
+                .map(refresh -> refresh.replace("Bearer", ""));
+    }
+
+    //헤더에서 RefreshToken 추출
+    public Optional<String> extractRefreshToken (HttpServletRequest request){
+        return Optional.ofNullable(request.getHeader("refreshToken"))
+                .filter(refresh -> refresh.startsWith("Bearer"))
+                .map(refresh -> refresh.replace("Bearer", ""));
+    }
+
+    //AccessToken에서 userId 추출
+    public String extractUserId(String accessToken){
+        try{
+            Boolean validation = validateToken(accessToken); //유효성 검사
+            if (validation){
+                Claims claims = parseClaims(accessToken); //토큰에서 정보 가져오기
+                return claims.getSubject(); //사용자 id를 subject에 넣어놨기에 가져오기!
+            }
+        } catch (Exception e){
+            log.info("엑세스 토큰이 유효하지 않습니다.");
+        }
+        return null;
+    }
 
 
 

@@ -1,19 +1,21 @@
 package com.capstone.AreyouP.Configuration.Jwt;
 
-import com.capstone.AreyouP.Configuration.Cookie.CookieUtils;
+import com.capstone.AreyouP.DTO.JwtTokenDto;
 import com.capstone.AreyouP.Domain.Member.Member;
+import com.capstone.AreyouP.Repository.MemberRepository;
+import io.jsonwebtoken.Jwt;
 import jakarta.servlet.*;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
-import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -22,6 +24,7 @@ import java.util.Optional;
 @Component
 @Slf4j
 public class JwtAuthFilter extends GenericFilterBean {
+
     /*클라이언트 요청 시 JWT 인증을 하기 위해 설치하는 커스텀 필터
     UsernamePasswordAuthenticationFilter 이전에 실행할 것
 
@@ -31,28 +34,75 @@ public class JwtAuthFilter extends GenericFilterBean {
     즉 JWT를 통해 username + password 인증을 수행한다는 것*/
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final MemberRepository memberRepository;
+    private final HttpServletRequest httpServletRequest;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        String token = resolveToken((HttpServletRequest) request);
-        if (token != null && jwtTokenProvider.validateToken(token)){ //유효성 검증
-            Authentication auth = jwtTokenProvider.getAuthentication(token); //유저 정보 꺼내기
-            SecurityContextHolder.getContext().setAuthentication(auth);
-            //유효하면 Security Context에 저장 -> 요청을 처리하는 동안 인증 정보 유지
+        /*
+        /users/login
+        /users/join
+        의 경우에는 현재 필터를 통과한다.
+        아직 로그인이 안됐기 때문에 헤더를 확인할 필요 x
+         */
+
+        if (httpServletRequest.getRequestURL().equals("/users/login") ||
+        httpServletRequest.getRequestURL().equals("/users/join")){
+            chain.doFilter(request,response);
+            return;
         }
-        chain.doFilter(request,response); //다음 필터로 요청을 전달
+
+        /*
+        헤더에서 RefreshToken 추출
+        존재 -> AccessToken이 만료되었다는 뜻
+        존재x or 유효x -> null
+        */
+        String refreshToken = jwtTokenProvider.extractRefreshToken((HttpServletRequest) request)
+                .filter(jwtTokenProvider::validateToken)
+                .orElse(null);
+
+        /*
+        RefreshToken != null 이라면 AccessToken 만료!
+        RefreshToken이 DB와 일치하는지 확인하여 RefreshToken, AccessToken 재발급
+        헤더에 넣어서 다시 보내기
+         */
+        if (refreshToken!=null){
+            Optional<Member> member = memberRepository.findByRefreshToken(refreshToken);
+            if (member.isPresent()) {
+                JwtTokenDto jwt = reCreateAccessTokenAndRefreshToken(member.get());
+                String reCreateRefreshToken = jwt.getRefreshToken();
+                String reCreateAccessToken = jwt.getAccessToken();
+                jwtTokenProvider.sendAccessAndRefreshToken((HttpServletResponse) response, reCreateAccessToken, reCreateRefreshToken);
+            }
+        }
+
+        /*
+        RefreshToken == null 이라면 AccessToken 존재
+         */
+        else {
+            //헤더에서 토큰 추출 후 유효성 확인
+            String token = jwtTokenProvider.resolveToken((HttpServletRequest) request);
+            if (token != null && jwtTokenProvider.validateToken(token)) { //유효성 검증
+                Authentication auth = jwtTokenProvider.getAuthentication(token); //유저 정보 꺼내기
+                SecurityContextHolder.getContext().setAuthentication(auth);
+                //유효하면 Security Context에 저장 -> 요청을 처리하는 동안 인증 정보 유지
+            }
+            chain.doFilter(request, response); //다음 필터로 요청을 전달
+        }
     }
 
-    //JWT 토큰을 추출
-    private String resolveToken(HttpServletRequest request) {
-        log.info("CHECKT JWT : {}",request.getHeader("Authorization"));
-
-        String bearerToken = request.getHeader("Authorization");
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer")){
-            return bearerToken.substring(7);
-            //"Authorization"헤더에서 "Bearer" 접두사로 시작하는 토큰을 추출하여 반환
-        }
-        return null;
+    /*
+    * RefreshToken 재발급 및 DB 업데이트
+    * AccessToken 재발급
+    * */
+    @Transactional
+    private JwtTokenDto reCreateAccessTokenAndRefreshToken(Member user){
+        JwtTokenDto jwtTokenDto = jwtTokenProvider.generateToken((Authentication) user);
+        user.setRefreshToken(jwtTokenDto.getRefreshToken());
+        memberRepository.save(user);
+        return jwtTokenDto;
     }
+
+
 
 }

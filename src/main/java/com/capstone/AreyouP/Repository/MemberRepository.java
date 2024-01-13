@@ -12,4 +12,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     @Query("SELECT m FROM Member m WHERE m.userId=:userId AND m.userPw=:userPw")
     Member findByUserIdAndUserPw(@Param("userId") String userId, @Param("userPw") String userPw);
+
+    @Query("SELECT m FROM Member m WHERE m.refreshToken =: refreshToken")
+    Optional<Member> findByRefreshToken(@Param("refreshToken") String refreshToken);
 }

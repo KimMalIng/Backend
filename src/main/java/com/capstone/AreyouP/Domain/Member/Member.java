@@ -43,10 +43,14 @@ public class Member implements UserDetails {
     @OneToMany(mappedBy = "member", fetch = FetchType.EAGER)
     private List<TimeTable> timeTables = new ArrayList<>();
 
+    private String refreshToken;
+
     @Builder
     public Member(String userId, String userPw,
                   String name, String nickname,
-                  String University, String major, ProfileImage profileImg, String roles) {
+                  String University, String major,
+                  ProfileImage profileImg, String roles,
+                  String refreshToken) {
         this.userId = userId;
         this.userPw = userPw;
         this.name = name;
@@ -55,6 +59,7 @@ public class Member implements UserDetails {
         this.major = major;
         this.profileImg = profileImg;
         this.roles = Collections.singletonList(roles);
+        this.refreshToken = refreshToken;
     }
 
 

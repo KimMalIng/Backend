@@ -22,7 +22,7 @@ public class MemberController {
                 .body(memberService.create(memberDto));
     }
 
-    @GetMapping("/login")
+    @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody MemberDto memberDto) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(memberService.login(memberDto));
