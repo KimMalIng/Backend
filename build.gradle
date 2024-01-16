@@ -43,10 +43,10 @@ dependencies {
 tasks.named('bootBuildImage') {
 	builder = 'paketobuildpacks/builder-jammy-base:latest'
 }
-
-tasks.named('test') {
-	useJUnitPlatform()
-}
+//
+//tasks.named('test') {
+//	useJUnitPlatform()
+//}
 
 //def frontendDir = "$projectDir/src/main/frontend"
 //

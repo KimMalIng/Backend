@@ -5,16 +5,16 @@ spring:
     static-path-pattern: /static/genetic_python/
   sql:
     init.mode: always
-#  profiles:
-#    include: oauth
+  profiles:
+    include: oauth
 #  jackson:
 #    serialization:
 #      fail-on-empty-beans: false
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
-    password: root
-    url: jdbc:mysql://localhost:3306/areyoup?useSSL=false&serverTimezone=Asia/Seoul
+    password: areyoup123
+    url: jdbc:mysql://areyoup-db.cwybtm3i0su1.ap-northeast-2.rds.amazonaws.com:3306/areyoup?useSSL=false&serverTimezone=Asia/Seoul
   jpa:
     defer-datasource-initialization: true
     hibernate:
@@ -28,3 +28,6 @@ spring:
 
 jwt:
   secret: 4c5b2ff481b312ea29761161e97852289f2307cb7ee30e26417a1dfeeef4be18
+
+server:
+  port: 8000
