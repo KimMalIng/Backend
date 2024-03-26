@@ -1,5 +1,7 @@
 package com.example.areyoup.job.domain;
 
+import com.example.areyoup.global.BaseEntity;
+import com.example.areyoup.member.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -7,19 +9,23 @@ import lombok.*;
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn
-public abstract class Job {
+@NoArgsConstructor
+@Getter
+public abstract class Job extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name; //일정 이름
-    private Integer label; //종류
-    private String startTime; //시작 시간
-    private String endTime; //끝나는 시간
-    private String day; //날짜
-    private String estimated_time; //예상 소요 시간
-    private boolean isPrivate = false; //일정 private?
-    private boolean isFixed = false; //일정 고정?
-    private boolean isComplete = false; //일정 완료?
+    @NonNull
+    protected String name; //일정 이름
+    @NonNull
+    protected Integer label; //종류
+    protected String startTime; //시작 시간
+    protected String endTime; //끝나는 시간
+    protected String estimated_time; //예상 소요 시간
+//    protected boolean isPrivate = false; //일정 private 여부
+    protected boolean isComplete = false; //일정 완료 여부
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    protected Member member;
 }
