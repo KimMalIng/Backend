@@ -5,7 +5,8 @@ import com.example.areyoup.errors.exception.MemberException;
 import com.example.areyoup.job.domain.BasicJob;
 import com.example.areyoup.job.domain.CustomizeJob;
 import com.example.areyoup.job.dto.JobRequestDto;
-import com.example.areyoup.job.dto.JobResponseDto.CustomizeJobResponseDto;
+import com.example.areyoup.job.dto.JobResponseDto;
+import com.example.areyoup.job.dto.JobResponseDto.FixedJobResponseDto;
 import com.example.areyoup.job.dto.everytime.EverytimeRequestDto.EverytimeDto;
 import com.example.areyoup.job.dto.everytime.EverytimeRequestDto.SubjectDto;
 import com.example.areyoup.job.dto.everytime.EverytimeRequestDto.TimeLineDto;
@@ -48,7 +49,6 @@ public class JobService {
      */
     private void saveTimeLine(List<EverytimeDto> everytimeDtos, Member member) throws ParseException {
         EverytimeDto everyTimeDto = everytimeDtos.get(everytimeDtos.size()-1); //마지막 시간표 가져오기
-        //Todo 전체 시간표 가져오기? 마지막꺼만 가져오기? 확인
         List<TimeLineDto> timeLineDtos = everyTimeDto.getTimeline();
 
         //everytime 시간표 json에서 일정들을 빼고, 일정 하나하나 DB에 저장하는 과정
@@ -60,7 +60,6 @@ public class JobService {
 
                 //String -> LocalDate로 변환하여 소요 시간 계산
                 String estimated_Time = cal_Time(everyTime.getStartTime(), everyTime.getEndTime());
-                //Todo 소요 시간 계산이 잘 되는지 확인
 
                 BasicJob job = BasicJob.builder()
                         .name(everyTime.getName())
@@ -104,12 +103,23 @@ public class JobService {
     - startDate(day) == endDate(deadline)
     - shouldClear 이 뒤에 일정을 놓지 않을 것인가?
      */
-    public CustomizeJobResponseDto saveFixedJob(JobRequestDto.FixedJobRequestDto fixedJob) {
+    public JobResponseDto.FixedJobResponseDto saveFixedJob(JobRequestDto.FixedJobRequestDto fixedJob) {
         CustomizeJob job = JobRequestDto.FixedJobRequestDto.toEntity(fixedJob);
         jobRepository.save(job);
-        return CustomizeJobResponseDto.toDto(job);
+        return JobResponseDto.FixedJobResponseDto.toDto(job);
     }
 
+    /*
+    추후 조정할 일정 저장
+    - isFixed = false
+    - startTime, endTime = null
+    -
+     */
+    public JobResponseDto.AdjustJobResponseDto savedAdjustJob(JobRequestDto.AdjustJobRequestDto adjustJob){
+        CustomizeJob job = JobRequestDto.AdjustJobRequestDto.toEntity(adjustJob);
+        jobRepository.save(job);
+        return JobResponseDto.AdjustJobResponseDto.toDto(job);
+    }
 //    public List<AdjustmentDto> getJob(Long memberId) {
 //        List<Job> jobs = jobRepository.findJobsByMemberId(memberId);
 //        if (jobs.isEmpty()) throw new JobException(JobErrorCode.JOB_NOT_FOUND);

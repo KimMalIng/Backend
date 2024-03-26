@@ -34,10 +34,17 @@ public class JobController {
     고정 일정 저장
      */
     @PostMapping("/fix/save")
-    public ResponseEntity<JobResponseDto.CustomizeJobResponseDto> saveFixedJob(@RequestBody FixedJobRequestDto fixedJob){
+    public ResponseEntity<JobResponseDto.FixedJobResponseDto> saveFixedJob(@RequestBody FixedJobRequestDto fixedJob){
         return ResponseEntity.ok()
                 .body(jobService.saveFixedJob(fixedJob));
     }
+
+    @PostMapping("/adjust/save")
+    public ResponseEntity<JobResponseDto.AdjustJobResponseDto> saveAdjustJob(@RequestBody AdjustJobRequestDto adjustJob){
+        return ResponseEntity.ok()
+                .body(jobService.savedAdjustJob(adjustJob));
+    }
+
 
     /*
     유저에 대한 일정 모두 반환

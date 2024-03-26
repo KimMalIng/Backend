@@ -1,6 +1,7 @@
 package com.example.areyoup.job.domain;
 
-import com.example.areyoup.job.dto.JobResponseDto.CustomizeJobResponseDto;
+import com.example.areyoup.job.dto.JobResponseDto;
+import com.example.areyoup.job.dto.JobResponseDto.FixedJobResponseDto;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import lombok.Builder;
@@ -16,18 +17,24 @@ import java.time.LocalDate;
 @Getter
 public class CustomizeJob extends Job{
 
-    private LocalDate day; //일정 수행 날짜
-    private String deadline; //마감일
-    private Integer completion = 0; //완료도
-    private boolean isFixed = false; //일정 고정 여부
+    //고정된 일정과 앞으로 조정할 일정 저장
+
+
+    //고정된 일정
+    private boolean isFixed; //일정 고정 여부
     private boolean shouldClear = false; //뒤에 일정을 놓을지의 여부
+
+    //앞으로 조정할 일정의 시작 - 마감
+    private LocalDate startDate; //시작일
+    private String deadline; //마감일
+
 
 
     @Builder
     public CustomizeJob(@NonNull String name, @NonNull Integer label,
                         String startTime, String endTime, String estimated_time,
                         boolean shouldClear, boolean isFixed, boolean isComplete,
-                        LocalDate day, String deadline, Integer completion) {
+                        LocalDate day, String deadline) {
         this.name = name;
         this.label = label;
         this.startTime = startTime;
@@ -36,13 +43,12 @@ public class CustomizeJob extends Job{
 //        this.isPrivate = isPrivate;
         this.isFixed = isFixed;
         this.isComplete = isComplete;
-        this.day = day;
+        this.startDate = day;
         this.deadline = deadline;
-        this.completion = completion;
         this.shouldClear = shouldClear;
     }
 
-    public static CustomizeJobResponseDto toCustomizeJobDto(CustomizeJob customizeJob) {
-        return CustomizeJobResponseDto.toDto(customizeJob);
+    public static JobResponseDto.FixedJobResponseDto toCustomizeJobDto(CustomizeJob customizeJob) {
+        return JobResponseDto.FixedJobResponseDto.toDto(customizeJob);
     }
 }

@@ -3,6 +3,7 @@ package com.example.areyoup.job.dto;
 import com.example.areyoup.job.domain.CustomizeJob;
 import com.example.areyoup.job.service.JobService;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -38,6 +39,7 @@ public class JobRequestDto {
         protected String endDate;
     }
 
+    @EqualsAndHashCode(callSuper = true)
     @Data
     public static class FixedJobRequestDto extends  BaseDto{
         private String startTime;
@@ -56,7 +58,7 @@ public class JobRequestDto {
                     .estimated_time(JobService.cal_Time(fixedJob.getStartTime(), fixedJob.getEndTime()))
                     .isComplete(false)
                     .isFixed(true)
-                    .completion(0)
+//                    .completion(0)
                     .startTime(fixedJob.getStartTime())
                     .endTime(fixedJob.getEndTime())
                     .shouldClear(fixedJob.isShouldClear())
@@ -64,10 +66,27 @@ public class JobRequestDto {
         }
     }
 
+    @EqualsAndHashCode(callSuper = true)
     @Data
     public static class AdjustJobRequestDto extends BaseDto{
         private String estimated_time;
-        private String deadline;
+
+        public static CustomizeJob toEntity(AdjustJobRequestDto adjustJob) {
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy.MM.dd");
+            LocalDate start = LocalDate.parse(adjustJob.getStartDate(), dtf);
+
+
+            return CustomizeJob.builder()
+                    .name(adjustJob.getName())
+                    .label(adjustJob.getLabel())
+                    .day(start)
+                    .deadline(adjustJob.getEndDate())
+                    .estimated_time(adjustJob.getEstimated_time())
+                    .isComplete(false)
+                    .isFixed(false)
+//                    .completion(0)
+                    .build();
+        }
     }
 
 

@@ -82,30 +82,28 @@ public class JobResponseDto {
     }
 
     @Getter
-    public static class CustomizeJobResponseDto extends JobResponseDto{
-        private final String day;
+    public static class FixedJobResponseDto extends JobResponseDto{
+        private final String startDate;
         private final String deadline;
-        private final Integer completion;
         private final boolean isFixed;
         private final boolean shouldClear;
 
 
         @Builder
-        public CustomizeJobResponseDto(String name, Integer label,
+        public FixedJobResponseDto(String name, Integer label,
                                        String startTime, String endTime,
-                                       String estimated_time, String day, String deadline, Integer completion,
+                                       String estimated_time, String startDate, String deadline, Integer completion,
                                        boolean isComplete, boolean isFixed, boolean shouldClear) {
             super(name, label, startTime, endTime, estimated_time, isComplete);
-            this.day = day;
+            this.startDate = startDate;
             this.deadline = deadline;
-            this.completion = completion;
             this.isFixed = isFixed;
             this.shouldClear = shouldClear;
         }
 
         // CustomizeJob Entity -> Dto
-        public static CustomizeJobResponseDto toDto(CustomizeJob j){
-            return CustomizeJobResponseDto.builder()
+        public static FixedJobResponseDto toDto(CustomizeJob j){
+            return FixedJobResponseDto.builder()
                     .name(j.getName())
                     .label(j.getLabel())
                     .startTime(j.getStartTime())
@@ -114,9 +112,52 @@ public class JobResponseDto {
 //                    .isPrivate(j.isPrivate())
                     .isComplete(j.isComplete())
                     .isFixed(j.isFixed())
-                    .day(String.valueOf(j.getDay()))
+                    .startDate(String.valueOf(j.getStartDate()))
                     .deadline(j.getDeadline())
-                    .completion(j.getCompletion())
+//                    .completion(j.getCompletion())
+                    .build();
+        }
+
+    }
+
+    @Getter
+    public static class AdjustJobResponseDto{
+        private String name;
+        private Integer label;
+        private String estimated_time;
+        private boolean isComplete;
+        private final String startDate;
+        private final String deadline;
+        private final boolean isFixed;
+        private final boolean shouldClear;
+
+
+        @Builder
+        public AdjustJobResponseDto(String name, Integer label,
+                                   String estimated_time, String startDate, String deadline, Integer completion,
+                                   boolean isComplete, boolean isFixed, boolean shouldClear) {
+            this.name = name;
+            this.label = label;
+            this.estimated_time = estimated_time;
+            this.isComplete = isComplete;
+            this.startDate = startDate;
+            this.deadline = deadline;
+            this.isFixed = isFixed;
+            this.shouldClear = shouldClear;
+        }
+
+        // CustomizeJob Entity -> Dto
+        public static AdjustJobResponseDto toDto(CustomizeJob j){
+            return AdjustJobResponseDto.builder()
+                    .name(j.getName())
+                    .label(j.getLabel())
+                    .estimated_time(j.getEstimated_time())
+//                    .isPrivate(j.isPrivate())
+                    .isComplete(j.isComplete())
+                    .isFixed(j.isFixed())
+                    .startDate(String.valueOf(j.getStartDate()))
+                    .deadline(j.getDeadline())
+//                    .completion(j.getCompletion())
                     .build();
         }
 

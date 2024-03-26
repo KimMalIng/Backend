@@ -31,21 +31,24 @@ public class TimeTableService {
         //날짜들의 요일에 해당되는 에타 시간표(Basic Jobs)를 가져온다.
         List<JobResponseDto.BasicJobResponseDto> basicJobs = getBasicJobs(start, end);
 
-        //새로 배치된 Seperated Job을 가져오는 과정
-        List<JobResponseDto.CustomizeJobResponseDto> CustomizeJobs = getCustomizeJobs(start, end);
+        //새로 배치된 Fixed Job을 가져오는 과정
+        List<JobResponseDto.FixedJobResponseDto> fixedJobs = getCustomizeJobs(start, end);
 
+
+        //todo 조정된 일정들 Seperated Job를 가져오는 과정
         HashMap<String, List> jobs = new HashMap<>();
         jobs.put("BasicJob", basicJobs);
-        jobs.put("CustomizeJob", CustomizeJobs);
+        jobs.put("FixedJob", fixedJobs);
+//        jobs.put("SeperatedJob", seperatedJobs);
 
         return jobs;
     }
 
-    private List<JobResponseDto.CustomizeJobResponseDto> getCustomizeJobs(LocalDate start, LocalDate end) {
-        List<CustomizeJob> customizeJobs =  CustomizeJobRepository.findByDayBetween(start, end);
-        List<JobResponseDto.CustomizeJobResponseDto> sjrd = new ArrayList<>();
+    private List<JobResponseDto.FixedJobResponseDto> getCustomizeJobs(LocalDate start, LocalDate end) {
+        List<CustomizeJob> customizeJobs =  CustomizeJobRepository.findByStartDateBetweenAndIsFixedIsTrue(start, end);
+        List<JobResponseDto.FixedJobResponseDto> sjrd = new ArrayList<>();
         for (CustomizeJob customizeJob : customizeJobs){
-            JobResponseDto.CustomizeJobResponseDto jobResponseDto = CustomizeJob.toCustomizeJobDto(customizeJob);
+            JobResponseDto.FixedJobResponseDto jobResponseDto = CustomizeJob.toCustomizeJobDto(customizeJob);
             sjrd.add(jobResponseDto);
         }
         return sjrd;
