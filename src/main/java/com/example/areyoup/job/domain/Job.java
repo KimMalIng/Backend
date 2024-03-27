@@ -11,7 +11,7 @@ import lombok.*;
 @DiscriminatorColumn
 @NoArgsConstructor
 @Getter
-public abstract class Job extends BaseEntity {
+public class Job extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,9 +23,13 @@ public abstract class Job extends BaseEntity {
     protected String startTime; //시작 시간
     protected String endTime; //끝나는 시간
     protected String estimated_time; //예상 소요 시간
-//    protected boolean isPrivate = false; //일정 private 여부
+    protected boolean isFixed; //일정 고정 여부
     protected boolean isComplete = false; //일정 완료 여부
 
     @ManyToOne(fetch = FetchType.LAZY)
     protected Member member;
+
+    public void toFixUpdate(boolean isFixed) {
+        this.isFixed = !isFixed;
+    }
 }

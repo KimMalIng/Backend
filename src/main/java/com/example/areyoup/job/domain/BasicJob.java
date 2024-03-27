@@ -1,5 +1,6 @@
 package com.example.areyoup.job.domain;
 
+import com.example.areyoup.job.dto.JobResponseDto;
 import com.example.areyoup.job.dto.JobResponseDto.BasicJobResponseDto;
 import com.example.areyoup.member.Member;
 import jakarta.persistence.DiscriminatorValue;
@@ -21,16 +22,15 @@ public class BasicJob extends Job{
     @Builder
     public BasicJob(@NonNull String name, @NonNull Integer label,
                     String startTime, String endTime, String estimated_time,
-                    boolean isComplete,
+                    boolean isComplete, boolean isFixed,
                     Member member, Integer dayOfTheWeek) {
         this.name = name;
         this.label = label;
         this.startTime = startTime;
         this.endTime = endTime;
         this.estimated_time = estimated_time;
-//        this.isPrivate = isPrivate;
-//        this.isFixed = isFixed;
         this.isComplete = isComplete;
+        this.isFixed = isFixed;
         this.member = member;
         this.dayOfTheWeek = dayOfTheWeek;
     }

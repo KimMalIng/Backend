@@ -10,6 +10,5 @@ public interface CustomizeJobRepository extends JpaRepository<CustomizeJob, Long
     //start - end 사이의 일정 모두 반환
     List<CustomizeJob> findByStartDateBetweenAndIsFixedIsTrue(LocalDate start, LocalDate end);
 
-    List<CustomizeJob> findByIsFixedIsTrue();
-
+    List<CustomizeJob> findByStartTimeIsNull();
 }

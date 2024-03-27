@@ -1,9 +1,12 @@
 package com.example.areyoup.job.service;
 
+import com.example.areyoup.errors.errorcode.JobErrorCode;
 import com.example.areyoup.errors.errorcode.MemberErrorCode;
+import com.example.areyoup.errors.exception.JobException;
 import com.example.areyoup.errors.exception.MemberException;
 import com.example.areyoup.job.domain.BasicJob;
 import com.example.areyoup.job.domain.CustomizeJob;
+import com.example.areyoup.job.domain.Job;
 import com.example.areyoup.job.dto.JobRequestDto;
 import com.example.areyoup.job.dto.JobResponseDto;
 import com.example.areyoup.job.dto.JobResponseDto.FixedJobResponseDto;
@@ -16,6 +19,7 @@ import com.example.areyoup.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.ParseException;
 import java.time.Duration;
@@ -67,6 +71,7 @@ public class JobService {
                         .startTime(everyTime.getStartTime())
                         .endTime(everyTime.getEndTime())
                         .estimated_time(estimated_Time)
+                        .isFixed(true)
                         .member(member)
                         .dayOfTheWeek(dayOfTheWeek)
                         .build();
@@ -120,6 +125,21 @@ public class JobService {
         jobRepository.save(job);
         return JobResponseDto.AdjustJobResponseDto.toDto(job);
     }
+
+    /*
+    일정 고정
+     */
+    public JobResponseDto fixJob(Long id) {
+        Job j = jobRepository.findById(id)
+                .orElseThrow(() -> new JobException(JobErrorCode.JOB_NOT_FOUND));
+        j.toFixUpdate(j.isFixed());
+        jobRepository.save(j);
+        return JobResponseDto.toDto(j);
+    }
+
+
+
+
 //    public List<AdjustmentDto> getJob(Long memberId) {
 //        List<Job> jobs = jobRepository.findJobsByMemberId(memberId);
 //        if (jobs.isEmpty()) throw new JobException(JobErrorCode.JOB_NOT_FOUND);

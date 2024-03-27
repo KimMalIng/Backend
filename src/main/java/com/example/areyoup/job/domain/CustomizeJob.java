@@ -21,7 +21,6 @@ public class CustomizeJob extends Job{
 
 
     //고정된 일정
-    private boolean isFixed; //일정 고정 여부
     private boolean shouldClear = false; //뒤에 일정을 놓을지의 여부
 
     //앞으로 조정할 일정의 시작 - 마감
@@ -51,4 +50,8 @@ public class CustomizeJob extends Job{
     public static JobResponseDto.FixedJobResponseDto toCustomizeJobDto(CustomizeJob customizeJob) {
         return JobResponseDto.FixedJobResponseDto.toDto(customizeJob);
     }
+
+//    public static JobResponseDto toJobDto(CustomizeJob customizeJob) {
+//        return JobResponseDto.toDto(customizeJob);
+//    }
 }

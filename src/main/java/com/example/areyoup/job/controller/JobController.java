@@ -45,6 +45,15 @@ public class JobController {
                 .body(jobService.savedAdjustJob(adjustJob));
     }
 
+    /*
+    일정 고정
+     */
+    @PutMapping("/update/fix/{job_id}")
+    public ResponseEntity<JobResponseDto> fixJob(@PathVariable("job_id") Long id){
+        return ResponseEntity.ok()
+                .body(jobService.fixJob(id));
+    }
+
 
     /*
     유저에 대한 일정 모두 반환

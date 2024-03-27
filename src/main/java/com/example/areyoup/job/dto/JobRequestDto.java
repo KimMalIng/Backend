@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Data
@@ -26,7 +27,7 @@ public class JobRequestDto {
 
     @Data
     public static class PeriodRequestDto{
-        private Long user_id;
+        private Long memberId;
         private String startDate;
         private String endDate;
     }
@@ -75,12 +76,15 @@ public class JobRequestDto {
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy.MM.dd");
             LocalDate start = LocalDate.parse(adjustJob.getStartDate(), dtf);
 
+            LocalDate dl = LocalDate.parse(adjustJob.getEndDate(), dtf).plusDays(1);
+            LocalDateTime deadlineTime = dl.atStartOfDay();
+            String deadline = deadlineTime.format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm"));
 
             return CustomizeJob.builder()
                     .name(adjustJob.getName())
                     .label(adjustJob.getLabel())
                     .day(start)
-                    .deadline(adjustJob.getEndDate())
+                    .deadline(deadline)
                     .estimated_time(adjustJob.getEstimated_time())
                     .isComplete(false)
                     .isFixed(false)
