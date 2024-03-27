@@ -1,4 +1,4 @@
-package com.example.areyoup.job.dto.everytime;
+package com.example.areyoup.everytime.dto;
 
 import lombok.Data;
 

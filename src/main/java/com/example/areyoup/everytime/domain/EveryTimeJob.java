@@ -1,7 +1,7 @@
-package com.example.areyoup.job.domain;
+package com.example.areyoup.everytime.domain;
 
-import com.example.areyoup.job.dto.JobResponseDto;
-import com.example.areyoup.job.dto.JobResponseDto.BasicJobResponseDto;
+import com.example.areyoup.job.domain.Job;
+import com.example.areyoup.everytime.dto.EveryTimeResponseDto;
 import com.example.areyoup.member.Member;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -11,19 +11,19 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 @Entity
-@DiscriminatorValue("B")
+@DiscriminatorValue("E")
 @Getter
 @NoArgsConstructor
 //기본 시간표 (에브리타임 시간표)
-public class BasicJob extends Job{
+public class EveryTimeJob extends Job {
 
     private Integer dayOfTheWeek; //요일
 
     @Builder
-    public BasicJob(@NonNull String name, @NonNull Integer label,
-                    String startTime, String endTime, String estimated_time,
-                    boolean isComplete, boolean isFixed,
-                    Member member, Integer dayOfTheWeek) {
+    public EveryTimeJob(@NonNull String name, @NonNull Integer label,
+                        String startTime, String endTime, String estimated_time,
+                        boolean isComplete, boolean isFixed,
+                        Member member, Integer dayOfTheWeek) {
         this.name = name;
         this.label = label;
         this.startTime = startTime;
@@ -35,7 +35,7 @@ public class BasicJob extends Job{
         this.dayOfTheWeek = dayOfTheWeek;
     }
 
-    public static BasicJobResponseDto toBasicJobDto(BasicJob j){
-        return BasicJobResponseDto.toDto(j);
+    public static EveryTimeResponseDto toEveryTimeJobDto(EveryTimeJob j){
+        return EveryTimeResponseDto.toDto(j);
     }
 }
