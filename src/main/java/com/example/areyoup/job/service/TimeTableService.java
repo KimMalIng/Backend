@@ -56,6 +56,8 @@ public class TimeTableService {
         jobs.put("FixedJob", fixedJobs);
         jobs.put("SeperatedJob", seperatedJobs);
 
+        log.info("All schedule from {} to {} has been returned", start, end);
+
         return jobs;
     }
 
@@ -144,7 +146,6 @@ public class TimeTableService {
         List<ScheduleDto> adjustJobs = getAdjustJobs(start, end, datesBetween);
         timeLine.setSchedule(adjustJobs); //스케줄 세팅
 
-        System.out.println(timeLine);
         saveFile(timeLine); //data.json에 저장
 
         return genetic();
@@ -159,14 +160,10 @@ public class TimeTableService {
             ProcessBuilder processBuilder = new ProcessBuilder("python", PATH+ "genetic_algorithm.py");
 
             Process process = processBuilder.start();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream(), "utf-8"));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                System.out.println(line);
-            }
             int exitCode = process.waitFor();
-            System.out.println("Exited with error code " + exitCode);
+            log.info("Exited with error code " + exitCode);
             //python 파일 실행
+            log.info("Success python build");
             Thread.sleep(500);
             FileReader fr = new FileReader(PATH + "data.json");
             JSONParser parser = new JSONParser(fr);
@@ -187,7 +184,10 @@ public class TimeTableService {
                 }
             }
 
+            log.info("Success save seperatedJobs");
+
             return adjustmentDto;
+
         } catch (IOException e) {
             log.error("IOException " + e.getMessage());
         } catch (ParseException | InterruptedException e) {
@@ -196,22 +196,29 @@ public class TimeTableService {
         return null; //todo null 처리
     }
 
-    private void saveFile(JobResponseDto.AdjustmentDto timeLine) throws IOException {
-        HashMap<String, Object> hashMap = new HashMap<>();
-        hashMap.put("week_day", timeLine.getWeek_day());
-        hashMap.put("schedule_startTime", timeLine.getSchedule_startTime());
-        hashMap.put("schedule", timeLine.getSchedule());
+    private void saveFile(JobResponseDto.AdjustmentDto timeLine){
+        try {
+            HashMap<String, Object> hashMap = new HashMap<>();
+            hashMap.put("week_day", timeLine.getWeek_day());
+            hashMap.put("schedule_startTime", timeLine.getSchedule_startTime());
+            hashMap.put("schedule", timeLine.getSchedule());
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setSerializationInclusion(JsonInclude.Include.ALWAYS);
-        String jsonString = mapper.writeValueAsString(hashMap);
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.setSerializationInclusion(JsonInclude.Include.ALWAYS);
+            String jsonString = mapper.writeValueAsString(hashMap);
 
 //        JSONObject jsonObject = new JSONObject(hashMap);
 
-        FileWriter file = new FileWriter(PATH+"data.json");
-        file.write(jsonString);
-        file.flush();
-        file.close();
+            FileWriter file = new FileWriter(PATH + "data.json");
+            file.write(jsonString);
+            file.flush();
+            file.close();
+
+            log.info("Save File in {} \\ data.json", PATH);
+        }
+        catch (IOException e){
+            log.error("IOException", e.getMessage());
+        }
     }
 
     /*
