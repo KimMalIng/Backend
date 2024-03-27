@@ -2,7 +2,9 @@ package com.example.areyoup.member;
 
 import com.example.areyoup.global.BaseEntity;
 import jakarta.persistence.*;
+import org.springframework.cglib.core.Local;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +22,14 @@ public class Member extends BaseEntity {
     private String everyTimeId;
     private String everyTimePw;
 
+    private LocalTime startSleep;
+    private LocalTime endSleep;
+
+    private LocalTime startLunch;
+    private LocalTime endLunch;
+
+    private LocalTime startDinner;
+    private LocalTime endDinner;
     private String refreshToken;
 
     @ElementCollection(fetch=FetchType.EAGER)
