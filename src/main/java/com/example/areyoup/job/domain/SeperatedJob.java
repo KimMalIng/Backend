@@ -19,7 +19,7 @@ public class SeperatedJob extends Job{
 
     //CustomizeJob에서 조정된 일정
     private LocalDate day; //일정이 배치된 날짜
-    private Integer completion = 0; //완료도
+    private Integer completion; //완료도
 
     @Builder
     public SeperatedJob(@NonNull String name, @NonNull Integer label,
@@ -39,6 +39,10 @@ public class SeperatedJob extends Job{
         this.isFixed = isFixed;
     }
 
+    public void toUpdateCompletion(Integer completion, boolean isComplete){
+        this.completion = completion;
+        this.isComplete = isComplete;
+    }
 
     public static JobResponseDto.SeperatedJobResponseDto toSeperatedJobDto(SeperatedJob seperatedJob) {
         return JobResponseDto.SeperatedJobResponseDto.toDto(seperatedJob);

@@ -7,6 +7,7 @@ import com.example.areyoup.job.service.JobService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController //ResponseBody + Controller 로 Data(Json) 반환하는 어노테이션
@@ -35,6 +36,7 @@ public class JobController {
     일정 고정
      */
     @PutMapping("/update/fix/{job_id}")
+    @Transactional
     public ResponseEntity<JobResponseDto> fixJob(@PathVariable("job_id") Long id){
         return ResponseEntity.ok()
                 .body(jobService.fixJob(id));
@@ -42,14 +44,20 @@ public class JobController {
 
     /*
     완료도 입력받으면 그만큼 소요시간 줄여주기
-    completion = 0 ~ 100
     url : /job/complete/12?completion=50
+    completion = 0 ~ 100
+
+
+    일정 완료, 미완료
+    url : /job/complete/12
+    completion = 100
      */
     @GetMapping("/complete/{job_id}")
+    @Transactional
     public ResponseEntity<JobResponseDto.AdjustJobResponseDto> getCompletion(@PathVariable("job_id") Long job_id,
-                                                             @RequestParam(required = true) Integer completion){
-        return null;
-
+                                                             @RequestParam(value = "completion") Integer completion){
+        return ResponseEntity.ok()
+                .body(jobService.getCompletion(job_id, completion));
     }
 
 

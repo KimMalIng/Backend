@@ -2,11 +2,15 @@ package com.example.areyoup.job.service;
 
 import com.example.areyoup.errors.errorcode.JobErrorCode;
 import com.example.areyoup.errors.exception.JobException;
+import com.example.areyoup.global.function.CalTime;
 import com.example.areyoup.job.domain.CustomizeJob;
 import com.example.areyoup.job.domain.Job;
+import com.example.areyoup.job.domain.SeperatedJob;
 import com.example.areyoup.job.dto.JobRequestDto;
 import com.example.areyoup.job.dto.JobResponseDto;
+import com.example.areyoup.job.repository.CustomizeJobRepository;
 import com.example.areyoup.job.repository.JobRepository;
+import com.example.areyoup.job.repository.SeperatedJobRepository;
 import com.example.areyoup.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,28 +27,8 @@ import java.time.format.DateTimeFormatter;
 public class JobService {
 
     private final JobRepository jobRepository;
-    private final MemberRepository memberRepository;
-
-
-    /*
-    일정 소요시간 계산하여 "HH:MM" 형식으로 설정
-     */
-    public static String cal_Time(String s, String e) {
-
-        //HH:mm 형식으로 모두 초기화
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm");
-        LocalTime startTime = LocalTime.parse(s, dtf);
-        LocalTime endTime = LocalTime.parse(e, dtf);
-
-        //시작 시간과, 끝나는 시간으로 소요 시간을 계산
-        Duration duration = Duration.between(startTime, endTime);
-        long estimatedTimeInMinutes = duration.toMinutes();
-
-        int hours = (int) (estimatedTimeInMinutes / 60);
-        int minutes = (int) (estimatedTimeInMinutes % 60);
-        //시간:분 형식으로 초기화
-        return String.format("%02d:%02d", hours, minutes);
-    }
+    private final SeperatedJobRepository seperatedJobRepository;
+    private final CustomizeJobRepository customizeJobRepository;
 
     /*
     고정 일정 저장
@@ -55,6 +39,7 @@ public class JobService {
     public JobResponseDto.FixedJobResponseDto saveFixedJob(JobRequestDto.FixedJobRequestDto fixedJob) {
         CustomizeJob job = JobRequestDto.FixedJobRequestDto.toEntity(fixedJob);
         jobRepository.save(job);
+        log.info("고정 일정(Fixed Job) 저장");
         return JobResponseDto.FixedJobResponseDto.toDto(job);
     }
 
@@ -67,6 +52,7 @@ public class JobService {
     public JobResponseDto.AdjustJobResponseDto savedAdjustJob(JobRequestDto.AdjustJobRequestDto adjustJob){
         CustomizeJob job = JobRequestDto.AdjustJobRequestDto.toEntity(adjustJob);
         jobRepository.save(job);
+        log.info("조정 해야 할 일정(Adjust Job) 저장");
         return JobResponseDto.AdjustJobResponseDto.toDto(job);
     }
 
@@ -76,13 +62,41 @@ public class JobService {
     public JobResponseDto fixJob(Long id) {
         Job j = jobRepository.findById(id)
                 .orElseThrow(() -> new JobException(JobErrorCode.JOB_NOT_FOUND));
+        if (j.isFixed()) log.info("일정 {} unfixed", id);
+        else log.info("일정 {} fixed", id);
         j.toFixUpdate(j.isFixed());
-        jobRepository.save(j);
         return JobResponseDto.toDto(j);
     }
 
+    /*
+    SeperatedJob에서 완료도 받고 CustomJob의 소요 시간 줄이기
+     */
 
+    public JobResponseDto.AdjustJobResponseDto getCompletion(Long jobId, Integer completion) {
+        if (completion != null) { //조정 일정부분
+            SeperatedJob seperatedJob = seperatedJobRepository.findById(jobId)
+                    .orElseThrow(() -> new JobException(JobErrorCode.JOB_NOT_FOUND));
 
+//            boolean isComplete = completion == 100; //완료도 100인 경우 완료한 것
+            //todo 완료랑 성공은 다른거 아닌가?
+            seperatedJob.toUpdateCompletion(completion, true); //완료도와 완료 여부 업데이트
+
+            CustomizeJob customizeJob = customizeJobRepository.findByName(seperatedJob.getName()); //원래 일정의 소요시간
+            String estimatedTime = CalTime.cal_estimatedTime(seperatedJob.getCompletion(), seperatedJob.getEstimated_time(), customizeJob.getEstimated_time());
+            customizeJob.toUpdateEstimatedTime(estimatedTime);
+            log.info(" {} - 일정 '{}' 완료 후 예상 소요 시간 조정", seperatedJob.getDay(), seperatedJob.getName());
+            log.info("일정 '{}'의 남은 예상 시간 : {}", customizeJob.getName(), customizeJob.getEstimated_time());
+
+            return JobResponseDto.AdjustJobResponseDto.toDto(customizeJob);
+        } else { //고정된 일정
+            CustomizeJob customizeJob = customizeJobRepository.findById(jobId)
+                    .orElseThrow(() -> new JobException(JobErrorCode.JOB_NOT_FOUND));
+            customizeJob.toUpdateComplete(customizeJob.isComplete());
+            customizeJobRepository.save(customizeJob);
+            log.info("{} - 일정 '{}' 완료", customizeJob.getStartDate(), customizeJob.getName());
+            return JobResponseDto.AdjustJobResponseDto.toDto(customizeJob);
+        }
+    }
 
 
 //    public List<AdjustmentDto> getJob(Long memberId) {

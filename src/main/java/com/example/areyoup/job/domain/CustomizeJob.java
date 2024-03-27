@@ -47,6 +47,14 @@ public class CustomizeJob extends Job{
         this.shouldClear = shouldClear;
     }
 
+    public void toUpdateEstimatedTime(String estimated_time){
+        this.estimated_time = estimated_time;
+    }
+
+    public void toUpdateComplete(boolean isComplete){
+        this.isComplete = !isComplete;
+    }
+
     public static JobResponseDto.FixedJobResponseDto toCustomizeJobDto(CustomizeJob customizeJob) {
         return JobResponseDto.FixedJobResponseDto.toDto(customizeJob);
     }
