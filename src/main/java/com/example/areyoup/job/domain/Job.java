@@ -1,6 +1,6 @@
 package com.example.areyoup.job.domain;
 
-import com.example.areyoup.global.BaseEntity;
+import com.example.areyoup.global.entity.BaseEntity;
 import com.example.areyoup.member.Member;
 import jakarta.persistence.*;
 import lombok.*;

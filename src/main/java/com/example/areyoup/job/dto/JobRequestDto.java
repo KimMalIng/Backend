@@ -1,7 +1,7 @@
 package com.example.areyoup.job.dto;
 
+import com.example.areyoup.global.function.CalTime;
 import com.example.areyoup.job.domain.CustomizeJob;
-import com.example.areyoup.job.service.JobService;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -56,7 +56,7 @@ public class JobRequestDto {
                     .label(fixedJob.getLabel())
                     .day(start)
                     .deadline(fixedJob.getEndDate())
-                    .estimated_time(JobService.cal_Time(fixedJob.getStartTime(), fixedJob.getEndTime()))
+                    .estimated_time(CalTime.cal_Time(fixedJob.getStartTime(), fixedJob.getEndTime()))
                     .isComplete(false)
                     .isFixed(true)
 //                    .completion(0)

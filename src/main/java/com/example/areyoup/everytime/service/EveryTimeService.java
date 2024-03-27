@@ -4,8 +4,8 @@ import com.example.areyoup.errors.errorcode.MemberErrorCode;
 import com.example.areyoup.errors.exception.MemberException;
 import com.example.areyoup.everytime.domain.EveryTimeJob;
 import com.example.areyoup.everytime.dto.EverytimeRequestDto;
+import com.example.areyoup.global.function.CalTime;
 import com.example.areyoup.job.repository.JobRepository;
-import com.example.areyoup.job.service.JobService;
 import com.example.areyoup.member.Member;
 import com.example.areyoup.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -49,7 +49,7 @@ public class EveryTimeService {
             for (EverytimeRequestDto.SubjectDto everyTime : subject){
 
                 //String -> LocalDate로 변환하여 소요 시간 계산
-                String estimated_Time = JobService.cal_Time(everyTime.getStartTime(), everyTime.getEndTime());
+                String estimated_Time = CalTime.cal_Time(everyTime.getStartTime(), everyTime.getEndTime());
 
                 EveryTimeJob job = EveryTimeJob.builder()
                         .name(everyTime.getName())

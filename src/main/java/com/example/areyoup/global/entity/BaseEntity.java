@@ -1,4 +1,4 @@
-package com.example.areyoup.global;
+package com.example.areyoup.global.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;

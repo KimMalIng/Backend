@@ -1,8 +1,7 @@
 package com.example.areyoup.member;
 
-import com.example.areyoup.global.BaseEntity;
+import com.example.areyoup.global.entity.BaseEntity;
 import jakarta.persistence.*;
-import org.springframework.cglib.core.Local;
 
 import java.time.LocalTime;
 import java.util.ArrayList;

@@ -129,6 +129,7 @@ public class JobResponseDto {
         // CustomizeJob Entity -> Dto
         public static AdjustJobResponseDto toDto(CustomizeJob j){
             return AdjustJobResponseDto.builder()
+                    .id(j.getId())
                     .name(j.getName())
                     .label(j.getLabel())
                     .estimated_time(j.getEstimated_time())
