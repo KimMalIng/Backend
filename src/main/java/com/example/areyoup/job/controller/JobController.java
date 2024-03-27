@@ -4,14 +4,10 @@ import com.example.areyoup.job.dto.JobRequestDto.FixedJobRequestDto;
 import com.example.areyoup.job.dto.JobRequestDto.AdjustJobRequestDto;
 import com.example.areyoup.job.dto.JobResponseDto;
 import com.example.areyoup.job.service.JobService;
-import com.example.areyoup.job.dto.everytime.EverytimeRequestDto.EverytimeDto;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.text.ParseException;
-import java.util.List;
 
 @RestController //ResponseBody + Controller 로 Data(Json) 반환하는 어노테이션
 @RequiredArgsConstructor
@@ -19,16 +15,6 @@ import java.util.List;
 public class JobController {
 
     private final JobService jobService;
-
-    /*
-    유저에 대한 everytime 시간표 저장
-     */
-    @PostMapping("/{member_id}/everytime")
-    public ResponseEntity<String> saveEveryTime(@RequestBody List<EverytimeDto> everytimeDtos,
-                                                @PathVariable("member_id") Long member_id) throws ParseException{
-        return ResponseEntity.ok()
-                .body(jobService.saveEveryTime(everytimeDtos, member_id));
-    }
 
     /*
     고정 일정 저장
@@ -53,6 +39,19 @@ public class JobController {
         return ResponseEntity.ok()
                 .body(jobService.fixJob(id));
     }
+
+    /*
+    완료도 입력받으면 그만큼 소요시간 줄여주기
+    completion = 0 ~ 100
+    url : /job/complete/12?completion=50
+     */
+    @GetMapping("/complete/{job_id}")
+    public ResponseEntity<JobResponseDto.AdjustJobResponseDto> getCompletion(@PathVariable("job_id") Long job_id,
+                                                             @RequestParam(required = true) Integer completion){
+        return null;
+
+    }
+
 
 
     /*

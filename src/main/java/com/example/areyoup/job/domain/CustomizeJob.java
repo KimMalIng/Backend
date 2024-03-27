@@ -51,7 +51,4 @@ public class CustomizeJob extends Job{
         return JobResponseDto.FixedJobResponseDto.toDto(customizeJob);
     }
 
-//    public static JobResponseDto toJobDto(CustomizeJob customizeJob) {
-//        return JobResponseDto.toDto(customizeJob);
-//    }
 }

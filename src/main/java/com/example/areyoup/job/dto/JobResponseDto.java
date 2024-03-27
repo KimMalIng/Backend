@@ -1,15 +1,13 @@
 package com.example.areyoup.job.dto;
 
-import com.example.areyoup.job.domain.BasicJob;
+import com.example.areyoup.everytime.domain.EveryTimeJob;
 import com.example.areyoup.job.domain.CustomizeJob;
 import com.example.areyoup.job.domain.Job;
 import com.example.areyoup.job.domain.SeperatedJob;
-import com.example.areyoup.job.service.JobService;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -30,7 +28,7 @@ public class JobResponseDto {
 //    private boolean isPrivate;
     private boolean isComplete;
 
-    //BasicJob
+    //EveryTimeJob
 //    private String dayOfTheWeek;
 
     //CustomizeJob
@@ -59,48 +57,6 @@ public class JobResponseDto {
         j.getId(), j.getName(), j.getLabel(), j.getStartTime(), j.getEndTime(), j.getEndTime(), j.isComplete(), j.isFixed());
     }
 
-
-    @Getter
-    public static class BasicJobResponseDto extends JobResponseDto{
-
-        private final Integer dayOfTheWeek;
-
-
-        @Builder
-        public BasicJobResponseDto(Long id, String name, Integer label, String startTime, String endTime, String estimated_time, String day, boolean isPrivate, boolean isComplete, boolean isFixed, Integer dayOfTheWeek) {
-            super(id, name, label, startTime, endTime, estimated_time, isComplete, isFixed);
-            this.dayOfTheWeek = dayOfTheWeek;
-        }
-
-        public static BasicJobResponseDto toDto(BasicJob j){
-            return BasicJobResponseDto.builder()
-                    .id(j.getId())
-                    .name(j.getName())
-                    .label(j.getLabel())
-                    .startTime(j.getStartTime())
-                    .endTime(j.getEndTime())
-                    .estimated_time(j.getEstimated_time())
-//                    .isPrivate(j.isPrivate())
-                    .isComplete(j.isComplete())
-//                    .isFixed(j.isFixed())
-                    .dayOfTheWeek(j.getDayOfTheWeek())
-                    .build();
-        }
-
-        public static BasicJobResponseDto toAdjustDto(BasicJob j, LocalDate localDate) {
-            String day = String.valueOf(localDate).replace("-", ".");
-            return BasicJobResponseDto.builder()
-                    .name(j.getName())
-                    .label(j.getLabel())
-                    .startTime(j.getStartTime())
-                    .endTime(j.getEndTime())
-                    .estimated_time(j.getEstimated_time())
-                    .isComplete(j.isComplete())
-                    .day(day)
-                    .build();
-        }
-
-    }
 
     @Getter
     public static class FixedJobResponseDto extends JobResponseDto{
@@ -277,16 +233,16 @@ public class JobResponseDto {
         }
 
 
-        public static ScheduleDto toScheduleDto(BasicJob basicJob, LocalDate localDate) {
+        public static ScheduleDto toScheduleDto(EveryTimeJob everyTimeJob, LocalDate localDate) {
             ScheduleDto scheduleDto = new ScheduleDto();
-            scheduleDto.setId(basicJob.getId());
-            scheduleDto.setName(basicJob.getName());
-            scheduleDto.setLabel(basicJob.getLabel());
+            scheduleDto.setId(everyTimeJob.getId());
+            scheduleDto.setName(everyTimeJob.getName());
+            scheduleDto.setLabel(everyTimeJob.getLabel());
             scheduleDto.setDay(String.valueOf(localDate).replace("-", "."));
-            scheduleDto.setStartTime(basicJob.getStartTime());
-            scheduleDto.setEndTime(basicJob.getEndTime());
-            scheduleDto.setEstimated_time(basicJob.getEstimated_time());
-            // Since this is for BasicJob, there is no deadline
+            scheduleDto.setStartTime(everyTimeJob.getStartTime());
+            scheduleDto.setEndTime(everyTimeJob.getEndTime());
+            scheduleDto.setEstimated_time(everyTimeJob.getEstimated_time());
+            // Since this is for EveryTimeJob, there is no deadline
             scheduleDto.setDeadline(null); // Or simply omit this line
             return scheduleDto;
         }
@@ -325,7 +281,7 @@ public class JobResponseDto {
             scheduleDto.setStartTime(seperatedJob.getStartTime());
             scheduleDto.setEndTime(seperatedJob.getEndTime());
             scheduleDto.setEstimated_time(seperatedJob.getEstimated_time());
-            // Since this is for BasicJob, there is no deadline
+            // Since this is for EveryTimeJob, there is no deadline
             scheduleDto.setDeadline(null); // Or simply omit this line
             return scheduleDto;
         }

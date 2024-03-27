@@ -1,23 +1,21 @@
 package com.example.areyoup.job.service;
 
-import com.example.areyoup.job.domain.BasicJob;
+import com.example.areyoup.everytime.domain.EveryTimeJob;
+import com.example.areyoup.everytime.dto.EveryTimeResponseDto;
 import com.example.areyoup.job.domain.CustomizeJob;
 import com.example.areyoup.job.domain.SeperatedJob;
 import com.example.areyoup.job.dto.JobRequestDto;
 import com.example.areyoup.job.dto.JobResponseDto;
 import com.example.areyoup.job.dto.JobResponseDto.ScheduleDto;
-import com.example.areyoup.job.repository.BasicJobRepository;
+import com.example.areyoup.everytime.repository.EveryTimeJobRepository;
 import com.example.areyoup.job.repository.CustomizeJobRepository;
 import com.example.areyoup.job.repository.SeperatedJobRepository;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.persistence.Basic;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.json.JSONParser;
 import org.apache.tomcat.util.json.ParseException;
-import org.json.JSONObject;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -33,7 +31,7 @@ import java.util.stream.Collectors;
 public class TimeTableService {
 
     private static final String PATH = "..\\areyoup\\src\\main\\resources\\genetic_python\\";
-    private final BasicJobRepository basicJobRepository;
+    private final EveryTimeJobRepository everyTimeJobRepository;
     private final CustomizeJobRepository CustomizeJobRepository;
     private final SeperatedJobRepository seperatedJobRepository;
 
@@ -46,7 +44,7 @@ public class TimeTableService {
         LocalDate end = LocalDate.parse(periodDto.getEndDate(), dtf);
 
         //날짜들의 요일에 해당되는 에타 시간표(Basic Jobs)를 가져온다.
-        List<JobResponseDto.BasicJobResponseDto> basicJobs = getBasicJobs(start, end);
+        List<EveryTimeResponseDto> EveryTimeJobs = getEveryTimeJobs(start, end);
 
         //새로 배치된 Fixed Job을 가져오는 과정
         List<JobResponseDto.FixedJobResponseDto> fixedJobs = getCustomizeJobs(start, end);
@@ -54,7 +52,7 @@ public class TimeTableService {
         List<JobResponseDto.SeperatedJobResponseDto> seperatedJobs = getSeperatedJobs(start,end);
 
         HashMap<String, List> jobs = new HashMap<>();
-        jobs.put("BasicJob", basicJobs);
+        jobs.put("EveryTimeJob", EveryTimeJobs);
         jobs.put("FixedJob", fixedJobs);
         jobs.put("SeperatedJob", seperatedJobs);
 
@@ -80,20 +78,20 @@ public class TimeTableService {
     /*
     에브리타임에 고정된 일정들을 가져오는 단계
      */
-    private List<JobResponseDto.BasicJobResponseDto> getBasicJobs(LocalDate start, LocalDate end) {
+    private List<EveryTimeResponseDto> getEveryTimeJobs(LocalDate start, LocalDate end) {
         //start ~ end 사이의 날짜들을 가져옴
         List<LocalDate> datesBetween = getAllDatesBetween(start, end);
         Set<Integer> dayOfWeeks = new HashSet<>(); //요일을 담을 Set
         for (LocalDate localDate : datesBetween){
             int dayOfWeek = localDate.getDayOfWeek().getValue()-1; //월요일이 1부터 시작
-            //요일만 띄운다 -> 해당 기간 안에 필요한 요일만 넣어서 BasicJob 한번에 꺼내기
+            //요일만 띄운다 -> 해당 기간 안에 필요한 요일만 넣어서 EveryTimeJob 한번에 꺼내기
             dayOfWeeks.add(dayOfWeek);
         }
-        List<BasicJob> basicJobs = basicJobRepository.findByDayOfTheWeekIn(dayOfWeeks);
-        //기간 안의 요일들을 넣어서 그 요일에 해당하는 basicJob 반환
-        //basicJob들을 넣어서 Dto 형태로 반환
-        return basicJobs.stream()
-                .map(BasicJob::toBasicJobDto)
+        List<EveryTimeJob> everyTimeJobs = everyTimeJobRepository.findByDayOfTheWeekIn(dayOfWeeks);
+        //기간 안의 요일들을 넣어서 그 요일에 해당하는 EveryTimeJob 반환
+        //EveryTimeJob들을 넣어서 Dto 형태로 반환
+        return everyTimeJobs.stream()
+                .map(EveryTimeJob::toEveryTimeJobDto)
                 .toList();
     }
 
@@ -223,10 +221,10 @@ public class TimeTableService {
         List<ScheduleDto> result = new ArrayList<>();
         for (LocalDate localDate : datesBetween){
             int dayOfWeek = localDate.getDayOfWeek().getValue()-1; //월요일이 1부터 시작
-            //요일만 띄운다 -> 해당 기간 안에 필요한 요일만 넣어서 BasicJob 한번에 꺼내기
-            List<BasicJob> basicJob = basicJobRepository.findByDayOfTheWeek(dayOfWeek);
+            //요일만 띄운다 -> 해당 기간 안에 필요한 요일만 넣어서 EveryTimeJob 한번에 꺼내기
+            List<EveryTimeJob> everyTimeJob = everyTimeJobRepository.findByDayOfTheWeek(dayOfWeek);
             //todo memberId까지 확인해야함
-            for (BasicJob basic : basicJob){
+            for (EveryTimeJob basic : everyTimeJob){
                 ScheduleDto b = ScheduleDto.toScheduleDto(basic, localDate);
                 result.add(b);
                 //해당 요일에 해당하는 날짜 넣어서 반환
