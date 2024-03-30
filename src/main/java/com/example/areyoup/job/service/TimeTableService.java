@@ -175,15 +175,22 @@ public class TimeTableService {
 
             //data.json에서 가져와서 adjustmentdto에 넣어주는 과정
 
+            List<ScheduleDto> replace = new ArrayList<>();
             //label !=0 이라면 조정된 것들
             for (ScheduleDto scheduleDto : adjustmentDto.getSchedule()) {
                 if (scheduleDto.getLabel() != 0){
+                    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy.MM.dd");
+                    LocalDate day = LocalDate.parse(scheduleDto.getDay(), dtf);
                     JobResponseDto.SeperatedJobResponseDto responseDto = JobResponseDto.SeperatedJobResponseDto.toSeperatedJob(scheduleDto);
                     SeperatedJob seperatedJob = JobResponseDto.SeperatedJobResponseDto.toEntity(responseDto);
                     seperatedJobRepository.save(seperatedJob);
+                    replace.add(ScheduleDto.toScheduleDto(seperatedJobRepository.findByDayAndStartTime(day, scheduleDto.getStartTime())));
+                    //일정에 대한 id 값을 넘겨주기 위해 repository에서 다시 꺼내와서 넣기
+                } else {
+                    replace.add(scheduleDto);
                 }
             }
-
+            adjustmentDto.setSchedule(replace); //대체한 scheduleDtofh 처리한다
             log.info("Success save seperatedJobs");
 
             return adjustmentDto;
