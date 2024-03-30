@@ -14,17 +14,11 @@ import com.example.areyoup.job.dto.JobResponseDto;
 import com.example.areyoup.job.repository.CustomizeJobRepository;
 import com.example.areyoup.job.repository.JobRepository;
 import com.example.areyoup.job.repository.SeperatedJobRepository;
-import com.example.areyoup.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -136,10 +130,10 @@ public class JobService {
         List<CustomizeJob> fixedJobs = new ArrayList<>();
         List<CustomizeJob> adjustJobs = new ArrayList<>();
         for (CustomizeJob c : seperatedJobs){
-            if (c.getStartTime() != null){
+            if (c.getStartTime() != null){ //고정된 일정만 넣기
                 fixedJobs.add(c);
             } else{
-                adjustJobs.add(c);
+                adjustJobs.add(c); //조정할 일정만 넣기
             }
         }
 
@@ -149,11 +143,15 @@ public class JobService {
         jobs.put("AdjustJob", adjustJobs.stream()
                 .map(CustomizeJob::toCustomizeJobDto)
                 .toList());
-
+        //Dto 변환 작업 후 return
         return jobs;
 
 
     }
+
+    /*
+    에브리타임의 모든 일정들 가져오기
+     */
     private List<EveryTimeResponseDto> getEveryTimeJobs(Long memberId) {
         List<EveryTimeJob> everyTimeJobs = everyTimeJobRepository.findAllByMemberId(memberId);
 
@@ -162,4 +160,67 @@ public class JobService {
                 .toList();
     }
 
+    /*
+    일정 업데이트
+    만약 SeperatedJob가 업데이트 되었다면 CustomizeJob의 예상 소요 시간 변경
+     */
+    public String updateJobs(List<JobRequestDto.UpdateJobRequestDto> updateJobs) {
+        Set<String> nameOfJobs = new HashSet<>();
+        updateJobs.forEach(update -> {
+            String name = updateJob(update);
+            nameOfJobs.add(name);
+        });
+        log.info("EveryTimeJob {}개 업데이트", everyTimeCnt);
+        log.info("CustomizeJob {}개 업데이트", customizeCnt);
+        log.info("SeperatedJob {}개 업데이트", seperatedCnt);
+        if (seperatedCnt > 0){
+            for (String nameOfJob : nameOfJobs){
+                if (nameOfJob.isEmpty()) continue;
+                Integer totalMinutes = jobRepository.getTotalEstimatedTimeByName(nameOfJob);
+                String estimatedTime = String.format("%02d:%02d", (totalMinutes/60),(totalMinutes%60));
+                CustomizeJob customizeJob = customizeJobRepository.findByName(nameOfJob);
+                customizeJob.toUpdateEstimatedTime(estimatedTime);
+                log.info("SeperatedJob에 해당하는 '{}' 일정 소요시간 조정 완료", nameOfJob);
+            }
+        }
+        log.info("일정들 업데이트 완료");
+        return "Jobs Update Success";
     }
+
+    /*
+    일정의 종류에 따라 나눠서 업데이트 하는 작업
+    - EveryTimeJob, CustomizeJob, SeperatedJob
+    - CustomizedJob에서 AdjustJob는 업데이트 No!!
+     */
+    private int everyTimeCnt = 0;
+    private int customizeCnt = 0;
+    private int seperatedCnt = 0;
+    private String updateJob(JobRequestDto.UpdateJobRequestDto updateJob) {
+        String nameofJob = "";
+        //에브리타임 일정 업데이트
+        if (updateJob.getDayOfTheWeek() != null){
+            EveryTimeJob everyTimeJob = everyTimeJobRepository.findById(updateJob.getId())
+                    .orElseThrow(() -> new JobException(JobErrorCode.JOB_NOT_FOUND));
+            everyTimeJob.toUpdateAll(updateJob);
+            everyTimeJobRepository.save(everyTimeJob);
+            everyTimeCnt++;
+            //CustomizeJob 업데이트
+        } else if (updateJob.getCompletion() == null){
+            CustomizeJob customizeJob = customizeJobRepository.findById(updateJob.getId())
+                    .orElseThrow(() -> new JobException(JobErrorCode.JOB_NOT_FOUND));
+            customizeJob.toUpdateAll(updateJob);
+            customizeJobRepository.save(customizeJob);
+            customizeCnt++;
+
+            //SeperatedJob 업데이트
+        } else if (updateJob.getStartDate() == null){
+            SeperatedJob seperatedJob = seperatedJobRepository.findById(updateJob.getId())
+                    .orElseThrow(() -> new JobException(JobErrorCode.JOB_NOT_FOUND));
+            seperatedJob.toUpdateAll(updateJob);
+            seperatedJobRepository.save(seperatedJob);
+            seperatedCnt++;
+            nameofJob = seperatedJob.getName();
+        }
+        return nameofJob;
+    }
+}

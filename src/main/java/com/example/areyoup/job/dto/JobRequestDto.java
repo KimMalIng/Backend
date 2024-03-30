@@ -2,6 +2,7 @@ package com.example.areyoup.job.dto;
 
 import com.example.areyoup.global.function.CalTime;
 import com.example.areyoup.job.domain.CustomizeJob;
+import com.fasterxml.jackson.databind.node.IntNode;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -11,8 +12,7 @@ import java.time.format.DateTimeFormatter;
 
 @Data
 public class JobRequestDto {
-    private Long user_id;
-    private Long job_id;
+    private Long id;
     private String day;
     private String startTime;
     private String endTime;
@@ -21,7 +21,6 @@ public class JobRequestDto {
     private String deadline;
     private String estimatedTime;
 
-    private boolean isPrivate;
     private boolean isComplete;
     private boolean isFixed;
 
@@ -91,6 +90,14 @@ public class JobRequestDto {
 //                    .completion(0)
                     .build();
         }
+    }
+
+    @Data
+    public static class UpdateJobRequestDto extends JobRequestDto{
+        private String startDate;
+        private String endDate;
+        private Integer completion;
+        private Integer dayOfTheWeek;
     }
 
 

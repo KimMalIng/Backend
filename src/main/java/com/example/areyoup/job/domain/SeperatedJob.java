@@ -1,5 +1,6 @@
 package com.example.areyoup.job.domain;
 
+import com.example.areyoup.job.dto.JobRequestDto;
 import com.example.areyoup.job.dto.JobResponseDto;
 import com.example.areyoup.member.Member;
 import jakarta.persistence.DiscriminatorValue;
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 @Entity
 @DiscriminatorValue("S")
@@ -46,5 +48,20 @@ public class SeperatedJob extends Job{
 
     public static JobResponseDto.SeperatedJobResponseDto toSeperatedJobDto(SeperatedJob seperatedJob) {
         return JobResponseDto.SeperatedJobResponseDto.toDto(seperatedJob);
+    }
+
+    public void toUpdateAll(JobRequestDto.UpdateJobRequestDto updateJob) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy.MM.dd");
+        LocalDate day = LocalDate.parse(updateJob.getDay(), dtf);
+
+        this.name = updateJob.getName();
+        this.label = updateJob.getLabel();
+        this.startTime = updateJob.getStartTime();
+        this.endTime = updateJob.getEndTime();
+        this.estimatedTime = updateJob.getEstimatedTime();
+        this.isComplete = updateJob.isComplete();
+        this.day = day;
+        this.completion = updateJob.getCompletion();
+        this.isFixed = updateJob.isFixed();
     }
 }

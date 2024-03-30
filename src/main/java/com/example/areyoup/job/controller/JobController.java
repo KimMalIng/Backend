@@ -1,5 +1,6 @@
 package com.example.areyoup.job.controller;
 
+import com.example.areyoup.job.dto.JobRequestDto;
 import com.example.areyoup.job.dto.JobRequestDto.FixedJobRequestDto;
 import com.example.areyoup.job.dto.JobRequestDto.AdjustJobRequestDto;
 import com.example.areyoup.job.dto.JobResponseDto;
@@ -74,6 +75,13 @@ public class JobController {
     public ResponseEntity<HashMap<String, List>> getJob(){
         return ResponseEntity.ok()
                 .body(jobService.findAllJob());
+    }
+
+    @PutMapping("/modify")
+    @Transactional
+    public ResponseEntity<?> modifyJob(@RequestBody List<JobRequestDto.UpdateJobRequestDto> updateJobs){
+        return ResponseEntity.ok()
+                .body(jobService.updateJobs(updateJobs));
     }
 
 }
