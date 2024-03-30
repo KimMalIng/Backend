@@ -12,4 +12,5 @@ import java.util.List;
 public interface SeperatedJobRepository extends JpaRepository<SeperatedJob, Long> {
     List<SeperatedJob> findByDayBetweenAndIsFixedIsTrue(LocalDate start, LocalDate end);
 
+    SeperatedJob findByDayAndStartTime(LocalDate day, String startTime);
 }

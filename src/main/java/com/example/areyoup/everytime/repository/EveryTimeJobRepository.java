@@ -11,4 +11,6 @@ public interface EveryTimeJobRepository extends JpaRepository<EveryTimeJob, Long
     List<EveryTimeJob> findByDayOfTheWeekIn(Set<Integer> dayOfTheWeek);
 
     List<EveryTimeJob> findByDayOfTheWeek(Integer dayOfTheWeek);
+
+    List<EveryTimeJob> findAllByMemberId(Long memberId);
 }

@@ -10,6 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.List;
+
 @RestController //ResponseBody + Controller 로 Data(Json) 반환하는 어노테이션
 @RequiredArgsConstructor
 @RequestMapping("/job")
@@ -34,6 +37,7 @@ public class JobController {
 
     /*
     일정 고정
+    //todo 넘어오는 일정 모두 수정하고 고정하기
      */
     @PutMapping("/update/fix/{job_id}")
     @Transactional
@@ -64,11 +68,12 @@ public class JobController {
 
     /*
     유저에 대한 일정 모두 반환
+    -조정된 일정이 아닌 큰 일정만 반환
      */
-//    @GetMapping("/get/{member_id}")
-//    public ResponseEntity<List<AdjustmentDto>> getJob(@PathVariable("member_id") Long member_id){
-//        return ResponseEntity.ok()
-//                .body(jobService.getJob(member_id));
-//    }
+    @GetMapping("/findAll")
+    public ResponseEntity<HashMap<String, List>> getJob(){
+        return ResponseEntity.ok()
+                .body(jobService.findAllJob());
+    }
 
 }
