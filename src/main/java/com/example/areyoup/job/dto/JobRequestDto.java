@@ -19,7 +19,7 @@ public class JobRequestDto {
     private Integer label;
     private String name;
     private String deadline;
-    private String estimated_time;
+    private String estimatedTime;
 
     private boolean isPrivate;
     private boolean isComplete;
@@ -56,7 +56,7 @@ public class JobRequestDto {
                     .label(fixedJob.getLabel())
                     .day(start)
                     .deadline(fixedJob.getEndDate())
-                    .estimated_time(CalTime.cal_Time(fixedJob.getStartTime(), fixedJob.getEndTime()))
+                    .estimatedTime(CalTime.cal_Time(fixedJob.getStartTime(), fixedJob.getEndTime()))
                     .isComplete(false)
                     .isFixed(true)
 //                    .completion(0)
@@ -70,7 +70,7 @@ public class JobRequestDto {
     @EqualsAndHashCode(callSuper = true)
     @Data
     public static class AdjustJobRequestDto extends BaseDto{
-        private String estimated_time;
+        private String estimatedTime;
 
         public static CustomizeJob toEntity(AdjustJobRequestDto adjustJob) {
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy.MM.dd");
@@ -85,7 +85,7 @@ public class JobRequestDto {
                     .label(adjustJob.getLabel())
                     .day(start)
                     .deadline(deadline)
-                    .estimated_time(adjustJob.getEstimated_time())
+                    .estimatedTime(adjustJob.getEstimatedTime())
                     .isComplete(false)
                     .isFixed(false)
 //                    .completion(0)

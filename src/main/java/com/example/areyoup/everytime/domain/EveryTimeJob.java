@@ -21,14 +21,14 @@ public class EveryTimeJob extends Job {
 
     @Builder
     public EveryTimeJob(@NonNull String name, @NonNull Integer label,
-                        String startTime, String endTime, String estimated_time,
+                        String startTime, String endTime, String estimatedTime,
                         boolean isComplete, boolean isFixed,
                         Member member, Integer dayOfTheWeek) {
         this.name = name;
         this.label = label;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.estimated_time = estimated_time;
+        this.estimatedTime = estimatedTime;
         this.isComplete = isComplete;
         this.isFixed = isFixed;
         this.member = member;

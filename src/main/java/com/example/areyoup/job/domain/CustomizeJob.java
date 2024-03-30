@@ -31,14 +31,14 @@ public class CustomizeJob extends Job{
 
     @Builder
     public CustomizeJob(@NonNull String name, @NonNull Integer label,
-                        String startTime, String endTime, String estimated_time,
+                        String startTime, String endTime, String estimatedTime,
                         boolean shouldClear, boolean isFixed, boolean isComplete,
                         LocalDate day, String deadline) {
         this.name = name;
         this.label = label;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.estimated_time = estimated_time;
+        this.estimatedTime = estimatedTime;
 //        this.isPrivate = isPrivate;
         this.isFixed = isFixed;
         this.isComplete = isComplete;
@@ -47,8 +47,8 @@ public class CustomizeJob extends Job{
         this.shouldClear = shouldClear;
     }
 
-    public void toUpdateEstimatedTime(String estimated_time){
-        this.estimated_time = estimated_time;
+    public void toUpdateEstimatedTime(String estimatedTime){
+        this.estimatedTime = estimatedTime;
     }
 
     public void toUpdateComplete(boolean isComplete){

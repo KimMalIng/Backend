@@ -23,7 +23,7 @@ public class JobResponseDto {
     private Integer label;
     private String startTime;
     private String endTime;
-    private String estimated_time;
+    private String estimatedTime;
     private boolean isFixed;
 //    private boolean isPrivate;
     private boolean isComplete;
@@ -39,13 +39,13 @@ public class JobResponseDto {
 //    private boolean shouldClear;
     public JobResponseDto(Long id, String name, Integer label,
                           String startTime, String endTime,
-                          String estimated_time, boolean isComplete, boolean isFixed) {
+                          String estimatedTime, boolean isComplete, boolean isFixed) {
         this.id = id;
         this.name = name;
         this.label = label;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.estimated_time = estimated_time;
+        this.estimatedTime = estimatedTime;
 //        this.isPrivate = isPrivate;
         this.isComplete = isComplete;
         this.isFixed = isFixed;
@@ -69,9 +69,9 @@ public class JobResponseDto {
         @Builder
         public FixedJobResponseDto(Long id, String name, Integer label,
                                        String startTime, String endTime,
-                                       String estimated_time, String startDate, String deadline, Integer completion,
+                                       String estimatedTime, String startDate, String deadline, Integer completion,
                                        boolean isComplete, boolean isFixed, boolean shouldClear) {
-            super(id, name, label, startTime, endTime, estimated_time, isComplete, isFixed);
+            super(id, name, label, startTime, endTime, estimatedTime, isComplete, isFixed);
             this.startDate = startDate;
             this.deadline = deadline;
             this.isFixed = isFixed;
@@ -86,7 +86,7 @@ public class JobResponseDto {
                     .label(j.getLabel())
                     .startTime(j.getStartTime())
                     .endTime(j.getEndTime())
-                    .estimated_time(j.getEstimated_time())
+                    .estimatedTime(j.getEstimatedTime())
 //                    .isPrivate(j.isPrivate())
                     .isComplete(j.isComplete())
                     .isFixed(j.isFixed())
@@ -103,7 +103,7 @@ public class JobResponseDto {
         private final Long id;
         private final String name;
         private final Integer label;
-        private final String estimated_time;
+        private final String estimatedTime;
         private final boolean isComplete;
         private final String startDate;
         private final String deadline;
@@ -113,12 +113,12 @@ public class JobResponseDto {
 
         @Builder
         public AdjustJobResponseDto(Long id, String name, Integer label,
-                                   String estimated_time, String startDate, String deadline, Integer completion,
+                                   String estimatedTime, String startDate, String deadline, Integer completion,
                                    boolean isComplete, boolean isFixed, boolean shouldClear) {
             this.id= id;
             this.name = name;
             this.label = label;
-            this.estimated_time = estimated_time;
+            this.estimatedTime = estimatedTime;
             this.isComplete = isComplete;
             this.startDate = startDate;
             this.deadline = deadline;
@@ -132,7 +132,7 @@ public class JobResponseDto {
                     .id(j.getId())
                     .name(j.getName())
                     .label(j.getLabel())
-                    .estimated_time(j.getEstimated_time())
+                    .estimatedTime(j.getEstimatedTime())
 //                    .isPrivate(j.isPrivate())
                     .isComplete(j.isComplete())
                     .isFixed(j.isFixed())
@@ -151,9 +151,9 @@ public class JobResponseDto {
         private final boolean isComplete;
 
         @Builder
-        public SeperatedJobResponseDto(Long id, String name, Integer label, String day, String startTime, String endTime, String estimated_time, String deadline
+        public SeperatedJobResponseDto(Long id, String name, Integer label, String day, String startTime, String endTime, String estimatedTime, String deadline
                                         ,Integer completion, boolean isFixed, boolean isComplete) {
-            super(id, name, label, day, startTime, endTime, estimated_time, deadline);
+            super(id, name, label, day, startTime, endTime, estimatedTime, deadline);
             this.completion = completion;
             this.isFixed = isFixed;
             this.isComplete = isComplete;
@@ -166,7 +166,7 @@ public class JobResponseDto {
                     .day(scheduleDto.getDay())
                     .startTime(scheduleDto.getStartTime())
                     .endTime(scheduleDto.getEndTime())
-                    .estimated_time(scheduleDto.getEstimated_time())
+                    .estimatedTime(scheduleDto.getEstimatedTime())
                     .deadline(scheduleDto.getDeadline())
                     .completion(0)
                     .isFixed(false)
@@ -175,7 +175,6 @@ public class JobResponseDto {
 
         public static SeperatedJob toEntity(SeperatedJobResponseDto responseDto){
             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy.MM.dd");
-            System.out.println(responseDto.getDay());
             LocalDate start = LocalDate.parse(responseDto.getDay(), dtf);
 
             return SeperatedJob.builder()
@@ -183,7 +182,7 @@ public class JobResponseDto {
                     .label(responseDto.getLabel())
                     .startTime(responseDto.getStartTime())
                     .endTime(responseDto.getEndTime())
-                    .estimated_time(responseDto.getEstimated_time())
+                    .estimatedTime(responseDto.getEstimatedTime())
 //                    .isComplete()
                     .day(start)
                     .completion(responseDto.getCompletion())
@@ -199,7 +198,7 @@ public class JobResponseDto {
                     .label(seperatedJob.getLabel())
                     .startTime(seperatedJob.getStartTime())
                     .endTime(seperatedJob.getEndTime())
-                    .estimated_time(seperatedJob.getEstimated_time())
+                    .estimatedTime(seperatedJob.getEstimatedTime())
                     .isComplete(seperatedJob.isComplete())
                     .day(String.valueOf(seperatedJob.getDay()).replace("-","."))
                     .completion(seperatedJob.getCompletion())
@@ -218,18 +217,18 @@ public class JobResponseDto {
         private String day;
         private String startTime;
         private String endTime;
-        private String estimated_time;
+        private String estimatedTime;
         private String deadline;
 
 
-        public ScheduleDto(Long id, String name, Integer label, String day, String startTime, String endTime, String estimated_time, String deadline) {
+        public ScheduleDto(Long id, String name, Integer label, String day, String startTime, String endTime, String estimatedTime, String deadline) {
             this.id= id;
             this.name = name;
             this.label = label;
             this.day = day;
             this.startTime = startTime;
             this.endTime = endTime;
-            this.estimated_time = estimated_time;
+            this.estimatedTime = estimatedTime;
             this.deadline = deadline;
         }
 
@@ -242,7 +241,7 @@ public class JobResponseDto {
             scheduleDto.setDay(String.valueOf(localDate).replace("-", "."));
             scheduleDto.setStartTime(everyTimeJob.getStartTime());
             scheduleDto.setEndTime(everyTimeJob.getEndTime());
-            scheduleDto.setEstimated_time(everyTimeJob.getEstimated_time());
+            scheduleDto.setEstimatedTime(everyTimeJob.getEstimatedTime());
             // Since this is for EveryTimeJob, there is no deadline
             scheduleDto.setDeadline(null); // Or simply omit this line
             return scheduleDto;
@@ -256,7 +255,7 @@ public class JobResponseDto {
             if (j.getStartTime() == null) {
                 // Adjust job
                 scheduleDto.setLabel(j.getLabel());
-                scheduleDto.setEstimated_time(j.getEstimated_time());
+                scheduleDto.setEstimatedTime(j.getEstimatedTime());
                 scheduleDto.setDeadline(j.getDeadline());
                 scheduleDto.setStartTime(null);
                 scheduleDto.setEndTime(null);
@@ -267,7 +266,7 @@ public class JobResponseDto {
                 scheduleDto.setDay(String.valueOf(j.getStartDate()).replace("-", "."));
                 scheduleDto.setStartTime(j.getStartTime());
                 scheduleDto.setEndTime(j.getEndTime());
-                scheduleDto.setEstimated_time(j.getEstimated_time());
+                scheduleDto.setEstimatedTime(j.getEstimatedTime());
                 scheduleDto.setDeadline(null);
             }
             return scheduleDto;
@@ -281,7 +280,7 @@ public class JobResponseDto {
             scheduleDto.setDay(String.valueOf(seperatedJob.getDay()).replace("-","."));
             scheduleDto.setStartTime(seperatedJob.getStartTime());
             scheduleDto.setEndTime(seperatedJob.getEndTime());
-            scheduleDto.setEstimated_time(seperatedJob.getEstimated_time());
+            scheduleDto.setEstimatedTime(seperatedJob.getEstimatedTime());
             // Since this is for EveryTimeJob, there is no deadline
             scheduleDto.setDeadline(null); // Or simply omit this line
             return scheduleDto;

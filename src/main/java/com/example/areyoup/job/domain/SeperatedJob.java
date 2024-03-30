@@ -23,14 +23,14 @@ public class SeperatedJob extends Job{
 
     @Builder
     public SeperatedJob(@NonNull String name, @NonNull Integer label,
-                    String startTime, String endTime, String estimated_time,
+                    String startTime, String endTime, String estimatedTime,
                     boolean isComplete
                     ,LocalDate day, Integer completion, boolean isFixed) {
         this.name = name;
         this.label = label;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.estimated_time = estimated_time;
+        this.estimatedTime = estimatedTime;
 //        this.isPrivate = isPrivate;
         this.isComplete = isComplete;
 //        this.member = member;

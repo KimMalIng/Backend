@@ -49,14 +49,14 @@ public class EveryTimeService {
             for (EverytimeRequestDto.SubjectDto everyTime : subject){
 
                 //String -> LocalDate로 변환하여 소요 시간 계산
-                String estimated_Time = CalTime.cal_Time(everyTime.getStartTime(), everyTime.getEndTime());
+                String estimatedTime = CalTime.cal_Time(everyTime.getStartTime(), everyTime.getEndTime());
 
                 EveryTimeJob job = EveryTimeJob.builder()
                         .name(everyTime.getName())
                         .label(0)
                         .startTime(everyTime.getStartTime())
                         .endTime(everyTime.getEndTime())
-                        .estimated_time(estimated_Time)
+                        .estimatedTime(estimatedTime)
                         .isFixed(true)
                         .member(member)
                         .dayOfTheWeek(dayOfTheWeek)

@@ -13,8 +13,8 @@ public class EveryTimeResponseDto extends JobResponseDto {
 
 
     @Builder
-    public EveryTimeResponseDto(Long id, String name, Integer label, String startTime, String endTime, String estimated_time, String day, boolean isPrivate, boolean isComplete, boolean isFixed, Integer dayOfTheWeek) {
-        super(id, name, label, startTime, endTime, estimated_time, isComplete, isFixed);
+    public EveryTimeResponseDto(Long id, String name, Integer label, String startTime, String endTime, String estimatedTime, String day, boolean isPrivate, boolean isComplete, boolean isFixed, Integer dayOfTheWeek) {
+        super(id, name, label, startTime, endTime, estimatedTime, isComplete, isFixed);
         this.dayOfTheWeek = dayOfTheWeek;
     }
 
@@ -26,7 +26,7 @@ public class EveryTimeResponseDto extends JobResponseDto {
                 .label(j.getLabel())
                 .startTime(j.getStartTime())
                 .endTime(j.getEndTime())
-                .estimated_time(j.getEstimated_time())
+                .estimatedTime(j.getEstimatedTime())
 //                    .isPrivate(j.isPrivate())
                 .isComplete(j.isComplete())
 //                    .isFixed(j.isFixed())
@@ -41,7 +41,7 @@ public class EveryTimeResponseDto extends JobResponseDto {
                 .label(j.getLabel())
                 .startTime(j.getStartTime())
                 .endTime(j.getEndTime())
-                .estimated_time(j.getEstimated_time())
+                .estimatedTime(j.getEstimatedTime())
                 .isComplete(j.isComplete())
                 .day(day)
                 .build();
