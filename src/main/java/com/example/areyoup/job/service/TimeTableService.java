@@ -175,23 +175,27 @@ public class TimeTableService {
 
             //data.json에서 가져와서 adjustmentdto에 넣어주는 과정
 
-            List<ScheduleDto> replace = new ArrayList<>();
-            //label !=0 이라면 조정된 것들
-            for (ScheduleDto scheduleDto : adjustmentDto.getSchedule()) {
-                if (scheduleDto.getLabel() != 0){
-                    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy.MM.dd");
-                    LocalDate day = LocalDate.parse(scheduleDto.getDay(), dtf);
-                    JobResponseDto.SeperatedJobResponseDto responseDto = JobResponseDto.SeperatedJobResponseDto.toSeperatedJob(scheduleDto);
-                    SeperatedJob seperatedJob = JobResponseDto.SeperatedJobResponseDto.toEntity(responseDto);
-                    seperatedJobRepository.save(seperatedJob);
-                    replace.add(ScheduleDto.toScheduleDto(seperatedJobRepository.findByDayAndStartTime(day, scheduleDto.getStartTime())));
-                    //일정에 대한 id 값을 넘겨주기 위해 repository에서 다시 꺼내와서 넣기
-                } else {
-                    replace.add(scheduleDto);
+            if (exitCode != 1){
+                List<ScheduleDto> replace = new ArrayList<>();
+                //label !=0 이라면 조정된 것들
+                for (ScheduleDto scheduleDto : adjustmentDto.getSchedule()) {
+                    if (scheduleDto.getLabel() != 0){
+                        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy.MM.dd");
+                        LocalDate day = LocalDate.parse(scheduleDto.getDay(), dtf);
+                        JobResponseDto.SeperatedJobResponseDto responseDto = JobResponseDto.SeperatedJobResponseDto.toSeperatedJob(scheduleDto);
+                        SeperatedJob seperatedJob = JobResponseDto.SeperatedJobResponseDto.toEntity(responseDto);
+                        seperatedJobRepository.save(seperatedJob);
+                        replace.add(ScheduleDto.toScheduleDto(seperatedJobRepository.findByDayAndStartTime(day, scheduleDto.getStartTime())));
+                        //일정에 대한 id 값을 넘겨주기 위해 repository에서 다시 꺼내와서 넣기
+                    } else {
+                        replace.add(scheduleDto);
+                    }
                 }
+                adjustmentDto.setSchedule(replace); //대체한 scheduleDtofh 처리한다
+                log.info("Success save seperatedJobs");
+            } else {
+                log.warn("There's no adjustJob.");
             }
-            adjustmentDto.setSchedule(replace); //대체한 scheduleDtofh 처리한다
-            log.info("Success save seperatedJobs");
 
             return adjustmentDto;
 
@@ -246,14 +250,14 @@ public class TimeTableService {
         }
 
         //기간 안에 존재하는 고정된 일정 customJob 반환
-        List<CustomizeJob> fixedJobs = CustomizeJobRepository.findByStartDateBetweenAndIsFixedIsTrue(start, end);
+        List<CustomizeJob> fixedJobs = CustomizeJobRepository.findFixedJob(start, end);
         List<ScheduleDto> fixed = fixedJobs.stream()
                 .map(ScheduleDto::toScheduleDto)
                 .toList();
 
-        //시작 시간이 null 인 일정 -> 조정해야 하는 일정들
+        //시작 시간이 null, 고정 X 일정 -> 조정해야 하는 일정들
         //todo 조정해야 하는 일정들은 id 값으로 프론트에서 넘겨받기?
-        List<CustomizeJob> adjustJobs = CustomizeJobRepository.findByStartTimeIsNull();
+        List<CustomizeJob> adjustJobs = CustomizeJobRepository.findAdjustJob();
         List<ScheduleDto> adjust = adjustJobs.stream()
                 .map(ScheduleDto::toScheduleDto)
                 .toList();
