@@ -2,6 +2,7 @@ package com.example.areyoup.everytime.domain;
 
 import com.example.areyoup.job.domain.Job;
 import com.example.areyoup.everytime.dto.EveryTimeResponseDto;
+import com.example.areyoup.job.dto.JobRequestDto;
 import com.example.areyoup.member.Member;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -37,5 +38,16 @@ public class EveryTimeJob extends Job {
 
     public static EveryTimeResponseDto toEveryTimeJobDto(EveryTimeJob j){
         return EveryTimeResponseDto.toDto(j);
+    }
+
+    public void toUpdateAll(JobRequestDto.UpdateJobRequestDto j){
+        this.name = j.getName();
+        this.label = j.getLabel();
+        this.startTime = j.getStartTime();
+        this.endTime = j.getEndTime();
+        this.estimatedTime = j.getEstimatedTime();
+        this.isComplete = j.isComplete();
+        this.isFixed = j.isFixed();
+        this.dayOfTheWeek = j.getDayOfTheWeek();
     }
 }
