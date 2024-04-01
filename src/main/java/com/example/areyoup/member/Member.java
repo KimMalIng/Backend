@@ -20,15 +20,6 @@ public class Member extends BaseEntity {
     //에브리타임 id pw
     private String everyTimeId;
     private String everyTimePw;
-
-    private LocalTime startSleep;
-    private LocalTime endSleep;
-
-    private LocalTime startLunch;
-    private LocalTime endLunch;
-
-    private LocalTime startDinner;
-    private LocalTime endDinner;
     private String refreshToken;
 
     @ElementCollection(fetch=FetchType.EAGER)
