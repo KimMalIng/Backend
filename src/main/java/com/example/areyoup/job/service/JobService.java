@@ -160,7 +160,6 @@ public class JobService {
                 String estimatedTime = String.format("%02d:%02d", (totalMinutes/60),(totalMinutes%60));
                 CustomizeJob customizeJob = customizeJobRepository.findByName(nameOfJob);
                 customizeJob.toUpdateEstimatedTime(estimatedTime);
-                customizeJob.toFixUpdate(false);
                 log.info("SeperatedJob에 해당하는 '{}' 일정 소요시간 조정 완료", nameOfJob);
             }
         }

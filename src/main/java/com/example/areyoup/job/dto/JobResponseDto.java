@@ -254,15 +254,18 @@ public class JobResponseDto {
         private List<DefaultJobResponseDto> defaultJobs;
     }
 
-    @Getter
-    @Builder
+
+    @Data
+    @JsonInclude
+    @NoArgsConstructor(force = true)
+    @SuperBuilder
     public static class DefaultJobResponseDto{
         private final String name;
         private final String startTime;
         private final String endTime;
         private final Integer label;
         private final String estimatedTime;
-        private final boolean isFixed;
+        private final boolean fixed;
 
         public static DefaultJobResponseDto toResponseDto(Job j){
             return DefaultJobResponseDto.builder()
@@ -271,7 +274,7 @@ public class JobResponseDto {
                     .endTime(j.getEndTime())
                     .label(j.getLabel())
                     .estimatedTime(j.getEstimatedTime())
-                    .isFixed(j.isFixed())
+                    .fixed(j.isFixed())
                     .build();
         }
     }
