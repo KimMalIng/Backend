@@ -34,7 +34,7 @@ public class TimeTableService {
 
     private static final String PATH = "..\\areyoup\\src\\main\\resources\\genetic_python\\";
     private final EveryTimeJobRepository everyTimeJobRepository;
-    private final CustomizeJobRepository CustomizeJobRepository;
+    private final CustomizeJobRepository customizeJobRepository;
     private final SeperatedJobRepository seperatedJobRepository;
     private final DefaultJobRepository defaultJobRepository;
 
@@ -73,7 +73,7 @@ public class TimeTableService {
     }
 
     private List<JobResponseDto.FixedJobResponseDto> getCustomizeJobs(LocalDate start, LocalDate end) {
-        List<CustomizeJob> customizeJobs =  CustomizeJobRepository.findByStartDateBetweenAndIsFixedIsTrue(start, end);
+        List<CustomizeJob> customizeJobs =  customizeJobRepository.findByStartDateBetweenAndIsFixedIsTrue(start, end);
 
         return customizeJobs.stream()
                 .map(CustomizeJob::toCustomizeJobDto)
@@ -197,6 +197,9 @@ public class TimeTableService {
                         seperatedJobRepository.save(seperatedJob);
                         replace.add(ScheduleDto.toScheduleDto(seperatedJobRepository.findByDayAndStartTime(day, scheduleDto.getStartTime())));
                         //일정에 대한 id 값을 넘겨주기 위해 repository에서 다시 꺼내와서 넣기
+
+                        CustomizeJob customizeJob = customizeJobRepository.findByName(scheduleDto.getName());
+                        customizeJob.toFixUpdate(false);
                     } else {
                         replace.add(scheduleDto);
                     }
@@ -223,7 +226,7 @@ public class TimeTableService {
             hashMap.put("week_day", timeLine.getWeek_day());
             hashMap.put("schedule_startTime", timeLine.getSchedule_startTime());
             hashMap.put("schedule", timeLine.getSchedule());
-            hashMap.put("default", timeLine.getDefaultJobs());
+            hashMap.put("defaultJobs", timeLine.getDefaultJobs());
 
             ObjectMapper mapper = new ObjectMapper();
             mapper.setSerializationInclusion(JsonInclude.Include.ALWAYS);
@@ -259,14 +262,14 @@ public class TimeTableService {
         }
 
         //기간 안에 존재하는 고정된 일정 customJob 반환
-        List<CustomizeJob> fixedJobs = CustomizeJobRepository.findFixedJob(start, end);
+        List<CustomizeJob> fixedJobs = customizeJobRepository.findFixedJob(start, end);
         List<ScheduleDto> fixed = fixedJobs.stream()
                 .map(ScheduleDto::toScheduleDto)
                 .toList();
 
         //시작 시간이 null, 고정 X 일정 -> 조정해야 하는 일정들
         //todo 조정해야 하는 일정들은 id 값으로 프론트에서 넘겨받기?
-        List<CustomizeJob> adjustJobs = CustomizeJobRepository.findAdjustJob();
+        List<CustomizeJob> adjustJobs = customizeJobRepository.findAdjustJob();
         List<ScheduleDto> adjust = adjustJobs.stream()
                 .map(ScheduleDto::toScheduleDto)
                 .toList();
