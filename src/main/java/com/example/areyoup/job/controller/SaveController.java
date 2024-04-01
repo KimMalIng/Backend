@@ -18,7 +18,6 @@ import java.util.List;
 @RequestMapping("/job/save")
 public class SaveController {
 
-    private final JobService jobService;
     private final SaveService saveService;
 
     /*
@@ -27,13 +26,13 @@ public class SaveController {
     @PostMapping("/fix")
     public ResponseEntity<JobResponseDto.FixedJobResponseDto> saveFixedJob(@RequestBody JobRequestDto.FixedJobRequestDto fixedJob){
         return ResponseEntity.ok()
-                .body(jobService.saveFixedJob(fixedJob));
+                .body(saveService.saveFixedJob(fixedJob));
     }
 
     @PostMapping("/adjust")
     public ResponseEntity<JobResponseDto.AdjustJobResponseDto> saveAdjustJob(@RequestBody JobRequestDto.AdjustJobRequestDto adjustJob){
         return ResponseEntity.ok()
-                .body(jobService.saveAdjustJob(adjustJob));
+                .body(saveService.saveAdjustJob(adjustJob));
     }
 
     /*
