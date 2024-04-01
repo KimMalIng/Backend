@@ -22,21 +22,6 @@ public class JobController {
     private final JobService jobService;
 
     /*
-    고정 일정 저장
-     */
-    @PostMapping("/fix/save")
-    public ResponseEntity<JobResponseDto.FixedJobResponseDto> saveFixedJob(@RequestBody FixedJobRequestDto fixedJob){
-        return ResponseEntity.ok()
-                .body(jobService.saveFixedJob(fixedJob));
-    }
-
-    @PostMapping("/adjust/save")
-    public ResponseEntity<JobResponseDto.AdjustJobResponseDto> saveAdjustJob(@RequestBody AdjustJobRequestDto adjustJob){
-        return ResponseEntity.ok()
-                .body(jobService.saveAdjustJob(adjustJob));
-    }
-
-    /*
     일정 고정
     //todo 넘어오는 일정 모두 수정하고 고정하기
      */
@@ -86,15 +71,6 @@ public class JobController {
     public ResponseEntity<?> modifyJob(@RequestBody List<JobRequestDto.UpdateJobRequestDto> updateJobs){
         return ResponseEntity.ok()
                 .body(jobService.updateJobs(updateJobs));
-    }
-
-    /*
-    유저마다 취침시간, 아침, 점심, 저녁 입력
-     */
-    @PostMapping("/default/save")
-    public ResponseEntity<List<JobResponseDto.DefaultJobResponseDto>> saveDefaultJob(@RequestBody List<JobRequestDto.DefaultJobRequestDto> defaultJobs){
-        return ResponseEntity.ok()
-                .body(jobService.saveDefaultJob(defaultJobs));
     }
 
 }
