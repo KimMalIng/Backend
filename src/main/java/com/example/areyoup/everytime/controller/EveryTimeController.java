@@ -19,10 +19,9 @@ public class EveryTimeController {
     /*
     유저에 대한 everytime 시간표 저장
      */
-    @PostMapping("/save/{member_id}")
-    public ResponseEntity<String> saveEveryTime(@RequestBody List<EverytimeRequestDto.EverytimeDto> everytimeDtos,
-                                                @PathVariable("member_id") Long member_id) throws ParseException {
+    @PostMapping("/save")
+    public ResponseEntity<String> saveEveryTime(@RequestBody List<EverytimeRequestDto.EverytimeDto> everytimeDtos) throws ParseException {
         return ResponseEntity.ok()
-                .body(everyTimeService.saveEveryTime(everytimeDtos, member_id));
+                .body(everyTimeService.saveEveryTime(everytimeDtos, 1L));
     }
 }

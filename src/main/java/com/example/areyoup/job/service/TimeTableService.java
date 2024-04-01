@@ -229,14 +229,12 @@ public class TimeTableService {
             mapper.setSerializationInclusion(JsonInclude.Include.ALWAYS);
             String jsonString = mapper.writeValueAsString(hashMap);
 
-//        JSONObject jsonObject = new JSONObject(hashMap);
-
             FileWriter file = new FileWriter(PATH + "data.json");
             file.write(jsonString);
             file.flush();
             file.close();
 
-            log.info("Save File in {} \\ data.json", PATH);
+            log.info("Save File in {}data.json", PATH);
         }
         catch (IOException e){
             log.error("IOException", e.getMessage());
