@@ -180,7 +180,7 @@ public class JobResponseDto {
         private String startTime;
         private String endTime;
         private String estimatedTime;
-        private LocalDate startDate;
+        private String startDate;
         private String deadline;
         private boolean shouldClear;
 
@@ -206,11 +206,12 @@ public class JobResponseDto {
             scheduleDto.setId(j.getId());
             scheduleDto.setName(j.getName());
             scheduleDto.setShouldClear(j.isShouldClear()); //뒤에 일정 넣는지 안넣는지
+
             if (j.getStartTime() == null) {
                 // Adjust job
                 scheduleDto.setLabel(j.getLabel());
                 scheduleDto.setEstimatedTime(j.getEstimatedTime());
-                scheduleDto.setStartDate(j.getStartDate());
+                scheduleDto.setStartDate(String.valueOf(j.getStartDate()).replace("-","."));
                 scheduleDto.setDeadline(j.getDeadline());
                 scheduleDto.setStartTime(null);
                 scheduleDto.setEndTime(null);
