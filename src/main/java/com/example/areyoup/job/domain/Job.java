@@ -1,9 +1,11 @@
 package com.example.areyoup.job.domain;
 
 import com.example.areyoup.global.entity.BaseEntity;
+import com.example.areyoup.job.dto.JobRequestDto;
 import com.example.areyoup.member.Member;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 
 @Entity
@@ -11,7 +13,8 @@ import lombok.*;
 @DiscriminatorColumn
 @NoArgsConstructor
 @Getter
-public class Job extends BaseEntity {
+@SuperBuilder
+public abstract class Job extends BaseEntity {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

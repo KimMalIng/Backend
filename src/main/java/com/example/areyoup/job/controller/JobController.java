@@ -33,7 +33,7 @@ public class JobController {
     @PostMapping("/adjust/save")
     public ResponseEntity<JobResponseDto.AdjustJobResponseDto> saveAdjustJob(@RequestBody AdjustJobRequestDto adjustJob){
         return ResponseEntity.ok()
-                .body(jobService.savedAdjustJob(adjustJob));
+                .body(jobService.saveAdjustJob(adjustJob));
     }
 
     /*
@@ -77,11 +77,24 @@ public class JobController {
                 .body(jobService.findAllJob());
     }
 
+    /*
+    일정 수정
+    - 수정할 모든 일정들을 배열에 넣어서 보내주기
+     */
     @PutMapping("/modify")
     @Transactional
     public ResponseEntity<?> modifyJob(@RequestBody List<JobRequestDto.UpdateJobRequestDto> updateJobs){
         return ResponseEntity.ok()
                 .body(jobService.updateJobs(updateJobs));
+    }
+
+    /*
+    유저마다 취침시간, 아침, 점심, 저녁 입력
+     */
+    @PostMapping("/default/save")
+    public ResponseEntity<List<JobResponseDto.DefaultJobResponseDto>> saveDefaultJob(@RequestBody List<JobRequestDto.DefaultJobRequestDto> defaultJobs){
+        return ResponseEntity.ok()
+                .body(jobService.saveDefaultJob(defaultJobs));
     }
 
 }

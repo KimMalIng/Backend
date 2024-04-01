@@ -1,7 +1,9 @@
 package com.example.areyoup.job.service;
 
 import com.example.areyoup.errors.errorcode.JobErrorCode;
+import com.example.areyoup.errors.errorcode.MemberErrorCode;
 import com.example.areyoup.errors.exception.JobException;
+import com.example.areyoup.errors.exception.MemberException;
 import com.example.areyoup.everytime.domain.EveryTimeJob;
 import com.example.areyoup.everytime.dto.EveryTimeResponseDto;
 import com.example.areyoup.everytime.repository.EveryTimeJobRepository;
@@ -14,11 +16,14 @@ import com.example.areyoup.job.dto.JobResponseDto;
 import com.example.areyoup.job.repository.CustomizeJobRepository;
 import com.example.areyoup.job.repository.JobRepository;
 import com.example.areyoup.job.repository.SeperatedJobRepository;
+import com.example.areyoup.member.Member;
+import com.example.areyoup.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +35,7 @@ public class JobService {
     private final SeperatedJobRepository seperatedJobRepository;
     private final CustomizeJobRepository customizeJobRepository;
     private final EveryTimeJobRepository everyTimeJobRepository;
+    private final MemberRepository memberRepository;
 
     /*
     고정 일정 저장
@@ -50,7 +56,7 @@ public class JobService {
     - startTime, endTime = null
     -
      */
-    public JobResponseDto.AdjustJobResponseDto savedAdjustJob(JobRequestDto.AdjustJobRequestDto adjustJob){
+    public JobResponseDto.AdjustJobResponseDto saveAdjustJob(JobRequestDto.AdjustJobRequestDto adjustJob){
         CustomizeJob job = JobRequestDto.AdjustJobRequestDto.toEntity(adjustJob);
         jobRepository.save(job);
         log.info("조정 해야 할 일정(Adjust Job) 저장");
@@ -223,5 +229,23 @@ public class JobService {
             nameofJob = seperatedJob.getName();
         }
         return nameofJob;
+    }
+
+    public List<JobResponseDto.DefaultJobResponseDto> saveDefaultJob(List<JobRequestDto.DefaultJobRequestDto> defaultJobs) {
+        /// TODO: 2024-04-01 Member 구하기
+        Long member_id = 1L;
+        Member m = memberRepository.findById(member_id)
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+        List<Job> jobs = defaultJobs.stream()
+                .map(jobRequestDto -> jobRequestDto.toJobEntity(jobRequestDto, m))
+                .toList();
+        //받은 RequestDto -> Entity로 변환
+
+        jobRepository.saveAll(jobs); //Entity 모두 저장
+
+        return jobs.stream()
+                .map(JobResponseDto.DefaultJobResponseDto::toResponseDto)
+                .toList(); //Entity -> ResponseDto로 변환
+
     }
 }

@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -17,6 +18,7 @@ import java.time.format.DateTimeFormatter;
 @DiscriminatorValue("C")
 @NoArgsConstructor
 @Getter
+@SuperBuilder
 public class CustomizeJob extends Job{
 
     //고정된 일정과 앞으로 조정할 일정 저장
@@ -29,25 +31,6 @@ public class CustomizeJob extends Job{
     private LocalDate startDate; //시작일
     private String deadline; //마감일
 
-
-
-    @Builder
-    public CustomizeJob(@NonNull String name, @NonNull Integer label,
-                        String startTime, String endTime, String estimatedTime,
-                        boolean shouldClear, boolean isFixed, boolean isComplete,
-                        LocalDate day, String deadline) {
-        this.name = name;
-        this.label = label;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.estimatedTime = estimatedTime;
-//        this.isPrivate = isPrivate;
-        this.isFixed = isFixed;
-        this.isComplete = isComplete;
-        this.startDate = day;
-        this.deadline = deadline;
-        this.shouldClear = shouldClear;
-    }
 
     public void toUpdateEstimatedTime(String estimatedTime){
         this.estimatedTime = estimatedTime;

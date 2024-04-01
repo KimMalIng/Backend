@@ -2,13 +2,20 @@ package com.example.areyoup.job.dto;
 
 import com.example.areyoup.global.function.CalTime;
 import com.example.areyoup.job.domain.CustomizeJob;
+import com.example.areyoup.job.domain.DefaultJob;
+import com.example.areyoup.job.domain.Job;
+import com.example.areyoup.member.Member;
 import com.fasterxml.jackson.databind.node.IntNode;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+
+import static com.example.areyoup.global.function.CalTime.cal_estimatedTime;
 
 @Data
 public class JobRequestDto {
@@ -53,7 +60,7 @@ public class JobRequestDto {
             return CustomizeJob.builder()
                     .name(fixedJob.getName())
                     .label(fixedJob.getLabel())
-                    .day(start)
+                    .startDate(start)
                     .deadline(fixedJob.getEndDate())
                     .estimatedTime(CalTime.cal_Time(fixedJob.getStartTime(), fixedJob.getEndTime()))
                     .isComplete(false)
@@ -82,7 +89,7 @@ public class JobRequestDto {
             return CustomizeJob.builder()
                     .name(adjustJob.getName())
                     .label(adjustJob.getLabel())
-                    .day(start)
+                    .startDate(start)
                     .deadline(deadline)
                     .estimatedTime(adjustJob.getEstimatedTime())
                     .isComplete(false)
@@ -92,12 +99,33 @@ public class JobRequestDto {
         }
     }
 
-    @Data
+    @Getter
+    @Setter
     public static class UpdateJobRequestDto extends JobRequestDto{
         private String startDate;
         private String endDate;
         private Integer completion;
         private Integer dayOfTheWeek;
+    }
+
+    @Getter
+    @Setter
+    public static class DefaultJobRequestDto{
+        private String name;
+        private String startTime;
+        private String endTime;
+
+        public Job toJobEntity(JobRequestDto.DefaultJobRequestDto jobRequestDto, Member member){
+            return DefaultJob.builder()
+                    .name(jobRequestDto.getName())
+                    .startTime(jobRequestDto.getStartTime())
+                    .endTime(jobRequestDto.getEndTime())
+                    .estimatedTime(cal_estimatedTime(jobRequestDto.getStartTime(), jobRequestDto.getEndTime()))
+                    .member(member)
+                    .label(0)
+                    .isFixed(true)
+                    .build();
+        }
     }
 
 

@@ -3,12 +3,14 @@ package com.example.areyoup.job.service;
 import com.example.areyoup.everytime.domain.EveryTimeJob;
 import com.example.areyoup.everytime.dto.EveryTimeResponseDto;
 import com.example.areyoup.job.domain.CustomizeJob;
+import com.example.areyoup.job.domain.DefaultJob;
 import com.example.areyoup.job.domain.SeperatedJob;
 import com.example.areyoup.job.dto.JobRequestDto;
 import com.example.areyoup.job.dto.JobResponseDto;
 import com.example.areyoup.job.dto.JobResponseDto.ScheduleDto;
 import com.example.areyoup.everytime.repository.EveryTimeJobRepository;
 import com.example.areyoup.job.repository.CustomizeJobRepository;
+import com.example.areyoup.job.repository.DefaultJobRepository;
 import com.example.areyoup.job.repository.SeperatedJobRepository;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,6 +36,7 @@ public class TimeTableService {
     private final EveryTimeJobRepository everyTimeJobRepository;
     private final CustomizeJobRepository CustomizeJobRepository;
     private final SeperatedJobRepository seperatedJobRepository;
+    private final DefaultJobRepository defaultJobRepository;
 
     /*
     시간 테이블 가져오기
@@ -141,6 +144,13 @@ public class TimeTableService {
                 .collect(Collectors.toList());
         timeLine.setWeek_day(days);
 
+        //3. 기본적인 일정 가져오기
+        //기본 일정 DefaultJob 반환 (취침, 아침, 점심, 저녁)
+        List<DefaultJob> defaultJobs = defaultJobRepository.findAll();
+        List<JobResponseDto.DefaultJobResponseDto> defaultJob = defaultJobs.stream()
+                .map(JobResponseDto.DefaultJobResponseDto::toResponseDto)
+                .toList();
+        timeLine.setDefaultJobs(defaultJob);
 
         //주어진 기간안에 일정들 가져오기
         List<ScheduleDto> adjustJobs = getAdjustJobs(start, end, datesBetween);
@@ -213,6 +223,7 @@ public class TimeTableService {
             hashMap.put("week_day", timeLine.getWeek_day());
             hashMap.put("schedule_startTime", timeLine.getSchedule_startTime());
             hashMap.put("schedule", timeLine.getSchedule());
+            hashMap.put("default", timeLine.getDefaultJobs());
 
             ObjectMapper mapper = new ObjectMapper();
             mapper.setSerializationInclusion(JsonInclude.Include.ALWAYS);

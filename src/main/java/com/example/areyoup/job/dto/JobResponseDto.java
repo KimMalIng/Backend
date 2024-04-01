@@ -292,6 +292,38 @@ public class JobResponseDto {
         private List<String> Week_day;
         private String schedule_startTime;
         private List<ScheduleDto> Schedule;
+        private List<DefaultJobResponseDto> defaultJobs;
+    }
+
+    @Getter
+    public static class DefaultJobResponseDto{
+        private final String name;
+        private final String startTime;
+        private final String endTime;
+        private final Integer label;
+        private final String estimatedTime;
+        private final boolean isFixed;
+
+        @Builder
+        public DefaultJobResponseDto(String name, String startTime, String endTime, Integer label, String estimatedTime, boolean isFixed) {
+            this.name = name;
+            this.startTime = startTime;
+            this.endTime = endTime;
+            this.label = label;
+            this.estimatedTime = estimatedTime;
+            this.isFixed = isFixed;
+        }
+
+        public static DefaultJobResponseDto toResponseDto(Job j){
+            return DefaultJobResponseDto.builder()
+                    .name(j.getName())
+                    .startTime(j.getStartTime())
+                    .endTime(j.getEndTime())
+                    .label(j.getLabel())
+                    .estimatedTime(j.getEstimatedTime())
+                    .isFixed(j.isFixed())
+                    .build();
+        }
     }
 
 

@@ -43,7 +43,21 @@ public class CalTime {
         return String.valueOf(result);
     }
 
-    /*
 
+    /*
+    시작 ~ 끝 시간이 주어지면 소요시간 구하기
      */
+    public static String cal_estimatedTime(String startTime, String endTime) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm");
+        LocalTime start = LocalTime.parse(startTime, dtf);
+        LocalTime end = LocalTime.parse(endTime, dtf);
+
+        Duration duration = Duration.between(start, end);
+
+        long hours = duration.toHours();
+        long minutes = duration.toMinutes() % 60;
+
+        return String.format("%02d:%02d", hours, minutes);
+    }
+
 }

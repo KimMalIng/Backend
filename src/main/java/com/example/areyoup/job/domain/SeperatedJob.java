@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -17,29 +18,12 @@ import java.time.format.DateTimeFormatter;
 @DiscriminatorValue("S")
 @NoArgsConstructor
 @Getter
+@SuperBuilder
 public class SeperatedJob extends Job{
 
     //CustomizeJob에서 조정된 일정
     private LocalDate day; //일정이 배치된 날짜
     private Integer completion; //완료도
-
-    @Builder
-    public SeperatedJob(@NonNull String name, @NonNull Integer label,
-                    String startTime, String endTime, String estimatedTime,
-                    boolean isComplete
-                    ,LocalDate day, Integer completion, boolean isFixed) {
-        this.name = name;
-        this.label = label;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.estimatedTime = estimatedTime;
-//        this.isPrivate = isPrivate;
-        this.isComplete = isComplete;
-//        this.member = member;
-        this.day = day;
-        this.completion = completion;
-        this.isFixed = isFixed;
-    }
 
     public void toUpdateCompletion(Integer completion, boolean isComplete){
         this.completion = completion;
