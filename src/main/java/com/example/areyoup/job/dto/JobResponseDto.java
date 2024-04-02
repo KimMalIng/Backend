@@ -188,7 +188,7 @@ public class JobResponseDto {
             return ScheduleDto.builder()
                     .id(everyTimeJob.getId())
                     .name(everyTimeJob.getName())
-                    .label(everyTimeJob.getLabel())
+                    .label(everyTimeJob.getLabel()) //항상 0
                     .day(String.valueOf(localDate).replace("-", "."))
                     .startTime(everyTimeJob.getStartTime())
                     .endTime(everyTimeJob.getEndTime())
@@ -234,7 +234,7 @@ public class JobResponseDto {
             return ScheduleDto.builder()
                     .id(seperatedJob.getId())
                     .name(seperatedJob.getName())
-                    .label(seperatedJob.getLabel())
+                    .label(0)
                     .day(String.valueOf(seperatedJob.getDay()).replace("-", "."))
                     .startTime(seperatedJob.getStartTime())
                     .endTime(seperatedJob.getEndTime())
