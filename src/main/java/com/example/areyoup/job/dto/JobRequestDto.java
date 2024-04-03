@@ -1,6 +1,7 @@
 package com.example.areyoup.job.dto;
 
 import com.example.areyoup.global.function.CalTime;
+import com.example.areyoup.global.function.DateTimeHandler;
 import com.example.areyoup.job.domain.CustomizeJob;
 import com.example.areyoup.job.domain.DefaultJob;
 import com.example.areyoup.job.domain.Job;
@@ -33,7 +34,6 @@ public class JobRequestDto {
 
     @Data
     public static class PeriodRequestDto{
-        private Long memberId;
         private String startDate;
         private String endDate;
     }
@@ -54,13 +54,10 @@ public class JobRequestDto {
         private boolean shouldClear;
 
         public static CustomizeJob toEntity(JobRequestDto.FixedJobRequestDto fixedJob){
-            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy.MM.dd");
-            LocalDate start = LocalDate.parse(fixedJob.getStartDate(), dtf);
-
             return CustomizeJob.builder()
                     .name(fixedJob.getName())
                     .label(fixedJob.getLabel())
-                    .startDate(start)
+                    .startDate(DateTimeHandler.strToDate(fixedJob.getStartDate()))
                     .deadline(fixedJob.getEndDate())
                     .estimatedTime(CalTime.cal_Time(fixedJob.getStartTime(), fixedJob.getEndTime()))
                     .isComplete(false)
@@ -79,17 +76,14 @@ public class JobRequestDto {
         private String estimatedTime;
 
         public static CustomizeJob toEntity(AdjustJobRequestDto adjustJob) {
-            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy.MM.dd");
-            LocalDate start = LocalDate.parse(adjustJob.getStartDate(), dtf);
-
-            LocalDate dl = LocalDate.parse(adjustJob.getEndDate(), dtf).plusDays(1);
+            LocalDate dl = DateTimeHandler.strToDate(adjustJob.getEndDate()).plusDays(1);
             LocalDateTime deadlineTime = dl.atStartOfDay();
             String deadline = deadlineTime.format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm"));
 
             return CustomizeJob.builder()
                     .name(adjustJob.getName())
                     .label(adjustJob.getLabel())
-                    .startDate(start)
+                    .startDate(DateTimeHandler.strToDate(adjustJob.getStartDate()))
                     .deadline(deadline)
                     .estimatedTime(adjustJob.getEstimatedTime())
                     .isComplete(false)

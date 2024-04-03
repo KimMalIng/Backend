@@ -1,5 +1,6 @@
 package com.example.areyoup.job.domain;
 
+import com.example.areyoup.global.function.DateTimeHandler;
 import com.example.areyoup.job.dto.JobRequestDto;
 import com.example.areyoup.job.dto.JobResponseDto;
 import com.example.areyoup.job.dto.JobResponseDto.FixedJobResponseDto;
@@ -12,7 +13,6 @@ import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 @Entity
 @DiscriminatorValue("C")
@@ -45,9 +45,6 @@ public class CustomizeJob extends Job{
     }
 
     public void toUpdateAll(JobRequestDto.UpdateJobRequestDto updateJob) {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy.MM.dd");
-        LocalDate start = LocalDate.parse(updateJob.getStartDate(), dtf);
-
         this.name = updateJob.getName();
         this.label = updateJob.getLabel();
         this.startTime = updateJob.getStartTime();
@@ -55,7 +52,7 @@ public class CustomizeJob extends Job{
         this.estimatedTime = updateJob.getEstimatedTime();
         this.isFixed = updateJob.isFixed();
         this.isComplete = updateJob.isComplete();
-        this.startDate = start;
+        this.startDate = DateTimeHandler.strToDate(updateJob.getStartDate());
         this.deadline = updateJob.getDeadline();
     }
 }
