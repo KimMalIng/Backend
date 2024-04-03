@@ -12,9 +12,8 @@ public class CalTime {
     public static String cal_Time(String s, String e) {
 
         //HH:mm 형식으로 모두 초기화
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm");
-        LocalTime startTime = LocalTime.parse(s, dtf);
-        LocalTime endTime = LocalTime.parse(e, dtf);
+        LocalTime startTime = DateTimeHandler.strToTime(s);
+        LocalTime endTime = DateTimeHandler.strToTime(e);
 
         //시작 시간과, 끝나는 시간으로 소요 시간을 계산
         Duration duration = Duration.between(startTime, endTime);
@@ -31,9 +30,8 @@ public class CalTime {
      */
     public static String cal_estimatedTime(Integer completion, String seperated_et, String custom_et) {
         float percent = (float) completion/100;
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm");
-        LocalTime seperated = LocalTime.parse(seperated_et, dtf);
-        LocalTime custom = LocalTime.parse(custom_et, dtf);
+        LocalTime seperated = DateTimeHandler.strToTime(seperated_et);
+        LocalTime custom = DateTimeHandler.strToTime(custom_et);
 
         long seperated_minute = ((long) (( seperated.toSecondOfDay() / 60) * percent));
         //완료한 만큼의 시간(분) 계산하기
@@ -48,9 +46,8 @@ public class CalTime {
     시작 ~ 끝 시간이 주어지면 소요시간 구하기
      */
     public static String cal_estimatedTime(String startTime, String endTime) {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm");
-        LocalTime start = LocalTime.parse(startTime, dtf);
-        LocalTime end = LocalTime.parse(endTime, dtf);
+        LocalTime start = DateTimeHandler.strToTime(startTime);
+        LocalTime end = DateTimeHandler.strToTime(endTime);
 
         Duration duration = Duration.between(start, end);
 

@@ -1,6 +1,7 @@
 package com.example.areyoup.job.dto;
 
 import com.example.areyoup.everytime.domain.EveryTimeJob;
+import com.example.areyoup.global.function.DateTimeHandler;
 import com.example.areyoup.job.domain.CustomizeJob;
 import com.example.areyoup.job.domain.Job;
 import com.example.areyoup.job.domain.SeperatedJob;
@@ -9,7 +10,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -74,7 +75,7 @@ public class JobResponseDto {
                     .estimatedTime(j.getEstimatedTime())
                     .isComplete(j.isComplete())
                     .isFixed(j.isFixed())
-                    .startDate(String.valueOf(j.getStartDate()).replace("-","."))
+                    .startDate(DateTimeHandler.dateToStr(j.getStartDate()))
                     .deadline(j.getDeadline())
 //                    .completion(j.getCompletion())
                     .build();
@@ -135,9 +136,6 @@ public class JobResponseDto {
         }
 
         public static SeperatedJob toEntity(SeperatedJobResponseDto responseDto){
-            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy.MM.dd");
-            LocalDate start = LocalDate.parse(responseDto.getDay(), dtf);
-
             return SeperatedJob.builder()
                     .name(responseDto.getName())
                     .label(responseDto.getLabel())
@@ -145,7 +143,7 @@ public class JobResponseDto {
                     .endTime(responseDto.getEndTime())
                     .estimatedTime(responseDto.getEstimatedTime())
 //                    .isComplete()
-                    .day(start)
+                    .day(DateTimeHandler.strToDate(responseDto.getDay()))
                     .completion(responseDto.getCompletion())
                     .isFixed(true)
                     //todo 조정된 일정 fixed 값 처리
@@ -161,7 +159,7 @@ public class JobResponseDto {
                     .endTime(seperatedJob.getEndTime())
                     .estimatedTime(seperatedJob.getEstimatedTime())
                     .isComplete(seperatedJob.isComplete())
-                    .day(String.valueOf(seperatedJob.getDay()).replace("-","."))
+                    .day(DateTimeHandler.dateToStr(seperatedJob.getDay()))
                     .completion(seperatedJob.getCompletion())
                     .isFixed(seperatedJob.isFixed())
                     .build();
@@ -189,7 +187,7 @@ public class JobResponseDto {
                     .id(everyTimeJob.getId())
                     .name(everyTimeJob.getName())
                     .label(everyTimeJob.getLabel()) //항상 0
-                    .day(String.valueOf(localDate).replace("-", "."))
+                    .day(DateTimeHandler.dateToStr(localDate))
                     .startTime(everyTimeJob.getStartTime())
                     .endTime(everyTimeJob.getEndTime())
                     .estimatedTime(everyTimeJob.getEstimatedTime())
@@ -211,7 +209,7 @@ public class JobResponseDto {
                 // Adjust job
                 scheduleDto.setLabel(j.getLabel());
                 scheduleDto.setEstimatedTime(j.getEstimatedTime());
-                scheduleDto.setStartDate(String.valueOf(j.getStartDate()).replace("-","."));
+                scheduleDto.setStartDate(DateTimeHandler.dateToStr(j.getStartDate()));
                 scheduleDto.setDeadline(j.getDeadline());
                 scheduleDto.setStartTime(null);
                 scheduleDto.setEndTime(null);
@@ -219,7 +217,7 @@ public class JobResponseDto {
             } else {
                 // Fixed job
                 scheduleDto.setLabel(0);
-                scheduleDto.setDay(String.valueOf(j.getStartDate()).replace("-", "."));
+                scheduleDto.setDay(DateTimeHandler.dateToStr(j.getStartDate()));
                 scheduleDto.setStartTime(j.getStartTime());
                 scheduleDto.setEndTime(j.getEndTime());
                 scheduleDto.setEstimatedTime(j.getEstimatedTime());
@@ -235,7 +233,7 @@ public class JobResponseDto {
                     .id(seperatedJob.getId())
                     .name(seperatedJob.getName())
                     .label(0)
-                    .day(String.valueOf(seperatedJob.getDay()).replace("-", "."))
+                    .day(DateTimeHandler.dateToStr(seperatedJob.getDay()))
                     .startTime(seperatedJob.getStartTime())
                     .endTime(seperatedJob.getEndTime())
                     .estimatedTime(seperatedJob.getEstimatedTime())
