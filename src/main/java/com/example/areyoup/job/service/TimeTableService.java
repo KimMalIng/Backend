@@ -2,6 +2,7 @@ package com.example.areyoup.job.service;
 
 import com.example.areyoup.everytime.domain.EveryTimeJob;
 import com.example.areyoup.everytime.dto.EveryTimeResponseDto;
+import com.example.areyoup.global.function.DateTimeHandler;
 import com.example.areyoup.job.domain.CustomizeJob;
 import com.example.areyoup.job.domain.DefaultJob;
 import com.example.areyoup.job.domain.SeperatedJob;
@@ -11,6 +12,7 @@ import com.example.areyoup.job.dto.JobResponseDto.ScheduleDto;
 import com.example.areyoup.everytime.repository.EveryTimeJobRepository;
 import com.example.areyoup.job.repository.CustomizeJobRepository;
 import com.example.areyoup.job.repository.DefaultJobRepository;
+import com.example.areyoup.job.repository.JobRepository;
 import com.example.areyoup.job.repository.SeperatedJobRepository;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,9 +23,10 @@ import org.apache.tomcat.util.json.ParseException;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -37,14 +40,14 @@ public class TimeTableService {
     private final CustomizeJobRepository customizeJobRepository;
     private final SeperatedJobRepository seperatedJobRepository;
     private final DefaultJobRepository defaultJobRepository;
+    private final JobRepository jobRepository;
 
     /*
     시간 테이블 가져오기
      */
-    public HashMap<String, List> getTable(JobRequestDto.PeriodRequestDto periodDto) {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy.MM.dd");
-        LocalDate start = LocalDate.parse(periodDto.getStartDate(), dtf);
-        LocalDate end = LocalDate.parse(periodDto.getEndDate(), dtf);
+    public HashMap<String, List> getTable(String startDate, String endDate) {
+        LocalDate start = DateTimeHandler.strToDate(startDate);
+        LocalDate end = DateTimeHandler.strToDate(endDate);
 
         //날짜들의 요일에 해당되는 에타 시간표(Basic Jobs)를 가져온다.
         List<EveryTimeResponseDto> EveryTimeJobs = getEveryTimeJobs(start, end);
@@ -120,13 +123,12 @@ public class TimeTableService {
         JobResponseDto.AdjustmentDto timeLine = new JobResponseDto.AdjustmentDto();
         String startDate = periodDto.getStartDate(); //yyyy.MM.dd
         String endDate = periodDto.getEndDate();
-        Long memberId = periodDto.getMemberId();
+        Long memberId = 1L;
         //todo memberId 사용...
 
         LocalDateTime now = LocalDateTime.now(); //현재 날짜와 시간 가져오기
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy.MM.dd");
-        LocalDate start = LocalDate.parse(startDate, dtf);
-        LocalDate end = LocalDate.parse(endDate, dtf);
+        LocalDate start = DateTimeHandler.strToDate(startDate);
+        LocalDate end = DateTimeHandler.strToDate(endDate);
         //시작, 끝 날짜 formatting 과정
 
         //1. 스케줄 시작 시간 세팅
@@ -140,7 +142,7 @@ public class TimeTableService {
         //2. 날짜 세팅
         List<LocalDate> datesBetween = getAllDatesBetween(start, end);
         List<String> days = datesBetween.stream()
-                .map(localDate -> localDate.toString().replace("-", "."))
+                .map(DateTimeHandler::dateToStr)
                 .collect(Collectors.toList());
         timeLine.setWeek_day(days);
 
@@ -190,8 +192,7 @@ public class TimeTableService {
                 //label !=0 이라면 조정된 것들
                 for (ScheduleDto scheduleDto : adjustmentDto.getSchedule()) {
                     if (scheduleDto.getLabel() != 0){
-                        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy.MM.dd");
-                        LocalDate day = LocalDate.parse(scheduleDto.getDay(), dtf);
+                        LocalDate day = DateTimeHandler.strToDate(scheduleDto.getDay());
                         JobResponseDto.SeperatedJobResponseDto responseDto = JobResponseDto.SeperatedJobResponseDto.toSeperatedJob(scheduleDto);
                         SeperatedJob seperatedJob = JobResponseDto.SeperatedJobResponseDto.toEntity(responseDto);
                         seperatedJobRepository.save(seperatedJob);
@@ -220,6 +221,9 @@ public class TimeTableService {
         return null; //todo null 처리
     }
 
+    /*
+    data.json 파일에 저장
+     */
     private void saveFile(JobResponseDto.AdjustmentDto timeLine){
         try {
             HashMap<String, Object> hashMap = new HashMap<>();
@@ -250,8 +254,8 @@ public class TimeTableService {
     private List<ScheduleDto> getAdjustJobs(LocalDate start, LocalDate end, List<LocalDate> datesBetween) {
         List<ScheduleDto> result = new ArrayList<>();
         for (LocalDate localDate : datesBetween){
-            int dayOfWeek = localDate.getDayOfWeek().getValue()-1; //월요일이 1부터 시작
-            //요일만 띄운다 -> 해당 기간 안에 필요한 요일만 넣어서 EveryTimeJob 한번에 꺼내기
+            int dayOfWeek = localDate.getDayOfWeek().getValue()-1; //월요일 1부터 시작해서 -1 처리
+            //해당 요일에 해당하는 EveryTimeJob들 가져오기 (하루에 듣는 수업이 여러 개 일수도 있음)
             List<EveryTimeJob> everyTimeJob = everyTimeJobRepository.findByDayOfTheWeek(dayOfWeek);
             //todo memberId까지 확인해야함
             for (EveryTimeJob basic : everyTimeJob){
@@ -286,4 +290,88 @@ public class TimeTableService {
 
         return result;
     }
+
+    public String calLeftTime(String startDate, String endDate) {
+        LocalDate start = DateTimeHandler.strToDate(startDate);
+        LocalDate end = DateTimeHandler.strToDate(endDate);
+
+        Integer defaultMinute = getTimeOfDefaultJob();
+        Integer everyTimeMinute = getTimeOfEveryTimeJob(start,end);
+        Integer customizeMinute = getTimeOfCustomizeJob(start,end);
+        Integer seperatedMinute = getTimeOfSeperatedJob(start,end);
+        Integer totalMinute = defaultMinute + everyTimeMinute + customizeMinute + seperatedMinute;
+        //기간 내의 defaultJob + everyTimeJob + customizeJob + seperatedJob 총 소요시간
+
+        log.info("기간 내의 총 소요 시간 : {}, {}분",
+                String.format("%02d:%02d", (totalMinute/60),(totalMinute%60)),
+                totalMinute
+        );
+        LocalDateTime s = start.atStartOfDay();
+        LocalDateTime e = end.plusDays(1).atStartOfDay();
+        Duration duration = Duration.between(s, e);
+
+        int mintuesPeriod = (int) duration.toMinutes();
+
+        log.info("기간 내의 총 시간 : {}",
+                String.format("%02d:%02d", (mintuesPeriod/60),(mintuesPeriod%60)),
+                mintuesPeriod
+        );
+
+        int result = mintuesPeriod - totalMinute;
+
+        return String.format("%02d:%02d", (result/60),(result%60));
+    }
+
+    private Integer getTimeOfDefaultJob() {
+
+        Integer result = jobRepository.getLeftTimeFromDefaultJob();
+        log.info("DefaultJob의 총 소요시간 : {}",String.format("%02d:%02d", (result/60),(result%60)));
+        return result;
+    }
+
+    private Integer getTimeOfSeperatedJob(LocalDate start, LocalDate end) {
+        Integer result = 0 ;
+        List<SeperatedJob> seperatedJobs = seperatedJobRepository.findByDayBetweenAndIsFixedIsTrue(start,end);
+        for (SeperatedJob basic : seperatedJobs){
+            LocalTime time = DateTimeHandler.strToTime(basic.getEstimatedTime());
+            int calTime = (time.getHour() * 60 + time.getMinute());
+            result += calTime;
+        }
+        log.info("SeperatedJob의 총 소요시간 : {}", String.format("%02d:%02d", (result/60),(result%60)));
+        return result;
+    }
+
+    private Integer getTimeOfCustomizeJob(LocalDate start, LocalDate end) {
+        Integer result = 0;
+        List<CustomizeJob> customizeJobs = customizeJobRepository.findFixedJob(start, end);
+        for (CustomizeJob basic : customizeJobs){
+            LocalTime time = DateTimeHandler.strToTime(basic.getEstimatedTime());
+            int calTime = (time.getHour() * 60 + time.getMinute());
+            result += calTime;
+        }
+        log.info("FixedJob의 총 소요시간 : {}", String.format("%02d:%02d", (result/60),(result%60)));
+        return result;
+    }
+
+    //기간 안의 EveryTimeJob 총 소요시간
+    private Integer getTimeOfEveryTimeJob(LocalDate start, LocalDate end) {
+        Integer result = 0;
+        List<LocalDate> datesBetween = getAllDatesBetween(start, end);
+        for (LocalDate localDate : datesBetween){
+            int dayOfWeek = localDate.getDayOfWeek().getValue()-1; //월요일 1부터 시작해서 -1 처리
+            //해당 요일에 해당하는 EveryTimeJob들 가져오기 (하루에 듣는 수업이 여러 개 일수도 있음)
+            List<EveryTimeJob> everyTimeJob = everyTimeJobRepository.findByDayOfTheWeek(dayOfWeek);
+            //todo memberId까지 확인해야함
+            for (EveryTimeJob basic : everyTimeJob){
+                LocalTime time = DateTimeHandler.strToTime(basic.getEstimatedTime());
+                int calTime = (time.getHour() * 60 + time.getMinute());
+                result += calTime;
+                //해당 일정의 소요시간 더하는 과정
+            }
+        }
+        log.info("EveryTimeJob의 총 소요시간 : {} ",String.format("%02d:%02d", (result/60),(result%60)));
+        return result;
+    }
+
+
 }
