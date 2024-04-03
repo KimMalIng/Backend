@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[9]:
 
 
 import json
@@ -84,11 +84,79 @@ class Schedule:
         
         return (deadline_exist, real_time)
     
+    #json의 defaultJob을 읽어 입력된 시간만큼 self.week_schedule에 1을 채우는 함수
+    def fill_default_job(self, default_dic):
+        for k, v in default_dic.items():
+            #key값이 "수면"일 경우
+            if k == "수면":
+                #종료 시간을 datetime.datetime 객체로 바꿔 estimated_time과 차를 통해 자정 이전에 수면이 시작되는지 아닌지 확인
+                end_time = v["endTime"]
+                end_time = datetime.datetime(2023,11,16, int(end_time.split(":")[0]), int(end_time.split(":")[1]))
+                mid_night = datetime.datetime(2023,11,16,0,0)
+                estimated_time = v["estimatedTime"]
+                estimated_time = datetime.time(int(estimated_time.split(":")[0]), int(estimated_time.split(":")[1]))
+                start_time = end_time-datetime.timedelta(hours = estimated_time.hour, minutes = estimated_time.minute)
+                #수면이 자정 이전에 시작되는 경우
+                if start_time < mid_night:
+                    #수면 시작 시간을 start_time 변수에 문자열로 저장
+                    start_time = str(start_time.hour) + ":" + str(start_time.minute)
+                    self.is_afterMid = False
+                    self.startSleep = start_time
+                    #시작 시간부터 자정 이전까지의 시간을 문자열로 계산
+                    before_mid = ""
+                    before_mid += str(int((midnight - start_time).seconds/60)//60) + ":"
+                    before_mid += str(int((midnight - start_time).seconds/60)%60)
+                    #수면 시작 시간에 대한 배열에서의 index를 make_time을 통해 구해서 beforeMid_idx에 저장
+                    beforeMid_idx = self.make_time(start_time, 1)
+                    #자정 이전까지의 수면시간이 배열에서 몇 칸인지 make_time을 통해 구하여 beforeMid_slot에 저장
+                    beforeMid_slot = self.make_time(before_mid, 0)
+                    
+                    #구한 수면시간을 배열에 추가
+                    for i in range(self.week_len):
+                        for j in range(beforeMid_slot):
+                            self.week_schedule[i][beforeMid_idx+ j] = 1
+                    
+                    #자정 이후의 남은 수면 시간을 문자열로 remain_time에 저장
+                    remain_time = ""
+                    remain_time += str(int((end_time-midnight).seconds/60//60)) + ":"
+                    remain_time += str(int((end_time-midnight).seconds/60)%60)
+                    #자정 이후 수면시간이 배열에서 몇 칸인지 make_time을 통해 구하여 afterMid_slot에 저장
+                    afterMid_slot = self.make_time(remain_time, 0)
+                    
+                    #구한 수면시간을 배열에 추가
+                    for i in range(self.week_len):
+                        for j in range(afterMid_slot):
+                            self.week_schedule[i][j] = 1
+                
+                #수면시작시간이 자정 이후일 경우
+                else:
+                    #시작 시간의 index를 make_time을 통해 구하고 배열에 추가
+                    start_time = str(start_time.hour) + ":" + str(start_time.minute)
+                    self.is_afterMid = True
+                    self.startSleep = start_time
+                    sleep_idx = self.make_time(start_time, 1)
+                    sleep_slot = self.make_time(v["estimatedTime"], 0)
+                    for i in range(self.week_len):
+                        for j in range(sleep_slot):
+                            self.week_schedule[i][sleep_idx + j] = 1
+            
+            #key값이 수면이 아닐 경우
+            else:
+                #시작 시간의 index를 make_time을 통해 구하고 estimated_time만큼 배열에 추가
+                start_time = v["startTime"]
+                estimated_time = v["estimatedTime"]
+                start_idx = self.make_time(start_time, 1)
+                time_slot = self.make_time(v["estimatedTime"], 0)
+                for i in range(self.week_len):
+                    for j in range(time_slot):
+                        self.week_schedule[i][start_idx + j] = 1                  
+
+    
     #최초 Schedule 객체를 만들 때 호출되는 초기화 함수(json_file을 읽어들여 load해주고, week_dic에는 json의 Week_day 리스트를,
     #sch_dic에는 사용자가 입력한 배정 해주길 바라는 일정들의 {고유번호:(이름, 실행시간, 마감일자)}의 dictionary형태로 저장하며
     #week_schedule에는 사용자의 시간이 고정된 계획을 1로 입력한 (주차 남은 일자)x(24*60/시간 구분 단위)의 리스트가 저장된다.
     def __init__(self, json_path):
-        with open(json_path, 'r', encoding='UTF8') as f:
+        with open(json_path, 'r', encoding='utf-8') as f:
             self.json_str = json.load(f)
         self.week_dic = {}
         self.sch_dic = {}
@@ -112,21 +180,22 @@ class Schedule:
         
         for i in range(plan_startTime):
             self.week_schedule[0][i] = 1
+            
+        #json의 defaultJob에서 {"이름": {"startTime": , "estimatedTime": }}의 format으로 dictionary 만듦
+        default_dic = {}
+        self.is_afterMid = False
+        self.startSleep = ""
+        default_job = self.json_str["defaultJobs"]
+        for i in range(len(default_job)):
+            default_dic[default_job[i]["name"]] = {}
+            default_dic[default_job[i]["name"]]["startTime"] = default_job[i]["startTime"]
+            default_dic[default_job[i]["name"]]["endTime"] = default_job[i]["endTime"]
+            default_dic[default_job[i]["name"]]["estimatedTime"] = default_job[i]["estimatedTime"]
         
-        #수면, 식사 시간에 일정을 배정하는 걸 막기 위해 12~08, 11~13, 17~19시에 1을 저장
-        for i in range(self.week_len):
-            sleep_idx = self.make_time("00:00", 1)
-            sleep_slot = self.make_time("08:00", 0)
-            for j in range(sleep_slot):  
-                self.week_schedule[i][sleep_idx+ j] = 1
-            lunch_idx = self.make_time("11:00", 1)
-            lunch_slot = self.make_time("02:00", 0)
-            for j in range(lunch_slot):
-                self.week_schedule[i][lunch_idx+j] = 1
-            dinner_idx = self.make_time("17:00", 1)
-            dinner_slot = self.make_time("02:00", 0)
-            for j in range(dinner_slot):
-                self.week_schedule[i][dinner_idx+j] = 1
+        #배열에 식사 시간과 취침 시간 추가
+        self.fill_default_job(default_dic)
+        
+
             
         #week_schedul의 row값을 날짜로 접근하기 위해 json파일의 Week_day안에 날짜를 리스트의 row값에 대한 key값을 가지도록 dictionary week_dic를 만듦
         for i in range(self.week_len):
@@ -136,7 +205,7 @@ class Schedule:
             schedule = self.json_str["schedule"][i]
             
             #json에서 읽어온 실행 시간을 week_schedule에 배정해야하는 시간 크기로 바꿔 run_time에 저장
-            run_time = self.make_time(schedule["estimated_time"], 0)
+            run_time = self.make_time(schedule["estimatedTime"], 0)
             
             #label이 0이면 시간이 고정된 일정이라는 뜻이므로 해당 시간을 읽어들여 make_time를 통해 week_schedule의 index로 바꾸고 
             #해당 index에 1값을 저장
@@ -146,6 +215,23 @@ class Schedule:
                 #week_schedule의 startTime index에 run_time만큼 1을 저장
                 for j in range(run_time):
                     self.week_schedule[self.week_dic[schedule["day"]]][start_time+j] = 1
+                
+                #shouldClear값이 True인 경우에 취침 전까지 배열을 모두 1로 채움
+                if schedule["shouldClear"] == True:
+                    k = 0
+                    idx = start_time + run_time
+                    #해당 일정이 끝난 이후의 index를 idx로 놓고 이후 취침 전까지 모든 일정을 다 1로 채움
+                    while idx + k < 24*int(60/self.time_unit):
+                        self.week_schedule[self.week_dic[schedule["day"]]][idx+k] = 1
+                        k += 1
+                        
+                    #만약 수면시간이 자정 이후이고 startSleep시간이 00:00 이후일 때 startSleep에 저장된 시간을 make_time으로 
+                    #index를 만들어줘 startSleep_idx에 저장하고 자정부터 수면 시작시간 전까지 1로 채움
+                    if self.is_afterMid == True and self.startSleep!="0:0":
+                        startSleep_idx = self.make_time(self.startSleep, 1)
+                        for k in range(startSleep_idx):
+                            self.week_schedule[self.week_dic[schedule["day"]]+1][k] = 1
+                
             
             #label이 0이 아닌 다른 값은 배정을 해주어야 하는 일정이기 때문에 일정들의 {고유번호:(이름, 실행시간, 마감일자)}형태로
             #sch_dic에 저장
@@ -250,6 +336,12 @@ class Schedule:
                     k = 0
                     while k < int(24*60/self.time_unit):
                         if schedule[j][k] == i+2:
+                            idx = 1
+                            while True:
+                                if schedule[j][k+idx] == i+2:
+                                    idx += 1
+                                else:
+                                    break
                             total_count += idx
                            
                             if idx >= int(60/self.time_unit):
@@ -618,6 +710,7 @@ class Schedule:
         #json_dic에 처음 읽어들인 json파일의 Week_day값과 Schedule_startTime을 저장
         json_dic["week_day"] = self.json_str["week_day"]
         json_dic["schedule_startTime"] = self.json_str["schedule_startTime"]
+        json_dic["defaultJobs"] = self.json_str["defaultJobs"]
         
         #처음 읽어들인 json 파일의 Schedule에 존재하는 계획 중 고정된 일정을 가진 것들에 대해 fix_schedule에 추가해주는 과정
         for i in range(len(self.json_str["schedule"])):
@@ -690,7 +783,7 @@ class Schedule:
                     #시작 시간, 종료시간, 실행시간을 assign_schedule에 입력
                     assign_schedule_copy[list_idx]["startTime"] = start_time
                     assign_schedule_copy[list_idx]["endTime"] = end_time
-                    assign_schedule_copy[list_idx]["estimated_time"] = run_time
+                    assign_schedule_copy[list_idx]["estimatedTime"] = run_time
                     
                     #실행 일자는 현재 반복문의 row데이터에 대해서 입력
                     assign_schedule_copy[list_idx]["day"] = sch.json_str["week_day"][i]
@@ -704,7 +797,7 @@ class Schedule:
         
         #json_dic에 저장된 값을 json파일로 저장
         with open(path, 'w', encoding = 'utf-8') as fw:
-            json.dump(json_dic, fw, indent = '\t')
+            json.dump(json_dic, fw, indent = '\t', ensure_ascii=False)
             
         return 0
 
