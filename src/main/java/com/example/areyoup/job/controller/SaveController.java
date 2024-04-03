@@ -28,13 +28,14 @@ public class SaveController {
         return ResponseEntity.ok()
                 .body(saveService.saveFixedJob(fixedJob));
     }
-
+    /*
+    조정해야 하는 일정 저장
+     */
     @PostMapping("/adjust")
     public ResponseEntity<JobResponseDto.AdjustJobResponseDto> saveAdjustJob(@RequestBody JobRequestDto.AdjustJobRequestDto adjustJob){
         return ResponseEntity.ok()
                 .body(saveService.saveAdjustJob(adjustJob));
     }
-
     /*
     유저마다 취침시간, 아침, 점심, 저녁 입력
      */

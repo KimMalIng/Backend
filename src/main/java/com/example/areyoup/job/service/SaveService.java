@@ -24,9 +24,6 @@ import java.util.List;
 public class SaveService {
 
     private final JobRepository jobRepository;
-    private final SeperatedJobRepository seperatedJobRepository;
-    private final CustomizeJobRepository customizeJobRepository;
-    private final EveryTimeJobRepository everyTimeJobRepository;
     private final MemberRepository memberRepository;
 
     /*
@@ -55,6 +52,10 @@ public class SaveService {
         return JobResponseDto.AdjustJobResponseDto.toDto(job);
     }
 
+    /*
+    유저의 기본 일정 저장
+    - 취침, 아침, 점심, 저녁 시간 고정
+     */
     public List<JobResponseDto.DefaultJobResponseDto> saveDefaultJob(List<JobRequestDto.DefaultJobRequestDto> defaultJobs) {
         /// TODO: 2024-04-01 Member 구하기
         Long member_id = 1L;
