@@ -1,4 +1,4 @@
-package com.example.areyoup.member;
+package com.example.areyoup.member.service;
 
 import org.springframework.stereotype.Service;
 

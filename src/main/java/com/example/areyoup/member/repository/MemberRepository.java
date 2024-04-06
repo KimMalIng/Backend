@@ -1,5 +1,6 @@
-package com.example.areyoup.member;
+package com.example.areyoup.member.repository;
 
+import com.example.areyoup.member.domain.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
