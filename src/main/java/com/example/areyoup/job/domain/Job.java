@@ -27,7 +27,7 @@ public abstract class Job extends BaseEntity {
     protected String endTime; //끝나는 시간
     protected String estimatedTime; //예상 소요 시간
     protected boolean isFixed; //일정 고정 여부
-    protected boolean isComplete = false; //일정 완료 여부
+    protected boolean isComplete; //일정 완료 여부
 
     @ManyToOne(fetch = FetchType.LAZY)
     protected Member member;
