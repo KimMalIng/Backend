@@ -1,14 +1,13 @@
-package com.example.areyoup.job.controller;
+package com.example.areyoup.timetable.controller;
 
 import com.example.areyoup.job.dto.JobRequestDto;
 import com.example.areyoup.job.dto.JobResponseDto;
-import com.example.areyoup.job.service.TimeTableService;
+import com.example.areyoup.timetable.service.TimeTableService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 

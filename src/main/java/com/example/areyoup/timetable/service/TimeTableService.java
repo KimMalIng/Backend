@@ -1,4 +1,4 @@
-package com.example.areyoup.job.service;
+package com.example.areyoup.timetable.service;
 
 import com.example.areyoup.everytime.domain.EveryTimeJob;
 import com.example.areyoup.everytime.dto.EveryTimeResponseDto;
