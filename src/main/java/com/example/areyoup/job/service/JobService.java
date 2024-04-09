@@ -43,8 +43,8 @@ public class JobService {
     public JobResponseDto fixJob(Long id) {
         Job j = jobRepository.findById(id)
                 .orElseThrow(() -> new JobException(JobErrorCode.JOB_NOT_FOUND));
-        if (j.isFixed()) log.info("일정 {} unfixed", id);
-        else log.info("일정 {} fixed", id);
+        if (j.isFixed()) log.info("Job {} unfixed", id);
+        else log.info("Job {} fixed", id);
         j.toFixUpdate(j.isFixed());
         return JobResponseDto.toDto(j);
     }
@@ -63,10 +63,10 @@ public class JobService {
             seperatedJob.toUpdateCompletion(completion, true); //완료도와 완료 여부 업데이트
 
             CustomizeJob customizeJob = customizeJobRepository.findByName(seperatedJob.getName()); //원래 일정의 소요시간
-            String estimatedTime = CalTime.cal_estimatedTime(seperatedJob.getCompletion(), seperatedJob.getEstimatedTime(), customizeJob.getEstimatedTime());
+            String estimatedTime = CalTime.cal_estimatedTime(seperatedJob.getCompletion(), customizeJob.getEstimatedTime());
             customizeJob.toUpdateEstimatedTime(estimatedTime);
-            log.info(" {} - 일정 '{}' 완료 후 예상 소요 시간 조정", seperatedJob.getDay(), seperatedJob.getName());
-            log.info("일정 '{}'의 남은 예상 시간 : {}", customizeJob.getName(), customizeJob.getEstimatedTime());
+            log.info("{} - '{}' , {}% Complete", seperatedJob.getDay(), seperatedJob.getName(),completion);
+            log.info("Left Time of '{}' : {}", customizeJob.getName(), customizeJob.getEstimatedTime());
 
             return JobResponseDto.AdjustJobResponseDto.toDto(customizeJob);
         } else { //고정된 일정
@@ -74,7 +74,7 @@ public class JobService {
                     .orElseThrow(() -> new JobException(JobErrorCode.JOB_NOT_FOUND));
             customizeJob.toUpdateComplete(customizeJob.isComplete());
             customizeJobRepository.save(customizeJob);
-            log.info("{} - 일정 '{}' 완료", customizeJob.getStartDate(), customizeJob.getName());
+            log.info("{} - '{}' Complete", customizeJob.getStartDate(), customizeJob.getName());
             return JobResponseDto.AdjustJobResponseDto.toDto(customizeJob);
         }
     }
@@ -97,7 +97,7 @@ public class JobService {
         jobs.put("EveryTimeJob", EveryTimeJobs);
         jobs.putAll(Jobs);
 
-        log.info("회원의 일정들 반환");
+        log.info("Return Schedule of Member");
         return jobs;
     }
 
@@ -150,9 +150,9 @@ public class JobService {
             String name = updateJob(update);
             nameOfJobs.add(name);
         });
-        log.info("EveryTimeJob {}개 업데이트", everyTimeCnt);
-        log.info("CustomizeJob {}개 업데이트", customizeCnt);
-        log.info("SeperatedJob {}개 업데이트", seperatedCnt);
+        log.info("EveryTimeJob {}, Update", everyTimeCnt);
+        log.info("CustomizeJob {}, Update", customizeCnt);
+        log.info("SeperatedJob {}, Update", seperatedCnt);
         if (seperatedCnt > 0){
             for (String nameOfJob : nameOfJobs){
                 if (nameOfJob.isEmpty()) continue;
@@ -160,10 +160,10 @@ public class JobService {
                 String estimatedTime = String.format("%02d:%02d", (totalMinutes/60),(totalMinutes%60));
                 CustomizeJob customizeJob = customizeJobRepository.findByName(nameOfJob);
                 customizeJob.toUpdateEstimatedTime(estimatedTime);
-                log.info("SeperatedJob에 해당하는 '{}' 일정 소요시간 조정 완료", nameOfJob);
+                log.info("[SeperatedJob] '{}' Estimated Time Update Success", nameOfJob);
             }
         }
-        log.info("일정들 업데이트 완료");
+        log.info("All Jobs Update Success");
         return "Jobs Update Success";
     }
 
