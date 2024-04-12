@@ -3,13 +3,10 @@ package com.example.areyoup.everytime.domain;
 import com.example.areyoup.job.domain.Job;
 import com.example.areyoup.everytime.dto.EveryTimeResponseDto;
 import com.example.areyoup.job.dto.JobRequestDto;
-import com.example.areyoup.member.Member;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
 
 @Entity

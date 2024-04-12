@@ -1,8 +1,7 @@
 package com.example.areyoup.job.domain;
 
 import com.example.areyoup.global.entity.BaseEntity;
-import com.example.areyoup.job.dto.JobRequestDto;
-import com.example.areyoup.member.Member;
+import com.example.areyoup.member.domain.Member;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;

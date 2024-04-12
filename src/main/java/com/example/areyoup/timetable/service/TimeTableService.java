@@ -27,6 +27,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -295,11 +296,11 @@ public class TimeTableService {
         LocalDate start = DateTimeHandler.strToDate(startDate);
         LocalDate end = DateTimeHandler.strToDate(endDate);
 
-        Integer defaultMinute = getTimeOfDefaultJob();
+        long defaultMinute = getTimeOfDefaultJob(start, end);
         Integer everyTimeMinute = getTimeOfEveryTimeJob(start,end);
         Integer customizeMinute = getTimeOfCustomizeJob(start,end);
         Integer seperatedMinute = getTimeOfSeperatedJob(start,end);
-        Integer totalMinute = defaultMinute + everyTimeMinute + customizeMinute + seperatedMinute;
+        long totalMinute = defaultMinute + everyTimeMinute + customizeMinute + seperatedMinute;
         //기간 내의 defaultJob + everyTimeJob + customizeJob + seperatedJob 총 소요시간
 
         log.info("기간 내의 총 소요 시간 : {}, {}분",
@@ -317,14 +318,15 @@ public class TimeTableService {
                 mintuesPeriod
         );
 
-        int result = mintuesPeriod - totalMinute;
+        int result = (int) (mintuesPeriod - totalMinute);
 
         return String.format("%02d:%02d", (result/60),(result%60));
     }
 
-    private Integer getTimeOfDefaultJob() {
+    private long getTimeOfDefaultJob(LocalDate start, LocalDate end) {
 
-        Integer result = jobRepository.getLeftTimeFromDefaultJob();
+        long days = ChronoUnit.DAYS.between(start,end) + 1;
+        long result = jobRepository.getLeftTimeFromDefaultJob() * days;
         log.info("DefaultJob의 총 소요시간 : {}",String.format("%02d:%02d", (result/60),(result%60)));
         return result;
     }
