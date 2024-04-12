@@ -30,7 +30,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     클라이언트로부터 들어오는 요청에서 JWT 토큰을 처리하고, 유효한 토큰인 경우 해당 토큰의 인증 정보를
     SecurityContext에 저장하여 인증된 요청을 처리할 수 있도록 한다.
 
-    즉 JWT를 통해 username + password 인증을 수행한다는 것*/
+    즉 JWT를 통해 memberId + memberPassword 인증을 수행한다는 것*/
 
     private final JwtTokenProvider jwtTokenProvider;
     private final MemberRepository memberRepository;
@@ -62,7 +62,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 .orElse(null);
 
         /*
-        RefreshToken != null 이라면 AccessToken 만료!
+        RefreshToken != null (존재한다) 이라면 AccessToken 만료!
         RefreshToken이 DB와 일치하는지 확인하여 RefreshToken, AccessToken 재발급
         헤더에 넣어서 다시 보내기
          */
