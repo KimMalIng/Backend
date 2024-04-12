@@ -2,13 +2,26 @@ package com.example.areyoup.member.domain;
 
 import com.example.areyoup.global.entity.BaseEntity;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
-public class Member extends BaseEntity {
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class Member extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -25,7 +38,11 @@ public class Member extends BaseEntity {
     @ElementCollection(fetch=FetchType.EAGER)
     private List<String> roles = new ArrayList<>();
 
-//    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    private ProfileImage profileImg;
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private ProfileImage profileImg;
+
+    public void toUpdateRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
 
 }
