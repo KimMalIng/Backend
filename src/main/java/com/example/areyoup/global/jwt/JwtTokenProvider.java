@@ -31,11 +31,11 @@ public class JwtTokenProvider {
 
     public static final long ACCESSTOKEN_TIME = 1000*60*30;
     public static final long REFRESHTOKEN_TIME = 1000*60*60*24*7;
+
     private final Key key;
 
     //application.yml에서 secret 값을 가져와서 key 에 저장
-    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey,
-                            MemberRepository memberRepository){
+    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey){
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
@@ -47,21 +47,21 @@ public class JwtTokenProvider {
                .collect(Collectors.joining(","));
        //권한 가져오기
 
-       long now = (new Date()).getTime();
+        log.info(authorities);
+       Date now = new Date();
 
-       Date accessTokenExpiresIn = new Date(now+ACCESSTOKEN_TIME
-       //        5000
-
-       );
        String accessToken = Jwts.builder()
+               .setHeaderParam("typ", "REFRESH_TOKEN")
+               .setHeaderParam("alg", "HS256")
                .setSubject(authentication.getName())
                .claim("auth",authorities)
-               .setExpiration(accessTokenExpiresIn)
+               .setIssuedAt(now)
+               .setExpiration(new Date(now.getTime() + ACCESSTOKEN_TIME)) //5000
                .signWith(key, SignatureAlgorithm.HS256)
                .compact();
 
        String refreshToken = Jwts.builder()
-               .setExpiration(new Date(now+REFRESHTOKEN_TIME))
+               .setExpiration(new Date(now.getTime() + REFRESHTOKEN_TIME))
                .signWith(key, SignatureAlgorithm.HS256)
                .compact();
 
