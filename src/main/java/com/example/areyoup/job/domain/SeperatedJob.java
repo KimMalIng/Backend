@@ -3,13 +3,10 @@ package com.example.areyoup.job.domain;
 import com.example.areyoup.global.function.DateTimeHandler;
 import com.example.areyoup.job.dto.JobRequestDto;
 import com.example.areyoup.job.dto.JobResponseDto;
-import com.example.areyoup.member.Member;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;

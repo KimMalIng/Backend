@@ -2,16 +2,13 @@ package com.example.areyoup.job.service;
 
 import com.example.areyoup.errors.errorcode.MemberErrorCode;
 import com.example.areyoup.errors.exception.MemberException;
-import com.example.areyoup.everytime.repository.EveryTimeJobRepository;
 import com.example.areyoup.job.domain.CustomizeJob;
 import com.example.areyoup.job.domain.Job;
 import com.example.areyoup.job.dto.JobRequestDto;
 import com.example.areyoup.job.dto.JobResponseDto;
-import com.example.areyoup.job.repository.CustomizeJobRepository;
 import com.example.areyoup.job.repository.JobRepository;
-import com.example.areyoup.job.repository.SeperatedJobRepository;
-import com.example.areyoup.member.Member;
-import com.example.areyoup.member.MemberRepository;
+import com.example.areyoup.member.domain.Member;
+import com.example.areyoup.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
