@@ -1,10 +1,7 @@
 package com.example.areyoup.member.dto;
 
 import jakarta.persistence.Basic;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,6 +11,8 @@ public class MemberRequestDto {
 
     @Getter
     @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
     @Builder
     public static class MemberJoinDto{
         private String memberId;

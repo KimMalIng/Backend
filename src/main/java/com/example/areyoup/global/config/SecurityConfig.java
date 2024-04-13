@@ -36,7 +36,6 @@ public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
 
-    //    private final LoginFilter loginFilter;
     @Bean
     public SecurityFilterChain configure(HttpSecurity http) throws Exception {
         http.httpBasic(HttpBasicConfigurer::disable)
@@ -51,8 +50,8 @@ public class SecurityConfig {
                                         .requestMatchers(
                                                 new AntPathRequestMatcher("/oauth2/**"),
                                                 new AntPathRequestMatcher("/login/oauth2/code/**"),
-                                                new AntPathRequestMatcher("/users/login"),
-                                                new AntPathRequestMatcher("/users/join")
+                                                new AntPathRequestMatcher("/users/login/**"),
+                                                new AntPathRequestMatcher("/users/join/**")
                                         ).permitAll()
                                         //해당 API에 대해서는 모든 요청을 허가
                                         .anyRequest().authenticated()
