@@ -100,6 +100,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                     .memberPw(pw)
                     .name(name)
                     .roles(Collections.singletonList("USER"))
+                    .loginType("kakao")
                     .build();
 
             memberRepository.save(member);
