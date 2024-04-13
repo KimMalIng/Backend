@@ -41,6 +41,10 @@ public class Member extends BaseEntity{
     private String loginType;
 
     @ElementCollection(fetch=FetchType.EAGER)
+    @CollectionTable(
+            name = "roles",
+            joinColumns = @JoinColumn(name = "member_id")
+    )
     private List<String> roles = new ArrayList<>();
 
     @OneToOne(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)

@@ -2,12 +2,18 @@ package com.example.areyoup.member.service;
 
 import com.example.areyoup.errors.errorcode.MemberErrorCode;
 import com.example.areyoup.errors.exception.MemberException;
+import com.example.areyoup.global.cookie.CookieUtils;
+import com.example.areyoup.global.jwt.JwtTokenProvider;
+import com.example.areyoup.global.jwt.TokenService;
+import com.example.areyoup.global.jwt.dto.JwtTokenDto;
 import com.example.areyoup.member.domain.Member;
 import com.example.areyoup.member.domain.ProfileImage;
 import com.example.areyoup.member.dto.MemberRequestDto;
 import com.example.areyoup.member.dto.MemberResponseDto;
+import com.example.areyoup.member.dto.ProfileImageDto;
 import com.example.areyoup.member.repository.MemberRepository;
 import com.example.areyoup.member.repository.ProfileImageRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
@@ -28,6 +34,8 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final ProfileImageRepository profileImageRepository;
     private final PasswordEncoder passwordEncoder;
+    private final TokenService tokenService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     private static final String PROFILE = "static\\images\\logo.png";
 
@@ -50,6 +58,7 @@ public class MemberService {
                 .loginType("service")
                 .build();
         memberRepository.save(member);
+//        member.getRoles().add("USER");
         return member.toDto(member);
     }
 
@@ -76,5 +85,26 @@ public class MemberService {
             //이미지 저장 중 오류 발생 시 롤백을 고려하여 예외를 다시 던짐
             throw new MemberException(MemberErrorCode.IMAGE_SAVE_ERROR);
         }
+    }
+
+
+    public MemberResponseDto.MemberLoginDto login(HttpServletResponse response, MemberRequestDto.MemberLoginDto memberDto) {
+        Member m = memberRepository.findByMemberId(memberDto.getMemberId())
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+        if (!passwordEncoder.matches(memberDto.getMemberPw(), m.getMemberPw())){
+            throw new MemberException(MemberErrorCode.AUTHENTICATION_FAILED);
+        }
+        String memberId = m.getMemberId();
+        String memberPw = m.getMemberPw();
+
+        JwtTokenDto jwtTokenDto = tokenService.signIn(memberId, memberPw);
+        //Access, Refresh token 발급
+        CookieUtils.addCookie(response, "refreshToken", jwtTokenDto.getRefreshToken(), 2 * 360 * 1000 );
+
+        m.toUpdateRefreshToken(jwtTokenDto.getRefreshToken());
+        memberRepository.save(m);
+        jwtTokenProvider.sendAccessToken(response, jwtTokenDto.getAccessToken());
+
+        return MemberResponseDto.MemberLoginDto.toLoginDto(m, jwtTokenDto.getAccessToken());
     }
 }
