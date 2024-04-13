@@ -1,18 +1,20 @@
 spring:
-#  sql:
-#    init.mode: always
+  servlet:
+    multipart:       #spring boot file upload size setting
+      max-file-size: 10MB #max size of one file
+      max-request-size: 30MB #max size of files to upload once
+  sql:
+    init.mode: always #operate sql script to all database
   profiles:
     include: oauth
-  #  jackson:
-  #    serialization:
-  #      fail-on-empty-beans: false
+
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: root
     url: jdbc:mysql://${HOST}:3306/db_areyoup?useSSL=false&serverTimezone=Asia/Seoul
   jpa:
-    defer-datasource-initialization: true
+    defer-datasource-initialization: true #data.sql operated before hibernate initialization "true"
     hibernate:
       ddl-auto: update
     show-sql: false

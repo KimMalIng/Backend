@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -64,16 +65,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         /*
         RefreshToken != null (존재한다) 이라면 AccessToken 만료!
         RefreshToken이 DB와 일치하는지 확인하여 RefreshToken, AccessToken 재발급
-        헤더에 넣어서 다시 보내기
+        헤더에 Access 넣어서 다시 보내기, Refresh는 DB 저장
          */
         if (refreshToken!=null){
             Member member = memberRepository.findByRefreshToken(refreshToken)
-                    .orElseThrow(() -> new MemberException(MemberErrorCode.REFRESHTOKEN_ERROR));
+                    .orElseThrow(() -> new MemberException(MemberErrorCode.REFRESH_TOKEN_ERROR));
             AuthMemberDto authMemberDto = new AuthMemberDto(member.getMemberId(), member.getMemberPw(), member.getName());
-            JwtTokenDto jwt = reCreateAccessTokenAndRefreshToken(authMemberDto);
-            String reCreateRefreshToken = jwt.getRefreshToken();
-            String reCreateAccessToken = jwt.getAccessToken();
-            jwtTokenProvider.sendAccessAndRefreshToken(response, reCreateAccessToken, reCreateRefreshToken);
+            JwtTokenDto jwt = reCreateAccessTokenAndRefreshToken(authMemberDto); //여기서 Refresh DB 저장도 진행
+            jwtTokenProvider.sendAccessToken(response, jwt.getAccessToken());
         }
 
         /*

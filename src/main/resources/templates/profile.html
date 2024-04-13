@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="utf-8">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profiles</title>
+</head>
+<body>
+<h1>Profile Images</h1>
+<div th:each="profile : ${profiles}">
+    <p th:text="${profile.getId()}"></p>
+    <img th:src="'data:image/jpeg;base64,' + ${profile.imageDataBase64}" />
+</div>
+</body>
+</html>
+
