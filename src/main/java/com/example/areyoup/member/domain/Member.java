@@ -2,18 +2,14 @@ package com.example.areyoup.member.domain;
 
 import com.example.areyoup.global.entity.BaseEntity;
 import com.example.areyoup.member.dto.MemberResponseDto;
-import com.example.areyoup.member.dto.ProfileImageDto;
+import com.example.areyoup.profileimage.domain.ProfileImage;
+import com.example.areyoup.profileimage.dto.ProfileImageRequestDto;
+import com.example.areyoup.profileimage.dto.ProfileImageResponseDto;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
-import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -55,12 +51,13 @@ public class Member extends BaseEntity{
     }
 
     public MemberResponseDto.MemberJoinDto toDto(Member member){
-        ProfileImageDto profileImageDto =
-                new ProfileImageDto(member.getProfileImg().getId(), member.getProfileImg().getData());
+        ProfileImageResponseDto profileImageResponseDto =
+                new ProfileImageResponseDto(member.getProfileImg().getId(),
+                        ProfileImageResponseDto.convertByteArrayToBase64(member.getProfileImg().getData()));
         return MemberResponseDto.MemberJoinDto.builder()
                 .memberId(member.getMemberId())
                 .name(member.getName())
-                .image(profileImageDto)
+                .image(profileImageResponseDto)
                 .loginType(member.getLoginType())
                 .build();
     }
