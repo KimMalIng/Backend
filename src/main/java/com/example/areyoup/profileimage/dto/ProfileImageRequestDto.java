@@ -1,11 +1,11 @@
-package com.example.areyoup.member.dto;
+package com.example.areyoup.profileimage.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class ProfileImageDto {
+public class ProfileImageRequestDto {
     private Long id;
     private byte[] data;
 }

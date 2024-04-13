@@ -1,9 +1,7 @@
-package com.example.areyoup.member.domain;
+package com.example.areyoup.profileimage.domain;
 
 import com.example.areyoup.global.entity.BaseEntity;
-import com.fasterxml.jackson.databind.ser.Serializers;
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 
 @Entity
