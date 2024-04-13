@@ -10,6 +10,7 @@ public enum MemberErrorCode implements ErrorCode{
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 회원입니다."),
     AUTHENTICATION_FAILED(HttpStatus.BAD_REQUEST, "아이디 또는 비밀번호가 옳지 않습니다."),
     MEMBER_DUPLICATED(HttpStatus.BAD_REQUEST, "이미 존재하는 회원입니다."),
+    IMAGE_SAVE_ERROR(HttpStatus.BAD_REQUEST, "이미지 저장 중 오류 발생"),
 
     REFRESHTOKEN_ERROR(HttpStatus.NOT_FOUND, "해당 RefreshToken에 맞는 회원이 존재하지 않습니다.");
 

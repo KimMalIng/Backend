@@ -19,8 +19,9 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping("/join")
-    public ResponseEntity<MemberResponseDto.MemberJoinDto> join(@ModelAttribute MemberRequestDto.MemberJoinDto memberDto) {
+    public ResponseEntity<MemberResponseDto.MemberJoinDto> join(@ModelAttribute MemberRequestDto.MemberJoinDto memberDto) throws IOException {
         return ResponseEntity.ok()
-                .body(memberService.create(memberDto));
+                .body(memberService.join(memberDto));
     }
+
 }
