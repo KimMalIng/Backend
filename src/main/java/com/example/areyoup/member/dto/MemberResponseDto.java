@@ -1,13 +1,13 @@
 package com.example.areyoup.member.dto;
 
 import com.example.areyoup.member.domain.Member;
-import com.example.areyoup.member.domain.ProfileImage;
+import com.example.areyoup.profileimage.dto.ProfileImageRequestDto;
+import com.example.areyoup.profileimage.dto.ProfileImageResponseDto;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @SuperBuilder
@@ -15,15 +15,8 @@ public class MemberResponseDto {
 
     protected String memberId;
     protected String name; //닉네임이 있을 경우
-    protected ProfileImageDto image;
+    protected ProfileImageResponseDto image;
     protected String loginType;
-
-    public MemberResponseDto(String memberId, String name, ProfileImageDto image, String loginType) {
-        this.memberId = memberId;
-        this.name = name;
-        this.image = image;
-        this.loginType = loginType;
-    }
 
     @SuperBuilder
     public static class MemberJoinDto extends MemberResponseDto{
@@ -36,15 +29,49 @@ public class MemberResponseDto {
     public static class MemberLoginDto extends MemberResponseDto {
         private String accessToken;
 
-        public MemberLoginDto(String memberId, String name, ProfileImageDto profileImageDto, String loginType, String accessToken) {
-            super(memberId, name, profileImageDto, loginType);
-            this.accessToken = accessToken;
-        }
-
         public static MemberLoginDto toLoginDto(Member member, String accessToken) {
-            return new MemberLoginDto(member.getMemberId(), member.getName(),
-                    new ProfileImageDto(member.getProfileImg().getId(), member.getProfileImg().getData()),
-                    member.getLoginType(), accessToken);
+            return MemberLoginDto.builder()
+                    .memberId(member.getMemberId())
+                    .name(member.getName())
+                    .image(new ProfileImageResponseDto(member.getProfileImg().getId(),
+                            ProfileImageResponseDto.convertByteArrayToBase64(member.getProfileImg().getData())))
+                    .loginType(member.getLoginType())
+                    .accessToken(accessToken)
+                    .build();
         }
     }
+
+    
+    @Getter
+    @SuperBuilder
+    public static class MemberInfoDto extends MemberResponseDto{
+        private String memberPw;
+        private String nickname;
+        private String everyTimeId;
+        private String everyTimePw;
+
+        public static MemberInfoDto toInfoDto(Member m) {
+            return getMemberInfoDto(m);
+        }
+
+        public static MemberInfoDto getMemberInfoDto(Member m) {
+            ProfileImageResponseDto profileImageResponseDto = new ProfileImageResponseDto(
+                    m.getProfileImg().getId(),
+                    ProfileImageResponseDto.convertByteArrayToBase64(m.getProfileImg().getData())
+            );
+            return MemberInfoDto.builder()
+                    .memberId(m.getMemberId())
+                    .memberPw(m.getMemberPw())
+                    .name(m.getName())
+                    .everyTimeId(m.getEveryTimeId())
+                    .everyTimePw(m.getEveryTimePw())
+                    .image(profileImageResponseDto)
+                    .nickname(m.getNickname())
+                    .loginType(m.getLoginType())
+                    .build();
+        }
+
+
+    }
+
 }

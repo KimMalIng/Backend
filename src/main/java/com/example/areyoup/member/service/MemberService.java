@@ -7,12 +7,13 @@ import com.example.areyoup.global.jwt.JwtTokenProvider;
 import com.example.areyoup.global.jwt.TokenService;
 import com.example.areyoup.global.jwt.dto.JwtTokenDto;
 import com.example.areyoup.member.domain.Member;
-import com.example.areyoup.member.domain.ProfileImage;
+import com.example.areyoup.profileimage.domain.ProfileImage;
 import com.example.areyoup.member.dto.MemberRequestDto;
 import com.example.areyoup.member.dto.MemberResponseDto;
-import com.example.areyoup.member.dto.ProfileImageDto;
 import com.example.areyoup.member.repository.MemberRepository;
-import com.example.areyoup.member.repository.ProfileImageRepository;
+import com.example.areyoup.profileimage.dto.ProfileImageResponseDto;
+import com.example.areyoup.profileimage.repository.ProfileImageRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +41,18 @@ public class MemberService {
     private static final String PROFILE = "static\\images\\logo.png";
 
     /*
+    accessToken을 통해 회원을 조회
+     */
+    public Member findMember(HttpServletRequest request){
+        String accessToken = jwtTokenProvider.extractAccessToken(request);
+        String memberId = jwtTokenProvider.extractUserId(accessToken);
+        return memberRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+    }
+
+    /*
     회원가입
+    Member -> MemberJoinDto
      */
     @Transactional
     public MemberResponseDto.MemberJoinDto join(MemberRequestDto.MemberJoinDto memberJoinDto){
@@ -68,7 +80,7 @@ public class MemberService {
      */
     private void imageUpload(MemberRequestDto.MemberJoinDto memberJoinDto, ProfileImage image) {
         try {
-            if (memberJoinDto.getImage().isEmpty()) {
+            if (memberJoinDto.getImage() == null) {
                 //이미지 파일이 없는 경우 기본 이미지 가져와서 저장
                 ClassPathResource resource = new ClassPathResource(PROFILE);
                 byte[] file = StreamUtils.copyToByteArray(resource.getInputStream());
@@ -87,8 +99,11 @@ public class MemberService {
         }
     }
 
+    /*
+    회원 로그인
+    - Member -> MemberLoginDto
+     */
 
-    @Transactional
     public MemberResponseDto.MemberLoginDto login(HttpServletResponse response, MemberRequestDto.MemberLoginDto memberDto) {
         Member m = memberRepository.findByMemberId(memberDto.getMemberId())
                 .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
@@ -101,8 +116,24 @@ public class MemberService {
         CookieUtils.addCookie(response, "refreshToken", jwtTokenDto.getRefreshToken(), 2 * 360 * 1000 );
 
         m.toUpdateRefreshToken(jwtTokenDto.getRefreshToken());
+        memberRepository.save(m);
         jwtTokenProvider.sendAccessToken(response, jwtTokenDto.getAccessToken());
 
         return MemberResponseDto.MemberLoginDto.toLoginDto(m, jwtTokenDto.getAccessToken());
+    }
+
+    @Transactional
+    public String delete(Long id) {
+        memberRepository.deleteById(id);
+        return "Delete";
+    }
+
+    /*
+    회원 정보 반환
+    - Member -> MemberInfoDto
+     */
+    public MemberResponseDto.MemberInfoDto info(HttpServletRequest request) {
+        Member m = findMember(request);
+        return MemberResponseDto.MemberInfoDto.toInfoDto(m);
     }
 }
