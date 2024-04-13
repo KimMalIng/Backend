@@ -1,5 +1,6 @@
 package com.example.areyoup.global.jwt;
 
+import com.example.areyoup.errors.exception.MemberException;
 import com.example.areyoup.global.jwt.dto.JwtTokenDto;
 import com.example.areyoup.member.repository.MemberRepository;
 import io.jsonwebtoken.*;
@@ -220,7 +221,7 @@ public class JwtTokenProvider {
     //AccessToken에서 userId 추출
     public String extractUserId(String accessToken){
         try{
-            Boolean validation = validateToken(accessToken); //유효성 검사
+            boolean validation = validateToken(accessToken); //유효성 검사
             if (validation){
                 Claims claims = parseClaims(accessToken); //토큰에서 정보 가져오기
                 return claims.getSubject(); //사용자 id를 subject에 넣어놨기에 가져오기!
