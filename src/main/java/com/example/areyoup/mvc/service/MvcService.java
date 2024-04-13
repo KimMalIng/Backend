@@ -1,18 +1,16 @@
-package com.example.areyoup.profile.service;
+package com.example.areyoup.mvc.service;
 
 import com.example.areyoup.profileimage.domain.ProfileImage;
 import com.example.areyoup.profileimage.dto.ProfileImageResponseDto;
 import com.example.areyoup.profileimage.repository.ProfileImageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.Model;
 
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 
 @Service
-public class ProfileService {
+public class MvcService {
     @Autowired
     ProfileImageRepository profileImageRepository;
     public List<ProfileImageResponseDto> getProfile() {
