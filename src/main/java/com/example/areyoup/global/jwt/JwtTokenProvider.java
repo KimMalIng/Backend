@@ -51,7 +51,7 @@ public class JwtTokenProvider {
        Date now = new Date();
 
        String accessToken = Jwts.builder()
-               .setHeaderParam("typ", "REFRESH_TOKEN")
+               .setHeaderParam("typ", "ACCESS_TOKEN")
                .setHeaderParam("alg", "HS256")
                .setSubject(authentication.getName())
                .claim("auth",authorities)
@@ -61,6 +61,8 @@ public class JwtTokenProvider {
                .compact();
 
        String refreshToken = Jwts.builder()
+               .setHeaderParam("typ", "REFRESH_TOKEN")
+               .setHeaderParam("alg", "HS256")
                .setExpiration(new Date(now.getTime() + REFRESHTOKEN_TIME))
                .signWith(key, SignatureAlgorithm.HS256)
                .compact();
@@ -73,22 +75,24 @@ public class JwtTokenProvider {
     }
 
     //refreshToken 요청이 왔을 때 accessToken만 생성
-    public String generateAccessToken(Authentication authentication){
-        String authorities = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
 
-        long now = (new Date()).getTime();
-
-        Date accessTokenExpiresIn = new Date(now+ACCESSTOKEN_TIME);
-
-        return Jwts.builder()
-                .setSubject(authentication.getName())
-                .claim("auth",authorities)
-                .setExpiration(accessTokenExpiresIn)
-                .signWith(key, SignatureAlgorithm.HS256)
-                .compact();
-    }
+//    public String generateAccessToken(Authentication authentication){
+//        String authorities = authentication.getAuthorities().stream()
+//                .map(GrantedAuthority::getAuthority)
+//                .collect(Collectors.joining(","));
+//
+//        Date now = new Date();
+//
+//        return Jwts.builder()
+//                .setHeaderParam("typ", "ACCESS_TOKEN")
+//                .setHeaderParam("alg", "HS256")
+//                .setSubject(authentication.getName())
+//                .claim("auth",authorities)
+//                .setIssuedAt(now)
+//                .setExpiration(new Date(now.getTime() + ACCESSTOKEN_TIME)) //5000
+//                .signWith(key, SignatureAlgorithm.HS256)
+//                .compact();
+//    }
 
     //JWT 토큰을 복호화하여 토큰에 있는 사용자의 인증 정보를 꺼내는 메서드
     public Authentication getAuthentication(String accessToken){
@@ -176,16 +180,16 @@ public class JwtTokenProvider {
     public void sendAccessToken(HttpServletResponse response, String accessToken) {
         response.setStatus(HttpServletResponse.SC_OK);
         response.setHeader("accessToken", accessToken);
-        log.info("재발급된 Access Token : {}", accessToken);
+        log.info("Access Token : {}", accessToken);
     }
 
     //Access + Refresh 헤더에 실어서 보내기
-    public void sendAccessAndRefreshToken(HttpServletResponse response, String accessToken, String refreshToken){
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.setHeader("accessToken", accessToken);
-        response.setHeader("refreshToken", refreshToken);
-        log.info("Access Token, Refresh Token 헤더 설정 완료");
-    }
+//    public void sendAccessAndRefreshToken(HttpServletResponse response, String accessToken, String refreshToken){
+//        response.setStatus(HttpServletResponse.SC_OK);
+//        response.setHeader("accessToken", accessToken);
+//        response.setHeader("refreshToken", refreshToken);
+//        log.info("Access Token, Refresh Token 헤더 설정 완료");
+//    }
 
     //JWT 토큰을 추출
     public String extractAccessToken(HttpServletRequest request) {
