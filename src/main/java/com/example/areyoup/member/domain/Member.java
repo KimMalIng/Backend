@@ -2,11 +2,9 @@ package com.example.areyoup.member.domain;
 
 import com.example.areyoup.global.entity.BaseEntity;
 import com.example.areyoup.member.dto.MemberResponseDto;
+import com.example.areyoup.member.dto.ProfileImageDto;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,9 +25,13 @@ public class Member extends BaseEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NonNull
     private String memberId; //이메일
+    @NonNull
     private String memberPw;
+    @NonNull
     private String name;
+    private String nickname;
 
     //에브리타임 id pw
     private String everyTimeId;
@@ -41,7 +43,7 @@ public class Member extends BaseEntity{
     @ElementCollection(fetch=FetchType.EAGER)
     private List<String> roles = new ArrayList<>();
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private ProfileImage profileImg;
 
     public void toUpdateRefreshToken(String refreshToken) {
@@ -49,13 +51,14 @@ public class Member extends BaseEntity{
     }
 
     public MemberResponseDto.MemberJoinDto toDto(Member member){
+        ProfileImageDto profileImageDto =
+                new ProfileImageDto(member.getProfileImg().getId(), member.getProfileImg().getData());
         return MemberResponseDto.MemberJoinDto.builder()
                 .memberId(member.getMemberId())
                 .name(member.getName())
-                .image(member.getProfileImg())
+                .image(profileImageDto)
                 .loginType(member.getLoginType())
                 .build();
-
     }
 
 }

@@ -10,13 +10,12 @@ import org.springframework.web.multipart.MultipartFile;
 @Data
 public class MemberResponseDto {
 
-    @Getter
-    @Setter
+    @Data
     @Builder
     public static class MemberJoinDto{
         private String memberId;
         private String name; //닉네임이 있을 경우
-        private ProfileImage image;
+        private ProfileImageDto image;
         private String loginType;
     }
 }
