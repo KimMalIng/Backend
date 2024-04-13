@@ -1,0 +1,1 @@
+ALTER TABLE profile_image MODIFY data longblob;
