@@ -69,7 +69,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
          */
         if (refreshToken!=null){
             Member member = memberRepository.findByRefreshToken(refreshToken)
-                    .orElseThrow(() -> new MemberException(MemberErrorCode.REFRESHTOKEN_ERROR));
+                    .orElseThrow(() -> new MemberException(MemberErrorCode.REFRESH_TOKEN_ERROR));
             AuthMemberDto authMemberDto = new AuthMemberDto(member.getMemberId(), member.getMemberPw(), member.getName());
             JwtTokenDto jwt = reCreateAccessTokenAndRefreshToken(authMemberDto); //여기서 Refresh DB 저장도 진행
             jwtTokenProvider.sendAccessToken(response, jwt.getAccessToken());

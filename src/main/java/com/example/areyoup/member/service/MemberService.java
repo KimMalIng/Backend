@@ -88,21 +88,19 @@ public class MemberService {
     }
 
 
+    @Transactional
     public MemberResponseDto.MemberLoginDto login(HttpServletResponse response, MemberRequestDto.MemberLoginDto memberDto) {
         Member m = memberRepository.findByMemberId(memberDto.getMemberId())
                 .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
-        if (!passwordEncoder.matches(memberDto.getMemberPw(), m.getMemberPw())){
+        if (!passwordEncoder.matches(memberDto.getMemberPw(), m.getMemberPw())) {
             throw new MemberException(MemberErrorCode.AUTHENTICATION_FAILED);
         }
-        String memberId = m.getMemberId();
-        String memberPw = m.getMemberPw();
 
-        JwtTokenDto jwtTokenDto = tokenService.signIn(memberId, memberPw);
+        JwtTokenDto jwtTokenDto = tokenService.signIn(m.getMemberId(), m.getMemberPw());
         //Access, Refresh token 발급
         CookieUtils.addCookie(response, "refreshToken", jwtTokenDto.getRefreshToken(), 2 * 360 * 1000 );
 
         m.toUpdateRefreshToken(jwtTokenDto.getRefreshToken());
-        memberRepository.save(m);
         jwtTokenProvider.sendAccessToken(response, jwtTokenDto.getAccessToken());
 
         return MemberResponseDto.MemberLoginDto.toLoginDto(m, jwtTokenDto.getAccessToken());

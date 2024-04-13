@@ -31,8 +31,10 @@ public class MemberResponseDto {
     }
 
     @SuperBuilder
+    @Getter
+    @Setter
     public static class MemberLoginDto extends MemberResponseDto {
-        private final String accessToken;
+        private String accessToken;
 
         public MemberLoginDto(String memberId, String name, ProfileImageDto profileImageDto, String loginType, String accessToken) {
             super(memberId, name, profileImageDto, loginType);

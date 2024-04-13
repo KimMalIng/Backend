@@ -5,6 +5,7 @@ import com.example.areyoup.member.dto.MemberResponseDto;
 import com.example.areyoup.member.service.MemberService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -17,6 +18,7 @@ import java.io.IOException;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/users")
+@Slf4j
 public class MemberController {
     private final MemberService memberService;
 
@@ -28,9 +30,8 @@ public class MemberController {
 
     @PostMapping("/login")
     public ResponseEntity<MemberResponseDto.MemberLoginDto> login(HttpServletResponse response, @RequestBody MemberRequestDto.MemberLoginDto memberDto){
-       MemberResponseDto.MemberLoginDto memberLoginDto =  memberService.login(response, memberDto);
         return ResponseEntity.ok()
-                .body(memberLoginDto);
+                .body(memberService.login(response, memberDto));
     }
 
 }
