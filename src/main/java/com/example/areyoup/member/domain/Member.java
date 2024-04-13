@@ -1,6 +1,7 @@
 package com.example.areyoup.member.domain;
 
 import com.example.areyoup.global.entity.BaseEntity;
+import com.example.areyoup.member.dto.MemberResponseDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,6 +36,8 @@ public class Member extends BaseEntity{
     private String everyTimePw;
     private String refreshToken;
 
+    private String loginType;
+
     @ElementCollection(fetch=FetchType.EAGER)
     private List<String> roles = new ArrayList<>();
 
@@ -43,6 +46,16 @@ public class Member extends BaseEntity{
 
     public void toUpdateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
+    }
+
+    public MemberResponseDto.MemberJoinDto toDto(Member member){
+        return MemberResponseDto.MemberJoinDto.builder()
+                .memberId(member.getMemberId())
+                .name(member.getName())
+                .image(member.getProfileImg())
+                .loginType(member.getLoginType())
+                .build();
+
     }
 
 }
