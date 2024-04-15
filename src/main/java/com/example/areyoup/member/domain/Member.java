@@ -2,9 +2,8 @@ package com.example.areyoup.member.domain;
 
 import com.example.areyoup.global.entity.BaseEntity;
 import com.example.areyoup.member.dto.MemberResponseDto;
-import com.example.areyoup.profileimage.domain.ProfileImage;
-import com.example.areyoup.profileimage.dto.ProfileImageRequestDto;
-import com.example.areyoup.profileimage.dto.ProfileImageResponseDto;
+import com.example.areyoup.member.profileimage.domain.ProfileImage;
+import com.example.areyoup.member.profileimage.dto.ProfileImageResponseDto;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -57,6 +56,7 @@ public class Member extends BaseEntity{
         return MemberResponseDto.MemberJoinDto.builder()
                 .memberId(member.getMemberId())
                 .name(member.getName())
+                .nickname(member.getNickname())
                 .image(profileImageResponseDto)
                 .loginType(member.getLoginType())
                 .build();
