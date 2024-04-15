@@ -22,6 +22,6 @@ public class EveryTimeController {
     @PostMapping("/save")
     public ResponseEntity<String> saveEveryTime(@RequestBody List<EverytimeRequestDto.EverytimeDto> everytimeDtos) throws ParseException {
         return ResponseEntity.ok()
-                .body(everyTimeService.saveEveryTime(everytimeDtos, 1L));
+                .body(everyTimeService.saveEveryTime(everytimeDtos));
     }
 }

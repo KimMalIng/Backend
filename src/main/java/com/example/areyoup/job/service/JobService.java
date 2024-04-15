@@ -15,6 +15,8 @@ import com.example.areyoup.job.repository.CustomizeJobRepository;
 import com.example.areyoup.job.repository.JobRepository;
 import com.example.areyoup.job.repository.SeperatedJobRepository;
 import com.example.areyoup.member.repository.MemberRepository;
+import com.example.areyoup.member.service.MemberService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,7 +33,8 @@ public class JobService {
     private final SeperatedJobRepository seperatedJobRepository;
     private final CustomizeJobRepository customizeJobRepository;
     private final EveryTimeJobRepository everyTimeJobRepository;
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
+    private final HttpServletRequest request;
 
     /*
     일정 고정
@@ -80,8 +83,7 @@ public class JobService {
     - 조정된 일정 세세한 일정 x 큰 일정만
      */
     public HashMap<String, List> findAllJob() {
-        /// TODO: 2024-03-30 회원정보가져오기
-        Long memberId = 1L;
+        Long memberId = memberService.findMember(request).getId();
         //날짜들의 요일에 해당되는 에타 시간표(Basic Jobs)를 가져온다.
         List<EveryTimeResponseDto> EveryTimeJobs = getEveryTimeJobs(memberId);
 
