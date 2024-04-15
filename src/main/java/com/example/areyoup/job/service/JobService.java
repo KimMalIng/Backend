@@ -56,7 +56,7 @@ public class JobService {
 
     public JobResponseDto.AdjustJobResponseDto getCompletion(Long jobId, Integer completion) {
         Member m = memberService.findMember(request);
-        CustomizeJob customizeJob = new CustomizeJob();
+        CustomizeJob customizeJob;
         if (completion != null) { //조정 일정부분
             SeperatedJob seperatedJob = seperatedJobRepository.findById(jobId)
                     .orElseThrow(() -> new JobException(JobErrorCode.JOB_NOT_FOUND));
