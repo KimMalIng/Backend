@@ -6,17 +6,24 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Repository
 public interface JobRepository extends JpaRepository<Job, Long> {
     List<Job> findJobsByMemberId(Long memberId);
     @Query(value = "SELECT SUM(TIME_TO_SEC(s.estimated_time) DIV 60) FROM Job s " +
-            "WHERE s.dtype = 'S' AND s.member = :id GROUP BY s.name = :name" , nativeQuery = true)
-    Integer getTotalEstimatedTimeByName(@Param("name") String name, @Param("id") Long id);
+            "WHERE s.dtype = 'S' AND s.member_id = :id GROUP BY s.name = :name" , nativeQuery = true)
+    Integer getTotalEstimatedTimeOfSeperatedJobByName(@Param("name") String name, @Param("id") Long memberId);
 
     @Query(value = "SELECT SUM(TIME_TO_SEC(s.estimated_time) DIV 60) FROM Job s " +
-            "WHERE s.dtype = 'D' AND s.member = :id ", nativeQuery = true)
-    Integer getLeftTimeFromDefaultJob(@Param("id") Long id);
+            "WHERE s.dtype = 'S' " +
+            "AND s.member_id = :id " +
+            "AND s.is_complete = false " +
+            "GROUP BY s.name = :name" , nativeQuery = true)
+    Integer getTotalEstimatedTimeOfSeperatedJobByNameAndIsCompleteFalse(@Param("name") String name, @Param("id") Long memberId);
+
+
+    @Query(value = "SELECT SUM(TIME_TO_SEC(s.estimated_time) DIV 60) FROM Job s " +
+            "WHERE s.dtype = 'D' AND s.member_id = :id ", nativeQuery = true)
+    Integer getLeftTimeFromDefaultJob(@Param("id") Long memberId);
 }

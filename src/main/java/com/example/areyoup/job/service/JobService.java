@@ -17,6 +17,7 @@ import com.example.areyoup.job.repository.SeperatedJobRepository;
 import com.example.areyoup.member.domain.Member;
 import com.example.areyoup.member.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,7 @@ public class JobService {
     private final EveryTimeJobRepository everyTimeJobRepository;
     private final MemberService memberService;
     private final HttpServletRequest request;
+    private final HttpSession httpSession;
 
     /*
     일정 고정
@@ -54,29 +56,30 @@ public class JobService {
 
     public JobResponseDto.AdjustJobResponseDto getCompletion(Long jobId, Integer completion) {
         Member m = memberService.findMember(request);
+        CustomizeJob customizeJob;
         if (completion != null) { //조정 일정부분
             SeperatedJob seperatedJob = seperatedJobRepository.findById(jobId)
                     .orElseThrow(() -> new JobException(JobErrorCode.JOB_NOT_FOUND));
 
-//            boolean isComplete = completion == 100; //완료도 100인 경우 완료한 것
-            //todo 완료랑 성공은 다른거 아닌가?
             seperatedJob.toUpdateCompletion(completion, true); //완료도와 완료 여부 업데이트
 
-            CustomizeJob customizeJob = customizeJobRepository.findByNameAndMemberId(seperatedJob.getName(), m.getId()); //원래 일정의 소요시간
+            customizeJob = customizeJobRepository.findByNameAndMemberId(seperatedJob.getName(), m.getId()); //원래 일정의 소요시간
             String estimatedTime = CalTime.cal_estimatedTime(seperatedJob.getCompletion(), customizeJob.getEstimatedTime());
-            customizeJob.toUpdateEstimatedTime(estimatedTime);
+            customizeJob.toUpdateEstimatedTime(estimatedTime); //예정 소요시간 업데이트
+
+            httpSession.setAttribute("modifyCompletion", customizeJob.getId());
             log.info("{} - '{}' , {}% Complete", seperatedJob.getDay(), seperatedJob.getName(),completion);
             log.info("Left Time of '{}' : {}", customizeJob.getName(), customizeJob.getEstimatedTime());
 
-            return JobResponseDto.AdjustJobResponseDto.toDto(customizeJob);
         } else { //고정된 일정
-            CustomizeJob customizeJob = customizeJobRepository.findById(jobId)
+            customizeJob = customizeJobRepository.findById(jobId)
                     .orElseThrow(() -> new JobException(JobErrorCode.JOB_NOT_FOUND));
             customizeJob.toUpdateComplete(customizeJob.isComplete());
             customizeJobRepository.save(customizeJob);
             log.info("{} - '{}' Complete", customizeJob.getStartDate(), customizeJob.getName());
-            return JobResponseDto.AdjustJobResponseDto.toDto(customizeJob);
         }
+
+        return JobResponseDto.AdjustJobResponseDto.toDto(customizeJob);
     }
 
     /*
@@ -156,7 +159,7 @@ public class JobService {
         if (seperatedCnt > 0){
             for (String nameOfJob : nameOfJobs){
                 if (nameOfJob.isEmpty()) continue;
-                Integer totalMinutes = jobRepository.getTotalEstimatedTimeByName(nameOfJob, m.getId());
+                Integer totalMinutes = jobRepository.getTotalEstimatedTimeOfSeperatedJobByName(nameOfJob, m.getId());
                 String estimatedTime = String.format("%02d:%02d", (totalMinutes/60),(totalMinutes%60));
                 CustomizeJob customizeJob = customizeJobRepository.findByNameAndMemberId(nameOfJob, m.getId());
                 customizeJob.toUpdateEstimatedTime(estimatedTime);

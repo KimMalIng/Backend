@@ -52,6 +52,12 @@ public class TimeTableController {
                 .body(timeTableService.calLeftTime(start, end));
     }
 
+    @GetMapping("/readjustment")
+    public ResponseEntity<JobResponseDto.AdjustmentDto> reAdjustSchedule() throws IOException {
+        return ResponseEntity.ok()
+                .body(timeTableService.arrangeSeperatedJob());
+    }
+
 
 
 }

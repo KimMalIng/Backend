@@ -1,6 +1,8 @@
 package com.example.areyoup.global.function;
 
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
@@ -45,11 +47,11 @@ public class CalTime {
     시작 ~ 끝 시간이 주어지면 소요시간 구하기
      */
     public static String cal_estimatedTime(String startTime, String endTime) {
-        LocalTime start = DateTimeHandler.strToTime(startTime);
-        LocalTime end = DateTimeHandler.strToTime(endTime);
+        LocalDateTime start = DateTimeHandler.strToDateTime(startTime);
+        LocalDateTime end = DateTimeHandler.strToDateTime(endTime);
 
         if (end.isBefore(start)) {
-            end = end.plusHours(24);
+            end = end.plusDays(1);
         } //23:00 - 08:00 일 경우를 대비
 
         Duration duration = Duration.between(start, end);
