@@ -438,6 +438,7 @@ public class TimeTableService {
         String now = DateTimeHandler.dateToStr(current);
         String Sat = DateTimeHandler.dateToStr(current.with(DayOfWeek.SATURDAY));
         Long jobId = (Long) httpSession.getAttribute("modifyCompletion");
+        //수정한 일정에 대한 내용을 세션에 저장
         jobService.fixJob(jobId);
         //완료도 수정한 jobId를 가지고 고정 풀어주기
         SettingBeforeAdjust result = getSettingbeforeAdjust(now, Sat);
