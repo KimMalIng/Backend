@@ -23,9 +23,8 @@ public class JobController {
 
     /*
     일정 고정
-    //todo 넘어오는 일정 모두 수정하고 고정하기
      */
-    @PutMapping("/update/fix/{job_id}")
+    @PutMapping("/fix/{job_id}")
     @Transactional
     public ResponseEntity<JobResponseDto> fixJob(@PathVariable("job_id") Long id){
         return ResponseEntity.ok()
