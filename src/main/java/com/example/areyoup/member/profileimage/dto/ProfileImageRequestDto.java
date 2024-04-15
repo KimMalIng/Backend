@@ -1,4 +1,4 @@
-package com.example.areyoup.profileimage.dto;
+package com.example.areyoup.member.profileimage.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -52,7 +52,7 @@ public class JobRequestDto {
         private String endTime;
         private boolean shouldClear;
 
-        public static CustomizeJob toEntity(JobRequestDto.FixedJobRequestDto fixedJob){
+        public static CustomizeJob toEntity(JobRequestDto.FixedJobRequestDto fixedJob, Member m){
             return CustomizeJob.builder()
                     .name(fixedJob.getName())
                     .label(fixedJob.getLabel())
@@ -61,6 +61,7 @@ public class JobRequestDto {
                     .estimatedTime(CalTime.cal_Time(fixedJob.getStartTime(), fixedJob.getEndTime()))
                     .isComplete(false)
                     .isFixed(true)
+                    .member(m)
 //                    .completion(0)
                     .startTime(fixedJob.getStartTime())
                     .endTime(fixedJob.getEndTime())
@@ -74,7 +75,7 @@ public class JobRequestDto {
     public static class AdjustJobRequestDto extends BaseDto{
         private String estimatedTime;
 
-        public static CustomizeJob toEntity(AdjustJobRequestDto adjustJob) {
+        public static CustomizeJob toEntity(AdjustJobRequestDto adjustJob, Member m) {
             LocalDate dl = DateTimeHandler.strToDate(adjustJob.getEndDate()).plusDays(1);
             LocalDateTime deadlineTime = dl.atStartOfDay();
             String deadline = deadlineTime.format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm"));
@@ -87,6 +88,7 @@ public class JobRequestDto {
                     .estimatedTime(adjustJob.getEstimatedTime())
                     .isComplete(false)
                     .isFixed(false)
+                    .member(m)
 //                    .completion(0)
                     .build();
         }

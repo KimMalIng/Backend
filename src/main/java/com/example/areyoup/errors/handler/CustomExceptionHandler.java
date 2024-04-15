@@ -10,6 +10,7 @@ import java.text.ParseException;
 
 @ControllerAdvice
 //모든 Controller 즉, 전역에서 발생할 수 있는 예외를 잡아 처리
+//todo Handler 작업
 public class CustomExceptionHandler {
 
     @ExceptionHandler(CustomException.class)
@@ -19,6 +20,4 @@ public class CustomExceptionHandler {
     }
     // 즉, 모든 컨트롤러에서 발생하는 CustomExceptino을 catch한다.
 
-//    @ExceptionHandler(ParseException.class)
-//
 }

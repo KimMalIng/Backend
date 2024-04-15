@@ -5,6 +5,7 @@ import com.example.areyoup.global.function.DateTimeHandler;
 import com.example.areyoup.job.domain.CustomizeJob;
 import com.example.areyoup.job.domain.Job;
 import com.example.areyoup.job.domain.SeperatedJob;
+import com.example.areyoup.member.domain.Member;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -28,7 +29,6 @@ public class JobResponseDto {
     private String endTime;
     private String estimatedTime;
     private boolean isFixed;
-//    private boolean isPrivate;
     private boolean isComplete;
 
     //EveryTimeJob
@@ -77,6 +77,7 @@ public class JobResponseDto {
                     .isFixed(j.isFixed())
                     .startDate(DateTimeHandler.dateToStr(j.getStartDate()))
                     .deadline(j.getDeadline())
+                    .shouldClear(j.isShouldClear())
 //                    .completion(j.getCompletion())
                     .build();
         }
@@ -135,7 +136,7 @@ public class JobResponseDto {
                     .build();
         }
 
-        public static SeperatedJob toEntity(SeperatedJobResponseDto responseDto){
+        public static SeperatedJob toEntity(SeperatedJobResponseDto responseDto, Member m){
             return SeperatedJob.builder()
                     .name(responseDto.getName())
                     .label(responseDto.getLabel())
@@ -145,6 +146,7 @@ public class JobResponseDto {
 //                    .isComplete()
                     .day(DateTimeHandler.strToDate(responseDto.getDay()))
                     .completion(responseDto.getCompletion())
+                    .member(m)
                     .isFixed(true)
                     //todo 조정된 일정 fixed 값 처리
                     .build();

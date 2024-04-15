@@ -48,6 +48,10 @@ public class CalTime {
         LocalTime start = DateTimeHandler.strToTime(startTime);
         LocalTime end = DateTimeHandler.strToTime(endTime);
 
+        if (end.isBefore(start)) {
+            end = end.plusHours(24);
+        } //23:00 - 08:00 일 경우를 대비
+
         Duration duration = Duration.between(start, end);
 
         long hours = duration.toHours();

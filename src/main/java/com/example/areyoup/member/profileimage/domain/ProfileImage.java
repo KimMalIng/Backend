@@ -1,4 +1,4 @@
-package com.example.areyoup.profileimage.domain;
+package com.example.areyoup.member.profileimage.domain;
 
 import com.example.areyoup.global.entity.BaseEntity;
 import jakarta.persistence.*;

@@ -5,9 +5,12 @@ import com.example.areyoup.errors.exception.MemberException;
 import com.example.areyoup.everytime.domain.EveryTimeJob;
 import com.example.areyoup.everytime.dto.EverytimeRequestDto;
 import com.example.areyoup.global.function.CalTime;
+import com.example.areyoup.global.jwt.JwtTokenProvider;
 import com.example.areyoup.job.repository.JobRepository;
 import com.example.areyoup.member.domain.Member;
 import com.example.areyoup.member.repository.MemberRepository;
+import com.example.areyoup.member.service.MemberService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,12 +25,13 @@ public class EveryTimeService {
 
     private final MemberRepository memberRepository;
     private final JobRepository jobRepository;
+    private final MemberService memberService;
+    private final HttpServletRequest request;
     /*
     everyTime 일정 저장
      */
-    public String saveEveryTime(List<EverytimeRequestDto.EverytimeDto> everytimeDtos, Long memberId) throws ParseException {
-        Member m = memberRepository.findById(memberId)
-                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+    public String saveEveryTime(List<EverytimeRequestDto.EverytimeDto> everytimeDtos) throws ParseException {
+        Member m = memberService.findMember(request);
         //member_id를 통해서 유저 확인 및 Job 데이터베이스에 JOIN
         saveTimeLine(everytimeDtos, m);
         return "Everytime schedule save successful";

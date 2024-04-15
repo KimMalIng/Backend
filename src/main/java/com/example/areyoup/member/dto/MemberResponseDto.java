@@ -1,9 +1,7 @@
 package com.example.areyoup.member.dto;
 
 import com.example.areyoup.member.domain.Member;
-import com.example.areyoup.profileimage.dto.ProfileImageRequestDto;
-import com.example.areyoup.profileimage.dto.ProfileImageResponseDto;
-import lombok.Builder;
+import com.example.areyoup.member.profileimage.dto.ProfileImageResponseDto;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,6 +13,7 @@ public class MemberResponseDto {
 
     protected String memberId;
     protected String name; //닉네임이 있을 경우
+    protected String nickname;
     protected ProfileImageResponseDto image;
     protected String loginType;
 
@@ -32,6 +31,7 @@ public class MemberResponseDto {
         public static MemberLoginDto toLoginDto(Member member, String accessToken) {
             return MemberLoginDto.builder()
                     .memberId(member.getMemberId())
+                    .nickname(member.getNickname())
                     .name(member.getName())
                     .image(new ProfileImageResponseDto(member.getProfileImg().getId(),
                             ProfileImageResponseDto.convertByteArrayToBase64(member.getProfileImg().getData())))
@@ -46,7 +46,6 @@ public class MemberResponseDto {
     @SuperBuilder
     public static class MemberInfoDto extends MemberResponseDto{
         private String memberPw;
-        private String nickname;
         private String everyTimeId;
         private String everyTimePw;
 
