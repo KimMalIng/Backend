@@ -52,16 +52,17 @@ public class TimeTableService {
     시간 테이블 가져오기
      */
     public HashMap<String, List> getTable(String startDate, String endDate) {
+        Member m = memberService.findMember(request);
         LocalDate start = DateTimeHandler.strToDate(startDate);
         LocalDate end = DateTimeHandler.strToDate(endDate);
 
         //날짜들의 요일에 해당되는 에타 시간표(Basic Jobs)를 가져온다.
-        List<EveryTimeResponseDto> EveryTimeJobs = getEveryTimeJobs(start, end);
+        List<EveryTimeResponseDto> EveryTimeJobs = getEveryTimeJobs(start, end, m.getId());
 
         //새로 배치된 Fixed Job을 가져오는 과정
-        List<JobResponseDto.FixedJobResponseDto> fixedJobs = getCustomizeJobs(start, end);
+        List<JobResponseDto.FixedJobResponseDto> fixedJobs = getCustomizeJobs(start, end, m.getId());
 
-        List<JobResponseDto.SeperatedJobResponseDto> seperatedJobs = getSeperatedJobs(start,end);
+        List<JobResponseDto.SeperatedJobResponseDto> seperatedJobs = getSeperatedJobs(start,end, m.getId());
 
         HashMap<String, List> jobs = new HashMap<>();
         jobs.put("EveryTimeJob", EveryTimeJobs);
@@ -73,16 +74,16 @@ public class TimeTableService {
         return jobs;
     }
 
-    private List<JobResponseDto.SeperatedJobResponseDto> getSeperatedJobs(LocalDate start, LocalDate end) {
-        List<SeperatedJob> seperatedJobs =  seperatedJobRepository.findByDayBetweenAndIsFixedIsTrue(start, end);
+    private List<JobResponseDto.SeperatedJobResponseDto> getSeperatedJobs(LocalDate start, LocalDate end, Long memberId) {
+        List<SeperatedJob> seperatedJobs =  seperatedJobRepository.findByDayBetweenAndIsFixedIsTrueAndMemberId(start, end,memberId);
 
         return seperatedJobs.stream()
                 .map(SeperatedJob::toSeperatedJobDto)
                 .toList();
     }
 
-    private List<JobResponseDto.FixedJobResponseDto> getCustomizeJobs(LocalDate start, LocalDate end) {
-        List<CustomizeJob> customizeJobs =  customizeJobRepository.findByStartDateBetweenAndIsFixedIsTrue(start, end);
+    private List<JobResponseDto.FixedJobResponseDto> getCustomizeJobs(LocalDate start, LocalDate end, Long memberId) {
+        List<CustomizeJob> customizeJobs =  customizeJobRepository.findByStartDateBetweenAndIsFixedIsTrue(start, end, memberId);
 
         return customizeJobs.stream()
                 .map(CustomizeJob::toCustomizeJobDto)
@@ -92,7 +93,7 @@ public class TimeTableService {
     /*
     에브리타임에 고정된 일정들을 가져오는 단계
      */
-    private List<EveryTimeResponseDto> getEveryTimeJobs(LocalDate start, LocalDate end) {
+    private List<EveryTimeResponseDto> getEveryTimeJobs(LocalDate start, LocalDate end, Long memberId) {
         //start ~ end 사이의 날짜들을 가져옴
         List<LocalDate> datesBetween = getAllDatesBetween(start, end);
         Set<Integer> dayOfWeeks = new HashSet<>(); //요일을 담을 Set
@@ -101,7 +102,7 @@ public class TimeTableService {
             //요일만 띄운다 -> 해당 기간 안에 필요한 요일만 넣어서 EveryTimeJob 한번에 꺼내기
             dayOfWeeks.add(dayOfWeek);
         }
-        List<EveryTimeJob> everyTimeJobs = everyTimeJobRepository.findByDayOfTheWeekIn(dayOfWeeks);
+        List<EveryTimeJob> everyTimeJobs = everyTimeJobRepository.findByDayOfTheWeekInAndMemberId(dayOfWeeks, memberId);
         //기간 안의 요일들을 넣어서 그 요일에 해당하는 EveryTimeJob 반환
         //EveryTimeJob들을 넣어서 Dto 형태로 반환
         return everyTimeJobs.stream()
@@ -153,26 +154,26 @@ public class TimeTableService {
 
         //3. 기본적인 일정 가져오기
         //기본 일정 DefaultJob 반환 (취침, 아침, 점심, 저녁)
-        List<DefaultJob> defaultJobs = defaultJobRepository.findAll();
+        List<DefaultJob> defaultJobs = defaultJobRepository.findAllByMemberId(memberId);
         List<JobResponseDto.DefaultJobResponseDto> defaultJob = defaultJobs.stream()
                 .map(JobResponseDto.DefaultJobResponseDto::toResponseDto)
                 .toList();
         timeLine.setDefaultJobs(defaultJob);
 
         //주어진 기간안에 일정들 가져오기
-        List<ScheduleDto> adjustJobs = getAdjustJobs(start, end, datesBetween);
+        List<ScheduleDto> adjustJobs = getAdjustJobs(start, end, datesBetween, memberId);
         timeLine.setSchedule(adjustJobs); //스케줄 세팅
 
         saveFile(timeLine); //data.json에 저장
 
-        return genetic();
+        return genetic(memberId);
 
     }
 
     /*
     유전 알고리즘 실행하여 조정된 일정 저장
      */
-    private JobResponseDto.AdjustmentDto genetic() {
+    private JobResponseDto.AdjustmentDto genetic(Long memberId) {
         try {
             ProcessBuilder processBuilder = new ProcessBuilder("python", PATH+ "Scheduling_Algorithm_v2.py");
 
@@ -201,10 +202,10 @@ public class TimeTableService {
                         JobResponseDto.SeperatedJobResponseDto responseDto = JobResponseDto.SeperatedJobResponseDto.toSeperatedJob(scheduleDto);
                         SeperatedJob seperatedJob = JobResponseDto.SeperatedJobResponseDto.toEntity(responseDto, memberService.findMember(request));
                         seperatedJobRepository.save(seperatedJob);
-                        replace.add(ScheduleDto.toScheduleDto(seperatedJobRepository.findByDayAndStartTime(day, scheduleDto.getStartTime())));
+                        replace.add(ScheduleDto.toScheduleDto(seperatedJobRepository.findByDayAndStartTimeAndMemberId(day, scheduleDto.getStartTime(), memberId)));
                         //일정에 대한 id 값을 넘겨주기 위해 repository에서 다시 꺼내와서 넣기
 
-                        CustomizeJob customizeJob = customizeJobRepository.findByName(scheduleDto.getName());
+                        CustomizeJob customizeJob = customizeJobRepository.findByNameAndMemberId(scheduleDto.getName(), memberId);
                         customizeJob.toFixUpdate(false);
                     } else {
                         replace.add(scheduleDto);
@@ -258,12 +259,12 @@ public class TimeTableService {
     /*
     조정할 때 필요한 일정들을 모두 가져옴
      */
-    private List<ScheduleDto> getAdjustJobs(LocalDate start, LocalDate end, List<LocalDate> datesBetween) {
+    private List<ScheduleDto> getAdjustJobs(LocalDate start, LocalDate end, List<LocalDate> datesBetween, Long memberId) {
         List<ScheduleDto> result = new ArrayList<>();
         for (LocalDate localDate : datesBetween){
             int dayOfWeek = localDate.getDayOfWeek().getValue()-1; //월요일 1부터 시작해서 -1 처리
             //해당 요일에 해당하는 EveryTimeJob들 가져오기 (하루에 듣는 수업이 여러 개 일수도 있음)
-            List<EveryTimeJob> everyTimeJob = everyTimeJobRepository.findByDayOfTheWeek(dayOfWeek);
+            List<EveryTimeJob> everyTimeJob = everyTimeJobRepository.findByDayOfTheWeekAndMemberId(dayOfWeek, memberId);
             //todo memberId까지 확인해야함
             for (EveryTimeJob basic : everyTimeJob){
                 ScheduleDto b = ScheduleDto.toScheduleDto(basic, localDate);
@@ -273,20 +274,20 @@ public class TimeTableService {
         }
 
         //기간 안에 존재하는 고정된 일정 customJob 반환
-        List<CustomizeJob> fixedJobs = customizeJobRepository.findFixedJob(start, end);
+        List<CustomizeJob> fixedJobs = customizeJobRepository.findFixedJob(start, end, memberId);
         List<ScheduleDto> fixed = fixedJobs.stream()
                 .map(ScheduleDto::toScheduleDto)
                 .toList();
 
         //시작 시간이 null, 고정 X 일정 -> 조정해야 하는 일정들
         //todo 조정해야 하는 일정들은 id 값으로 프론트에서 넘겨받기?
-        List<CustomizeJob> adjustJobs = customizeJobRepository.findAdjustJob();
+        List<CustomizeJob> adjustJobs = customizeJobRepository.findAdjustJob(memberId);
         List<ScheduleDto> adjust = adjustJobs.stream()
                 .map(ScheduleDto::toScheduleDto)
                 .toList();
 
         //조정된 일정 중 고정된 일정
-        List<SeperatedJob> seperatedJobs = seperatedJobRepository.findByDayBetweenAndIsFixedIsTrue(start, end);
+        List<SeperatedJob> seperatedJobs = seperatedJobRepository.findByDayBetweenAndIsFixedIsTrueAndMemberId(start, end, memberId);
         List<ScheduleDto> seperated = seperatedJobs.stream()
                 .map(ScheduleDto::toScheduleDto)
                 .toList();
@@ -299,13 +300,14 @@ public class TimeTableService {
     }
 
     public String calLeftTime(String startDate, String endDate) {
+        Member m = memberService.findMember(request);
         LocalDate start = DateTimeHandler.strToDate(startDate);
         LocalDate end = DateTimeHandler.strToDate(endDate);
 
-        long defaultMinute = getTimeOfDefaultJob(start, end);
-        Integer everyTimeMinute = getTimeOfEveryTimeJob(start,end);
-        Integer customizeMinute = getTimeOfCustomizeJob(start,end);
-        Integer seperatedMinute = getTimeOfSeperatedJob(start,end);
+        long defaultMinute = getTimeOfDefaultJob(start, end, m.getId());
+        Integer everyTimeMinute = getTimeOfEveryTimeJob(start,end, m.getId());
+        Integer customizeMinute = getTimeOfCustomizeJob(start,end, m.getId());
+        Integer seperatedMinute = getTimeOfSeperatedJob(start,end, m.getId());
         long totalMinute = defaultMinute + everyTimeMinute + customizeMinute + seperatedMinute;
         //기간 내의 defaultJob + everyTimeJob + customizeJob + seperatedJob 총 소요시간
 
@@ -329,17 +331,17 @@ public class TimeTableService {
         return String.format("%02d:%02d", (result/60),(result%60));
     }
 
-    private long getTimeOfDefaultJob(LocalDate start, LocalDate end) {
+    private long getTimeOfDefaultJob(LocalDate start, LocalDate end, Long id) {
 
         long days = ChronoUnit.DAYS.between(start,end) + 1;
-        long result = jobRepository.getLeftTimeFromDefaultJob() * days;
+        long result = jobRepository.getLeftTimeFromDefaultJob(id) * days;
         log.info("DefaultJob의 총 소요시간 : {}",String.format("%02d:%02d", (result/60),(result%60)));
         return result;
     }
 
-    private Integer getTimeOfSeperatedJob(LocalDate start, LocalDate end) {
+    private Integer getTimeOfSeperatedJob(LocalDate start, LocalDate end, Long id) {
         Integer result = 0 ;
-        List<SeperatedJob> seperatedJobs = seperatedJobRepository.findByDayBetweenAndIsFixedIsTrue(start,end);
+        List<SeperatedJob> seperatedJobs = seperatedJobRepository.findByDayBetweenAndIsFixedIsTrueAndMemberId(start,end, id);
         for (SeperatedJob basic : seperatedJobs){
             LocalTime time = DateTimeHandler.strToTime(basic.getEstimatedTime());
             int calTime = (time.getHour() * 60 + time.getMinute());
@@ -349,9 +351,9 @@ public class TimeTableService {
         return result;
     }
 
-    private Integer getTimeOfCustomizeJob(LocalDate start, LocalDate end) {
+    private Integer getTimeOfCustomizeJob(LocalDate start, LocalDate end, Long id) {
         Integer result = 0;
-        List<CustomizeJob> customizeJobs = customizeJobRepository.findFixedJob(start, end);
+        List<CustomizeJob> customizeJobs = customizeJobRepository.findFixedJob(start, end, id);
         for (CustomizeJob basic : customizeJobs){
             LocalTime time = DateTimeHandler.strToTime(basic.getEstimatedTime());
             int calTime = (time.getHour() * 60 + time.getMinute());
@@ -362,14 +364,13 @@ public class TimeTableService {
     }
 
     //기간 안의 EveryTimeJob 총 소요시간
-    private Integer getTimeOfEveryTimeJob(LocalDate start, LocalDate end) {
+    private Integer getTimeOfEveryTimeJob(LocalDate start, LocalDate end, Long id) {
         Integer result = 0;
         List<LocalDate> datesBetween = getAllDatesBetween(start, end);
         for (LocalDate localDate : datesBetween){
             int dayOfWeek = localDate.getDayOfWeek().getValue()-1; //월요일 1부터 시작해서 -1 처리
             //해당 요일에 해당하는 EveryTimeJob들 가져오기 (하루에 듣는 수업이 여러 개 일수도 있음)
-            List<EveryTimeJob> everyTimeJob = everyTimeJobRepository.findByDayOfTheWeek(dayOfWeek);
-            //todo memberId까지 확인해야함
+            List<EveryTimeJob> everyTimeJob = everyTimeJobRepository.findByDayOfTheWeekAndMemberId(dayOfWeek, id);
             for (EveryTimeJob basic : everyTimeJob){
                 LocalTime time = DateTimeHandler.strToTime(basic.getEstimatedTime());
                 int calTime = (time.getHour() * 60 + time.getMinute());

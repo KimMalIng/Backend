@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface DefaultJobRepository extends JpaRepository<DefaultJob, Long> {
-    @NonNull List<DefaultJob> findAll();
 
+    @NonNull
+    List<DefaultJob> findAllByMemberId(Long memberId);
 }

@@ -8,9 +8,9 @@ import java.util.Set;
 
 public interface EveryTimeJobRepository extends JpaRepository<EveryTimeJob, Long> {
     //dayOfWeek에 있는 요일에 해당 되는 EveryTimeJob 꺼내기
-    List<EveryTimeJob> findByDayOfTheWeekIn(Set<Integer> dayOfTheWeek);
+    List<EveryTimeJob> findByDayOfTheWeekInAndMemberId(Set<Integer> dayOfTheWeek, Long memberId);
 
-    List<EveryTimeJob> findByDayOfTheWeek(Integer dayOfTheWeek);
+    List<EveryTimeJob> findByDayOfTheWeekAndMemberId(Integer dayOfTheWeek, Long memberId);
 
     List<EveryTimeJob> findAllByMemberId(Long memberId);
 }
