@@ -7,12 +7,11 @@ import com.example.areyoup.global.jwt.JwtTokenProvider;
 import com.example.areyoup.global.jwt.TokenService;
 import com.example.areyoup.global.jwt.dto.JwtTokenDto;
 import com.example.areyoup.member.domain.Member;
-import com.example.areyoup.profileimage.domain.ProfileImage;
+import com.example.areyoup.member.profileimage.domain.ProfileImage;
 import com.example.areyoup.member.dto.MemberRequestDto;
 import com.example.areyoup.member.dto.MemberResponseDto;
 import com.example.areyoup.member.repository.MemberRepository;
-import com.example.areyoup.profileimage.dto.ProfileImageResponseDto;
-import com.example.areyoup.profileimage.repository.ProfileImageRepository;
+import com.example.areyoup.member.profileimage.repository.ProfileImageRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +42,7 @@ public class MemberService {
     /*
     accessToken을 통해 회원을 조회
      */
-    public Member findMember(HttpServletRequest request){
+    public Member findMember(HttpServletRequest request) {
         String accessToken = jwtTokenProvider.extractAccessToken(request);
         String memberId = jwtTokenProvider.extractUserId(accessToken);
         return memberRepository.findByMemberId(memberId)
@@ -55,16 +54,16 @@ public class MemberService {
     Member -> MemberJoinDto
      */
     @Transactional
-    public MemberResponseDto.MemberJoinDto join(MemberRequestDto.MemberJoinDto memberJoinDto){
+    public MemberResponseDto.MemberJoinDto join(MemberRequestDto.MemberJoinDto memberJoinDto) {
         if (memberRepository.findByMemberId(memberJoinDto.getMemberId()).isPresent())
             throw new MemberException(MemberErrorCode.MEMBER_DUPLICATED);
-        String name = memberJoinDto.getNickname().isEmpty()? memberJoinDto.getName(): memberJoinDto.getNickname();
         ProfileImage image = new ProfileImage();
         imageUpload(memberJoinDto, image); //이미지 유무 판단 후 알맞는 사진 저장
         Member member = Member.builder()
                 .memberId(memberJoinDto.getMemberId())
                 .memberPw(passwordEncoder.encode(memberJoinDto.getMemberPw()))
-                .name(name) //nickname이 있으면 반환, 아니면 그냥 이름 적용
+                .name(memberJoinDto.getName()) //nickname이 있으면 반환, 아니면 그냥 이름 적용
+                .nickname(memberJoinDto.getNickname())
                 .profileImg(image)
                 .roles(Collections.singletonList("USER"))
                 .loginType("service")
@@ -92,7 +91,7 @@ public class MemberService {
                 image.toUpdateDate(file.getBytes());
                 profileImageRepository.save(image);
             }
-        } catch (IOException e){
+        } catch (IOException e) {
             log.error("Image save error : {}", e.getMessage());
             //이미지 저장 중 오류 발생 시 롤백을 고려하여 예외를 다시 던짐
             throw new MemberException(MemberErrorCode.IMAGE_SAVE_ERROR);
@@ -113,7 +112,7 @@ public class MemberService {
 
         JwtTokenDto jwtTokenDto = tokenService.signIn(m.getMemberId(), m.getMemberPw());
         //Access, Refresh token 발급
-        CookieUtils.addCookie(response, "refreshToken", jwtTokenDto.getRefreshToken(), 2 * 360 * 1000 );
+        CookieUtils.addCookie(response, "refreshToken", jwtTokenDto.getRefreshToken(), 2 * 360 * 1000);
 
         m.toUpdateRefreshToken(jwtTokenDto.getRefreshToken());
         memberRepository.save(m);
@@ -122,8 +121,9 @@ public class MemberService {
         return MemberResponseDto.MemberLoginDto.toLoginDto(m, jwtTokenDto.getAccessToken());
     }
 
+
     @Transactional
-    public String delete(Long id) {
+    public String delete (Long id){
         memberRepository.deleteById(id);
         return "Delete";
     }
@@ -132,7 +132,7 @@ public class MemberService {
     회원 정보 반환
     - Member -> MemberInfoDto
      */
-    public MemberResponseDto.MemberInfoDto info(HttpServletRequest request) {
+    public MemberResponseDto.MemberInfoDto info (HttpServletRequest request){
         Member m = findMember(request);
         return MemberResponseDto.MemberInfoDto.toInfoDto(m);
     }

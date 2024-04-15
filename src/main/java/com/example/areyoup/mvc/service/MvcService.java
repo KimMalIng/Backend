@@ -1,8 +1,8 @@
 package com.example.areyoup.mvc.service;
 
-import com.example.areyoup.profileimage.domain.ProfileImage;
-import com.example.areyoup.profileimage.dto.ProfileImageResponseDto;
-import com.example.areyoup.profileimage.repository.ProfileImageRepository;
+import com.example.areyoup.member.profileimage.domain.ProfileImage;
+import com.example.areyoup.member.profileimage.dto.ProfileImageResponseDto;
+import com.example.areyoup.member.profileimage.repository.ProfileImageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
