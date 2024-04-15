@@ -192,7 +192,7 @@ public class TimeTableService {
      */
     private JobResponseDto.AdjustmentDto genetic(Long memberId) {
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder("python", PATH+ "Scheduling_Algorithm_v2.py");
+            ProcessBuilder processBuilder = new ProcessBuilder("python", PATH+ "Scheduling_Algorithm_v4.py");
 
             Process process = processBuilder.start();
             int exitCode = process.waitFor();
@@ -243,7 +243,7 @@ public class TimeTableService {
         } catch (ParseException | InterruptedException e) {
             log.error("python 실행 및 json 에러", e.getMessage());
         }
-        return null; //todo null 처리
+        return null;
     }
 
     /*
@@ -312,17 +312,22 @@ public class TimeTableService {
             //그리고 CustomizeJob의 예정소요 시간에서 뺀 값을 python에 보내준다. (update는 아님)
             seperatedJobRepository.deleteAllByNameAndMemberIdAndIsFixedIsFalse(cj.getName(), memberId);
             Integer totalMinutes = jobRepository.getTotalEstimatedTimeOfSeperatedJobByNameAndIsCompleteFalse(cj.getName(), memberId);
-            String estimatedTime = String.format("%02d:%02d", (totalMinutes/60),(totalMinutes%60));
-            LocalTime cjEstimatedTime = DateTimeHandler.strToTime(cj.getEstimatedTime());
-            LocalTime sjEstimatedTime = DateTimeHandler.strToTime(estimatedTime);
-            Duration duration = Duration.between(sjEstimatedTime, cjEstimatedTime);
+            if (totalMinutes != null) {
+                String estimatedTime = String.format("%02d:%02d", (totalMinutes / 60), (totalMinutes % 60));
+                LocalTime cjEstimatedTime = DateTimeHandler.strToTime(cj.getEstimatedTime());
+                LocalTime sjEstimatedTime = DateTimeHandler.strToTime(estimatedTime);
+                Duration duration = Duration.between(sjEstimatedTime, cjEstimatedTime);
 
-            String resultEstimatedTime = String.format("%02d:%02d", duration.toHours(), duration.toMinutes() % 60);
+                String resultEstimatedTime = String.format("%02d:%02d", duration.toHours(), duration.toMinutes() % 60);
 
-            ScheduleDto scheduleDto = ScheduleDto.toScheduleDto(cj);
-            scheduleDto.setEstimatedTime(resultEstimatedTime);
 
-            adjust = List.of(scheduleDto);
+                ScheduleDto scheduleDto = ScheduleDto.toScheduleDto(cj);
+                scheduleDto.setEstimatedTime(resultEstimatedTime);
+
+            } else {
+                ScheduleDto scheduleDto = ScheduleDto.toScheduleDto(cj);
+                adjust = List.of(scheduleDto);
+            }
 
         }
 
