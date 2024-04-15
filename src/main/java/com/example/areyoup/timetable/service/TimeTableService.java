@@ -14,8 +14,11 @@ import com.example.areyoup.job.repository.CustomizeJobRepository;
 import com.example.areyoup.job.repository.DefaultJobRepository;
 import com.example.areyoup.job.repository.JobRepository;
 import com.example.areyoup.job.repository.SeperatedJobRepository;
+import com.example.areyoup.member.domain.Member;
+import com.example.areyoup.member.service.MemberService;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.json.JSONParser;
@@ -42,6 +45,8 @@ public class TimeTableService {
     private final SeperatedJobRepository seperatedJobRepository;
     private final DefaultJobRepository defaultJobRepository;
     private final JobRepository jobRepository;
+    private final MemberService memberService;
+    private final HttpServletRequest request;
 
     /*
     시간 테이블 가져오기
@@ -124,8 +129,7 @@ public class TimeTableService {
         JobResponseDto.AdjustmentDto timeLine = new JobResponseDto.AdjustmentDto();
         String startDate = periodDto.getStartDate(); //yyyy.MM.dd
         String endDate = periodDto.getEndDate();
-        Long memberId = 1L;
-        //todo memberId 사용...
+        Long memberId = memberService.findMember(request).getId();
 
         LocalDateTime now = LocalDateTime.now(); //현재 날짜와 시간 가져오기
         LocalDate start = DateTimeHandler.strToDate(startDate);
@@ -170,13 +174,13 @@ public class TimeTableService {
      */
     private JobResponseDto.AdjustmentDto genetic() {
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder("python", PATH+ "genetic_algorithm.py");
+            ProcessBuilder processBuilder = new ProcessBuilder("python", PATH+ "Scheduling_Algorithm_v2.py");
 
             Process process = processBuilder.start();
             int exitCode = process.waitFor();
             log.info("Exited with error code " + exitCode);
             //python 파일 실행
-            log.info("Success python build");
+            log.info("python build");
             Thread.sleep(500);
             FileReader fr = new FileReader(PATH + "data.json");
             JSONParser parser = new JSONParser(fr);
@@ -188,14 +192,14 @@ public class TimeTableService {
 
             //data.json에서 가져와서 adjustmentdto에 넣어주는 과정
 
-            if (exitCode != 1){
+            if (exitCode == 0){
                 List<ScheduleDto> replace = new ArrayList<>();
                 //label !=0 이라면 조정된 것들
                 for (ScheduleDto scheduleDto : adjustmentDto.getSchedule()) {
                     if (scheduleDto.getLabel() != 0){
                         LocalDate day = DateTimeHandler.strToDate(scheduleDto.getDay());
                         JobResponseDto.SeperatedJobResponseDto responseDto = JobResponseDto.SeperatedJobResponseDto.toSeperatedJob(scheduleDto);
-                        SeperatedJob seperatedJob = JobResponseDto.SeperatedJobResponseDto.toEntity(responseDto);
+                        SeperatedJob seperatedJob = JobResponseDto.SeperatedJobResponseDto.toEntity(responseDto, memberService.findMember(request));
                         seperatedJobRepository.save(seperatedJob);
                         replace.add(ScheduleDto.toScheduleDto(seperatedJobRepository.findByDayAndStartTime(day, scheduleDto.getStartTime())));
                         //일정에 대한 id 값을 넘겨주기 위해 repository에서 다시 꺼내와서 넣기
@@ -208,8 +212,10 @@ public class TimeTableService {
                 }
                 adjustmentDto.setSchedule(replace); //대체한 scheduleDtofh 처리한다
                 log.info("Success save seperatedJobs");
-            } else {
-                log.warn("There's no adjustJob.");
+            } else if (exitCode == 1) {
+                log.warn("There's no adjustJob");
+            }else if (exitCode == 2) {
+                log.warn("Path Error");
             }
 
             return adjustmentDto;
