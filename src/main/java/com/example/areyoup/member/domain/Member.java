@@ -27,13 +27,14 @@ public class Member extends BaseEntity{
     @NonNull
     private String name;
     private String nickname;
+    private String loginType;
 
     //에브리타임 id pw
     private String everyTimeId;
     private String everyTimePw;
-    private String refreshToken;
 
-    private String loginType;
+    private String refreshToken;
+    private String fcmToken;
 
     @ElementCollection(fetch=FetchType.EAGER)
     @CollectionTable(
