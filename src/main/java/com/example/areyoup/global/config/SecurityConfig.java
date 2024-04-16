@@ -41,7 +41,7 @@ public class SecurityConfig {
         http.httpBasic(HttpBasicConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 //REST API 이므로 basic auth 및 csrf 보안을 사용하지 않음
-//                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .cors(AbstractHttpConfigurer::disable)
                 .sessionManagement(config -> config.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 //JWT를 사용하기 때문에 세션을 사용하지 않음
                 .authorizeHttpRequests(request ->
