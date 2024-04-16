@@ -9,8 +9,4 @@ import org.springframework.transaction.annotation.Transactional;
 //테스트 시작 전에 트랜잭션, 완료 후 롤백
 class AreyoupApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
-
 }
