@@ -169,7 +169,7 @@ public class TimeTableService {
     }
 
     /*
-    일정 조정 함수
+    일정 조정 메소드
      */
     public JobResponseDto.AdjustmentDto adjustSchedule(JobRequestDto.PeriodRequestDto periodDto){
         SettingBeforeAdjust result = getSettingbeforeAdjust(periodDto.getStartDate(), periodDto.getEndDate());
@@ -181,6 +181,28 @@ public class TimeTableService {
         saveFile(result.timeLine()); //data.json에 저장
 
         return genetic(result.memberId());
+
+    }
+
+    /*
+    일주일 자정에 자동 스케줄링
+     */
+    public void adjustEveryWeek(){
+        LocalDate now = LocalDate.now();
+        LocalDate Saturday = now;
+        while (Saturday.getDayOfWeek() != DayOfWeek.SATURDAY) {
+            Saturday = Saturday.plusDays(1);
+        }
+
+        SettingBeforeAdjust result = getSettingbeforeAdjust(DateTimeHandler.dateToStr(now), DateTimeHandler.dateToStr(Saturday));
+
+        //주어진 기간안에 일정들 가져오기
+        List<ScheduleDto> adjustJobs = getAdjustJobs(result.start(), result.end(), result.datesBetween(), result.memberId(), 1, null);
+        result.timeLine().setSchedule(adjustJobs); //스케줄 세팅
+
+        saveFile(result.timeLine()); //data.json에 저장
+
+        genetic(result.memberId());
 
     }
 
@@ -385,7 +407,7 @@ public class TimeTableService {
     }
 
     private Integer getTimeOfSeperatedJob(LocalDate start, LocalDate end, Long id) {
-        Integer result = 0 ;
+        int result = 0 ;
         List<SeperatedJob> seperatedJobs = seperatedJobRepository.findByDayBetweenAndIsFixedIsTrueAndMemberId(start,end, id);
         for (SeperatedJob basic : seperatedJobs){
             LocalTime time = DateTimeHandler.strToTime(basic.getEstimatedTime());
@@ -397,7 +419,7 @@ public class TimeTableService {
     }
 
     private Integer getTimeOfCustomizeJob(LocalDate start, LocalDate end, Long id) {
-        Integer result = 0;
+        int result = 0;
         List<CustomizeJob> customizeJobs = customizeJobRepository.findFixedJob(start, end, id);
         for (CustomizeJob basic : customizeJobs){
             LocalTime time = DateTimeHandler.strToTime(basic.getEstimatedTime());
@@ -410,7 +432,7 @@ public class TimeTableService {
 
     //기간 안의 EveryTimeJob 총 소요시간
     private Integer getTimeOfEveryTimeJob(LocalDate start, LocalDate end, Long id) {
-        Integer result = 0;
+        int result = 0;
         List<LocalDate> datesBetween = getAllDatesBetween(start, end);
         for (LocalDate localDate : datesBetween){
             int dayOfWeek = localDate.getDayOfWeek().getValue()-1; //월요일 1부터 시작해서 -1 처리

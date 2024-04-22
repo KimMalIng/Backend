@@ -5,6 +5,7 @@ import com.example.areyoup.job.dto.JobResponseDto;
 import com.example.areyoup.timetable.service.TimeTableService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -52,12 +53,22 @@ public class TimeTableController {
                 .body(timeTableService.calLeftTime(start, end));
     }
 
+    /*
+    남은 시간 재조정
+     */
     @GetMapping("/readjustment")
     public ResponseEntity<JobResponseDto.AdjustmentDto> reAdjustSchedule() throws IOException {
         return ResponseEntity.ok()
                 .body(timeTableService.arrangeSeperatedJob());
     }
 
+    /*
+    매주 일요일 자정마다 자동 스케줄링 진행
+     */
+    @Scheduled(cron = "0 0 0 ? * 0")
+    public void adjustScheduleEveryWeek(){
+        timeTableService.adjustEveryWeek();
+    }
 
 
 }
