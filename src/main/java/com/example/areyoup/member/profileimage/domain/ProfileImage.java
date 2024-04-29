@@ -14,7 +14,7 @@ public class ProfileImage extends BaseEntity {
     @Lob
     private byte[] data;
 
-    public void toUpdateDate(byte [] data){
+    public void toUpdateData(byte [] data){
         this.data = data;
     }
 }
