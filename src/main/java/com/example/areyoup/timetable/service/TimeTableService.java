@@ -189,6 +189,7 @@ public class TimeTableService {
      */
     public void adjustEveryWeek(){
         LocalDate now = LocalDate.now();
+//        LocalDate now = LocalDate.of(2024, 5,5);
         LocalDate Saturday = now;
         while (Saturday.getDayOfWeek() != DayOfWeek.SATURDAY) {
             Saturday = Saturday.plusDays(1);
@@ -197,13 +198,12 @@ public class TimeTableService {
         SettingBeforeAdjust result = getSettingbeforeAdjust(DateTimeHandler.dateToStr(now), DateTimeHandler.dateToStr(Saturday));
 
         //주어진 기간안에 일정들 가져오기
-        List<ScheduleDto> adjustJobs = getAdjustJobs(result.start(), result.end(), result.datesBetween(), result.memberId(), 1, null);
+        List<ScheduleDto> adjustJobs = getAdjustJobs(result.start(), result.end(), result.datesBetween(), result.memberId(), 3, null);
         result.timeLine().setSchedule(adjustJobs); //스케줄 세팅
 
         saveFile(result.timeLine()); //data.json에 저장
 
         genetic(result.memberId());
-
     }
 
 
@@ -317,7 +317,6 @@ public class TimeTableService {
                 .map(ScheduleDto::toScheduleDto)
                 .toList();
 
-//         seperated = new ArrayList<>();
         List<ScheduleDto> adjust = new ArrayList<>();
 
         if (classify == 1) { //처음 스케줄링 할 때
@@ -351,6 +350,14 @@ public class TimeTableService {
                 adjust = List.of(scheduleDto);
             }
 
+        } else if (classify == 3){
+            //자동 스케줄링 되는 경우
+            //이때는 조정되야 하는 일정 (AdjustJob)의 deadline이 아직 남았는데 완료되지 않았을 경우 새로운 주에다 스케줄링 진행
+            List<CustomizeJob> adjustJobs = jobRepository.findAdjustJobWhichIsDeadLineRemain(memberId, start);
+            adjust = adjustJobs.stream()
+                    .map(ScheduleDto::toScheduleDto)
+                    .toList();
+            adjust.forEach(scheduleDto -> scheduleDto.toUpdateStartDate(DateTimeHandler.dateToStr(start)));
         }
 
         //조정된 일정 중 고정된 일정

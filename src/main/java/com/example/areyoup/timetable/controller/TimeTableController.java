@@ -64,6 +64,7 @@ public class TimeTableController {
 
     /*
     매주 일요일 자정마다 자동 스케줄링 진행
+    - AdjustJob의 deadline이 아직 남았을 경우 진행
      */
     @Scheduled(cron = "0 0 0 ? * 0")
     public void adjustScheduleEveryWeek(){
