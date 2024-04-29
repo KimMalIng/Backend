@@ -9,7 +9,7 @@ spring:
           kakao:
             client-id: ${KAKAO_ID}
             client-secret: ${KAKAO_KEY}
-            redirect-uri: http://${HOST}:8080/login/oauth2/code/kakao
+            redirect-uri: https://server.kimmaling.com/login/oauth2/code/kakao
             client-authentication-method: client_secret_post
             authorization-grant-type: authorization_code
             scope:

@@ -92,14 +92,17 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         JwtTokenDto jwtTokenDto;
         Optional<Member> userOptional = memberRepository.findByMemberId(email);
+        String picUrl = (String) oAuth2User.getAttributes().get("picture");
+        ProfileImage profileImage = getProfileImage(picUrl);
+        profileImageRepository.save(profileImage);
         if (userOptional.isEmpty()){
             Member member = Member.builder()
                     .memberId(email)
                     .memberPw(pw)
                     .name(name)
                     .roles(Collections.singletonList("USER"))
-                    .profileImg(getProfileImage(oAuth2User))
-                    .loginType("kakao")
+                    .profileImg(profileImage)
+                    .loginType("Web-kakao")
                     .build();
             memberRepository.save(member);
 
@@ -116,8 +119,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     }
 
-    private ProfileImage getProfileImage(OAuth2User oAuth2User) throws IOException {
-        String picUrl = (String) oAuth2User.getAttributes().get("picture");
+    public static ProfileImage getProfileImage(String picUrl) throws IOException {
         URL urlInput = new URL(picUrl);
         BufferedImage urlImage = ImageIO.read(urlInput);
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -125,12 +127,11 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         byte[] file = bos.toByteArray();
 
         ProfileImage profileImage = new ProfileImage();
-        profileImage.toUpdateDate(file);
-        profileImageRepository.save(profileImage);
+        profileImage.toUpdateData(file);
         return profileImage;
     }
 
-    private static String generateRandomString() {
+    public static String generateRandomString() {
         String characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         StringBuilder randomString = new StringBuilder();
 

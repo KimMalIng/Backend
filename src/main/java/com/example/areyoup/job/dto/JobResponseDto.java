@@ -229,6 +229,7 @@ public class JobResponseDto {
             return scheduleDto;
         }
 
+
         //SeperatedJob -> ScheduleDto
         public static ScheduleDto toScheduleDto(SeperatedJob seperatedJob) {
             return ScheduleDto.builder()
@@ -243,6 +244,10 @@ public class JobResponseDto {
                     .deadline(null)
                     .shouldClear(false)
                     .build();
+        }
+
+        public void toUpdateStartDate(String startDate){
+            this.startDate = startDate;
         }
     }
 
