@@ -36,6 +36,7 @@ public class Member extends BaseEntity{
     private String refreshToken;
     private String fcmToken;
 
+    @Builder.Default
     @ElementCollection(fetch=FetchType.EAGER)
     @CollectionTable(
             name = "roles",

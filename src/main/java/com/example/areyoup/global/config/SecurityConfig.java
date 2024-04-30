@@ -62,19 +62,13 @@ public class SecurityConfig {
                 .logout(logout -> logout
                         .logoutUrl("/users/logout")
                         .deleteCookies("JSESSIONID", "remember-me")
-                        .addLogoutHandler(new LogoutHandler() {
-                            @Override
-                            public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-                                HttpSession session = request.getSession();
-                                session.invalidate();
-                            }
+                        .addLogoutHandler((request, response, authentication) -> {
+                            HttpSession session = request.getSession();
+                            session.invalidate();
                         })
-                        .logoutSuccessHandler(new LogoutSuccessHandler() {
-                            @Override
-                            public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
-                                System.out.println("로그아웃");
-                                response.sendRedirect("http://localhost:3000");
-                            }
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            System.out.println("로그아웃");
+                            response.sendRedirect("http://localhost:3000");
                         }))
                 .oauth2Login(
                         oauth2 -> oauth2
