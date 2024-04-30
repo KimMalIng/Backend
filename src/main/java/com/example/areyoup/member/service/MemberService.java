@@ -83,12 +83,12 @@ public class MemberService {
                 //이미지 파일이 없는 경우 기본 이미지 가져와서 저장
                 ClassPathResource resource = new ClassPathResource(PROFILE);
                 byte[] file = StreamUtils.copyToByteArray(resource.getInputStream());
-                image.toUpdateDate(file);
+                image.toUpdateData(file);
                 profileImageRepository.save(image);
             } else {
                 //이미지 파일이 있는 경우 해당 이미지 bytes로 저장
                 MultipartFile file = memberJoinDto.getImage();
-                image.toUpdateDate(file.getBytes());
+                image.toUpdateData(file.getBytes());
                 profileImageRepository.save(image);
             }
         } catch (IOException e) {
