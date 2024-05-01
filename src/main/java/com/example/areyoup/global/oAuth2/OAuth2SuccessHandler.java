@@ -48,8 +48,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
 
 
-    Map<String, String> env = getenv();
-    String host = env.get("HOST");
+//    Map<String, String> env = getenv();
+    String host = "https://server.kimmaling.com";
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
             throws IOException {
@@ -59,9 +59,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         log.info("토큰 발행 시작");
 
         JwtTokenDto jwtTokenDto = processOAuth2User(oAuth2User); //회원가입 및 로그인
-//        CookieUtils.addCookie(response, "refreshToken" , jwtTokenDto.getRefreshToken(), 180);
+        CookieUtils.addCookie(response, "refreshToken" , jwtTokenDto.getRefreshToken(), 180);
 
-        String targetUrl = UriComponentsBuilder.fromUriString("http://"+ host +":3000/logincheck")
+        String targetUrl = UriComponentsBuilder.fromUriString(host + "/logincheck")
                 .queryParam("accessToken",jwtTokenDto.getAccessToken())
                 .queryParam("refreshToken", jwtTokenDto.getRefreshToken())
                 .build().toUriString();
@@ -108,13 +108,13 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
             jwtTokenDto = tokenService.signIn(email, pw);
             member.toUpdateRefreshToken(jwtTokenDto.getRefreshToken());
-            log.info("OAuth2 Join Success");
+            log.info("OAuth2 회원가입");
         } else {
             jwtTokenDto = tokenService.signIn(email, userOptional.get().getMemberPw());
             //token 발행
+            log.info("OAuth2 로그인");
         }
-        log.info("OAuth2 request id = {}", email);
-        log.info("OAuth2 JWT success");
+        log.info("OAuth2 JWT 발급 완료");
         return jwtTokenDto;
 
     }
