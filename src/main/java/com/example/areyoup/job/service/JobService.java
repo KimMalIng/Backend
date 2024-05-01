@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -207,5 +208,45 @@ public class JobService {
         return nameofJob;
     }
 
-
+    /*
+    일정 삭제
+    - 일정의 종류에 따라 나눠서 삭제
+     AdjustJob을 삭제 -> 현재 날짜 이후의 SeperatedJob도 삭제
+     SeperatedJob를 삭제 -> AdjustJob의 estimatedTime도 줄어듬
+     FixedJob 삭제
+     EveryTimeJob 삭제
+     */
+    public JobResponseDto deleteJob(Long jobId) {
+        Member m = memberService.findMember(request);
+        String jobType = jobRepository.getDtypeFromJob(jobId);
+        Job delete = jobRepository.findById(jobId)
+                .orElseThrow(() -> new JobException(JobErrorCode.JOB_NOT_FOUND));
+        if (jobType.equals("S")){
+            //SeperatedJob를 삭제하면 AdjustJob의 estimatedTime이 줄어들어야함.
+            SeperatedJob seperatedJob = seperatedJobRepository.findById(jobId)
+                    .orElseThrow(() -> new JobException(JobErrorCode.JOB_NOT_FOUND));
+            //그 중 완료되지 않은 것을 삭제해야 영향이 감
+            if (!seperatedJob.isComplete()) {
+                CustomizeJob customizeJob = customizeJobRepository.findByNameAndMemberId(seperatedJob.getName(), m.getId()); //원래 일정의 소요시간
+                String estimatedTime = CalTime.reduce_estimatedTime(seperatedJob.getEstimatedTime(), customizeJob.getEstimatedTime());
+                customizeJob.toUpdateEstimatedTime(estimatedTime); //예정 소요시간 업데이트
+            }
+            seperatedJobRepository.deleteById(jobId);
+        } else if (jobType.equals("C")){
+            CustomizeJob customizeJob = customizeJobRepository.findById(jobId)
+                    .orElseThrow(() -> new JobException(JobErrorCode.JOB_NOT_FOUND));
+            String startTime = customizeJob.getStartTime();
+            //AdjustJob이라면
+            if (startTime==null){
+                LocalDate now = LocalDate.now().minusDays(1);
+                seperatedJobRepository.deleteAllByDayAfterAndNameAndIsCompleteIsFalse(now, customizeJob.getName());
+            } else {
+                //FixedJob
+                customizeJobRepository.deleteById(jobId);
+            }
+        } else {
+            jobRepository.deleteById(jobId);
+        }
+        return JobResponseDto.toDto(delete);
+    }
 }
