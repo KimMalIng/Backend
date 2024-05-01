@@ -36,5 +36,8 @@ public interface JobRepository extends JpaRepository<Job, Long> {
     List<CustomizeJob> findAdjustJobWhichIsDeadLineRemain(@Param("id") Long memberId, @Param("startDate") LocalDate startDate);
 
 
+    @Query(value = "SELECT j.dtype FROM job j WHERE j.id = :id", nativeQuery = true)
+    String getDtypeFromJob(@Param("id") Long jobId);
+
 
 }

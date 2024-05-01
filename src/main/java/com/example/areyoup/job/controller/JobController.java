@@ -6,6 +6,7 @@ import com.example.areyoup.job.dto.JobRequestDto.AdjustJobRequestDto;
 import com.example.areyoup.job.dto.JobResponseDto;
 import com.example.areyoup.job.service.JobService;
 
+import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,6 +71,13 @@ public class JobController {
     public ResponseEntity<?> modifyJob(@RequestBody List<JobRequestDto.UpdateJobRequestDto> updateJobs){
         return ResponseEntity.ok()
                 .body(jobService.updateJobs(updateJobs));
+    }
+
+    @DeleteMapping("/delete/{job_id}")
+    @Transactional
+    public ResponseEntity<JobResponseDto> deleteJob(@PathVariable("job_id") Long job_id){
+        return ResponseEntity.ok()
+                .body(jobService.deleteJob(job_id));
     }
 
 }

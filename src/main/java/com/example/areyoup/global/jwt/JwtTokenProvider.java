@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 @Component
 public class JwtTokenProvider {
 
-    public static final long ACCESSTOKEN_TIME = 1000*60*30;
+    public static final long ACCESSTOKEN_TIME = 1000*60*30*24;
     public static final long REFRESHTOKEN_TIME = 1000*60*60*24*7;
 
     private final Key key;
