@@ -15,7 +15,7 @@ import java.util.Collections;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class OAuth2UserService extends DefaultOAuth2UserService{
+public class OAuth2UserService extends DefaultOAuth2UserService {
     //정상적인 유저 인증이 완료되면 여기로 오게 된다.
     //그 다음에 successhandler로 감
 

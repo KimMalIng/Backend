@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 @Component
@@ -47,8 +48,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         아직 로그인이 안됐기 때문에 헤더를 확인할 필요 x
          */
 
-        if (request.getRequestURL().equals("/users/login") ||
-        request.getRequestURL().equals("/users/join")){
+        if (request.getRequestURI().equals("/users/login") |
+        request.getRequestURI().equals("/users/join") |
+        request.getRequestURI().equals("/login")){
             filterChain.doFilter(request,response);
             return;
         }
