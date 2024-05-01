@@ -8,19 +8,23 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/mvc")
 public class MvcController {
 
     @Autowired
     MvcService mvcService;
 
-    @GetMapping("/profile")
+    @GetMapping("/logincheck")
+    public String loginCheck(){
+        return "logincheck";
+    }
+
+    @GetMapping("/mvc/profile")
     public String profileAll(Model model){
         model.addAttribute("profiles", mvcService.getProfile());
         return "profile";
     }
 
-    @GetMapping("/")
+    @GetMapping("/mvc/")
     public String index(){
         return "index";
     }
