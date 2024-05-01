@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
 //시간 계산 클래스
 public class CalTime {
@@ -55,6 +56,18 @@ public class CalTime {
         } //23:00 - 08:00 일 경우를 대비
 
         Duration duration = Duration.between(start, end);
+
+        long hours = duration.toHours();
+        long minutes = duration.toMinutes() % 60;
+
+        return String.format("%02d:%02d", hours, minutes);
+    }
+
+    public static String reduce_estimatedTime(String seperate_et, String custom_et){
+        LocalTime seperated = DateTimeHandler.strToTime(seperate_et);
+        LocalTime customize = DateTimeHandler.strToTime(custom_et);
+
+        Duration duration = Duration.between(seperated, customize);
 
         long hours = duration.toHours();
         long minutes = duration.toMinutes() % 60;

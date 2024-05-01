@@ -17,4 +17,7 @@ public interface SeperatedJobRepository extends JpaRepository<SeperatedJob, Long
 
     @Transactional
     void deleteAllByNameAndMemberIdAndIsFixedIsFalse(String name, Long memberId);
+
+    @Transactional
+    void deleteAllByDayAfterAndNameAndIsCompleteIsFalse(LocalDate now, String name);
 }
