@@ -39,6 +39,10 @@ public class MemberService {
 
     private static final String PROFILE = "static\\images\\logo.png";
 
+    public static MemberResponseDto.MemberInfoDto update() {
+        return null;
+    }
+
     /*
     accessToken을 통해 회원을 조회
      */
