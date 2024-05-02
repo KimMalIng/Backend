@@ -41,15 +41,7 @@ public class SecurityConfig {
         http.httpBasic(HttpBasicConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 //REST API 이므로 basic auth 및 csrf 보안을 사용하지 않음
-                .cors(c -> {
-                    CorsConfigurationSource source = request -> {
-                        CorsConfiguration config = new CorsConfiguration();
-                        config.setAllowedOrigins(List.of("http://localhost:3000", "https://server.kimmaling.com"));
-                        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
-                        return config;
-                    };
-                    c.configurationSource(source);
-                })
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(config -> config.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 //JWT를 사용하기 때문에 세션을 사용하지 않음
                 .authorizeHttpRequests(
@@ -70,8 +62,8 @@ public class SecurityConfig {
                                         .anyRequest().authenticated()
 //                        //이 밖에 모든 요청에 대해서 인증 필요
                 )
-                .formLogin(login ->
-                        login.loginPage("/login").permitAll())
+//                .formLogin(login ->
+//                        login.loginPage("/login").permitAll())
 //                .logout(logout -> logout
 //                        .logoutUrl("/users/logout")
 //                        .deleteCookies("JSESSIONID", "remember-me")
@@ -99,6 +91,17 @@ public class SecurityConfig {
         return http.build();
     }
 
+    private CorsConfigurationSource corsConfigurationSource() {
+        return request -> {
+            CorsConfiguration corsConfiguration = new CorsConfiguration();
+            corsConfiguration.setAllowedOrigins(Collections.singletonList("*"));
+            corsConfiguration.setAllowedMethods(Collections.singletonList("*"));
+            corsConfiguration.setAllowedHeaders(Collections.singletonList("*"));
+            corsConfiguration.setExposedHeaders(Collections.singletonList("*"));
+            corsConfiguration.setMaxAge(3600L);
+            return corsConfiguration;
+        };
+    }
 
     @Bean
     public static PasswordEncoder passwordEncoder() {
