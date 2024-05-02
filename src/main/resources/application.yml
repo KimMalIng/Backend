@@ -27,7 +27,7 @@ spring:
 jwt:
   secret: ${JWT.SECRET}
 
-#logging:
-#  level:
-#    org.springframework:
-#      debug
+logging:
+  level:
+    org.springframework:
+      debug

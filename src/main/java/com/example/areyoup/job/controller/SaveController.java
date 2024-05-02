@@ -13,7 +13,6 @@ import java.util.List;
 @RestController //ResponseBody + Controller 로 Data(Json) 반환하는 어노테이션
 @RequiredArgsConstructor
 @RequestMapping("/job/save")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class SaveController {
 
     private final SaveService saveService;

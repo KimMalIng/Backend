@@ -17,7 +17,6 @@ import java.io.IOException;
 @RequiredArgsConstructor
 @RequestMapping("/users")
 @Slf4j
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class MemberController {
     private final MemberService memberService;
 
