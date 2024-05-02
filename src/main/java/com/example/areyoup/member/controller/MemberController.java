@@ -63,11 +63,4 @@ public class MemberController {
                 .body(memberService.delete(id));
     }
 
-    // TODO: 2024-05-01 멤버 업데이트 
-    @PutMapping("/update")
-    public ResponseEntity<MemberResponseDto.MemberInfoDto> update(){
-        return ResponseEntity.ok()
-                .body(MemberService.update());
-    }
-
 }
