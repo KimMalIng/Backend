@@ -17,6 +17,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 @RequestMapping("/users")
 @Slf4j
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class MemberController {
     private final MemberService memberService;
 
@@ -62,5 +63,14 @@ public class MemberController {
         return ResponseEntity.ok()
                 .body(memberService.delete(id));
     }
+
+    /*
+    업데이트
+     */
+//    @PutMapping("/update")
+//    public ResponseEntity<MemberResponseDto.MemberUpdateDto> update(@RequestBody MemberRequestDto.MemberUpdateDto updateDto){
+//        return ResponseEntity.ok()
+//                .body(memberService.update(updateDto));
+//    }
 
 }

@@ -18,6 +18,7 @@ import java.util.List;
 @RestController //ResponseBody + Controller 로 Data(Json) 반환하는 어노테이션
 @RequiredArgsConstructor
 @RequestMapping("/job")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class JobController {
 
     private final JobService jobService;

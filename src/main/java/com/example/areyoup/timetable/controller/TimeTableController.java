@@ -15,6 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/timetable")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class TimeTableController {
 
     private final TimeTableService timeTableService;
