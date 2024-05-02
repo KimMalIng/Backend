@@ -6,16 +6,14 @@ import com.example.areyoup.job.service.JobService;
 import com.example.areyoup.job.service.SaveService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController //ResponseBody + Controller 로 Data(Json) 반환하는 어노테이션
 @RequiredArgsConstructor
 @RequestMapping("/job/save")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class SaveController {
 
     private final SaveService saveService;
