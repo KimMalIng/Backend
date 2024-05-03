@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -57,6 +58,7 @@ public class MemberController {
     /*
     회원 삭제
      */
+    @Transactional
     @DeleteMapping("/delete/{member_id}")
     public ResponseEntity<?> delete(@PathVariable(value = "member_id") Long id){
         return ResponseEntity.ok()
@@ -64,12 +66,13 @@ public class MemberController {
     }
 
     /*
-    업데이트
+    회원 정보 수정 업데이트
      */
-//    @PutMapping("/update")
-//    public ResponseEntity<MemberResponseDto.MemberUpdateDto> update(@RequestBody MemberRequestDto.MemberUpdateDto updateDto){
-//        return ResponseEntity.ok()
-//                .body(memberService.update(updateDto));
-//    }
+    @Transactional
+    @PutMapping("/update")
+    public ResponseEntity<MemberResponseDto.MemberUpdateDto> update(@ModelAttribute MemberRequestDto.MemberUpdateDto updateDto) throws IOException {
+        return ResponseEntity.ok()
+                .body(memberService.update(updateDto));
+    }
 
 }
