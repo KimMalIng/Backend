@@ -1,6 +1,5 @@
 package com.example.areyoup.member.controller;
 
-import com.example.areyoup.member.domain.Member;
 import com.example.areyoup.member.dto.MemberRequestDto;
 import com.example.areyoup.member.dto.MemberResponseDto;
 import com.example.areyoup.member.service.MemberService;
@@ -66,11 +65,14 @@ public class MemberController {
                 .body(memberService.delete(id));
     }
 
+    /*
+    회원 정보 수정 업데이트
+     */
     @Transactional
     @PutMapping("/update")
-    public ResponseEntity<MemberResponseDto.MemberUpdateDto> update(@ModelAttribute MemberRequestDto.MemberUpdateDto memberUpdateDto) throws IOException {
+    public ResponseEntity<MemberResponseDto.MemberUpdateDto> update(@ModelAttribute MemberRequestDto.MemberUpdateDto updateDto) throws IOException {
         return ResponseEntity.ok()
-                .body(memberService.update(memberUpdateDto));
+                .body(memberService.update(updateDto));
     }
 
 }
