@@ -20,6 +20,19 @@ public class MemberResponseDto {
     @SuperBuilder
     public static class MemberJoinDto extends MemberResponseDto{
 
+        public static MemberJoinDto toDto(Member member){
+            ProfileImageResponseDto profileImageResponseDto =
+                    new ProfileImageResponseDto(member.getProfileImg().getId(),
+                            ProfileImageResponseDto.convertByteArrayToBase64(member.getProfileImg().getData()));
+            return MemberResponseDto.MemberJoinDto.builder()
+                    .memberId(member.getMemberId())
+                    .name(member.getName())
+                    .nickname(member.getNickname())
+                    .image(profileImageResponseDto)
+                    .loginType(member.getLoginType())
+                    .build();
+        }
+
     }
 
     @SuperBuilder
@@ -73,4 +86,23 @@ public class MemberResponseDto {
 
     }
 
+    @SuperBuilder
+    public static class MemberUpdateDto extends MemberResponseDto{
+        private String memberPw;
+
+        public static MemberUpdateDto toDto(Member m) {
+            ProfileImageResponseDto profileImageResponseDto = new ProfileImageResponseDto(
+                    m.getProfileImg().getId(),
+                    ProfileImageResponseDto.convertByteArrayToBase64(m.getProfileImg().getData())
+            );
+            return MemberUpdateDto.builder()
+                    .memberId(m.getMemberId())
+                    .memberPw(m.getMemberPw())
+                    .name(m.getName())
+                    .image(profileImageResponseDto)
+                    .nickname(m.getNickname())
+                    .loginType(m.getLoginType())
+                    .build();
+        }
+    }
 }

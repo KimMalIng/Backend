@@ -1,5 +1,6 @@
 package com.example.areyoup.member.controller;
 
+import com.example.areyoup.member.domain.Member;
 import com.example.areyoup.member.dto.MemberRequestDto;
 import com.example.areyoup.member.dto.MemberResponseDto;
 import com.example.areyoup.member.service.MemberService;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -57,10 +59,18 @@ public class MemberController {
     /*
     회원 삭제
      */
+    @Transactional
     @DeleteMapping("/delete/{member_id}")
     public ResponseEntity<?> delete(@PathVariable(value = "member_id") Long id){
         return ResponseEntity.ok()
                 .body(memberService.delete(id));
+    }
+
+    @Transactional
+    @PutMapping("/update")
+    public ResponseEntity<MemberResponseDto.MemberUpdateDto> update(@ModelAttribute MemberRequestDto.MemberUpdateDto memberUpdateDto) throws IOException {
+        return ResponseEntity.ok()
+                .body(memberService.update(memberUpdateDto));
     }
 
 }

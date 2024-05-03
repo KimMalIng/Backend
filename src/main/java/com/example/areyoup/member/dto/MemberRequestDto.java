@@ -31,5 +31,17 @@ public class MemberRequestDto {
         private String memberPw;
     }
 
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class MemberUpdateDto{
+        private String memberId;
+        private String memberPw;
+        private String name;
+        private String nickname;
+        private MultipartFile image;
+    }
+
 
 }
