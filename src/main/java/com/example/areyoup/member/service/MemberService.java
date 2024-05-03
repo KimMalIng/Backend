@@ -70,7 +70,7 @@ public class MemberService {
                 .build();
         memberRepository.save(member);
 //        member.getRoles().add("USER");
-        return member.toDto(member);
+        return MemberResponseDto.MemberJoinDto.toDto(member);
     }
 
     /*
@@ -122,10 +122,12 @@ public class MemberService {
     }
 
 
-    @Transactional
     public String delete (Long id){
+        Member m = memberRepository.findById(id)
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+        profileImageRepository.deleteById(m.getProfileImg().getId());
         memberRepository.deleteById(id);
-        return "Delete";
+        return "Delete Success";
     }
 
     /*
@@ -135,5 +137,16 @@ public class MemberService {
     public MemberResponseDto.MemberInfoDto info (HttpServletRequest request){
         Member m = findMember(request);
         return MemberResponseDto.MemberInfoDto.toInfoDto(m);
+    }
+
+    /*
+    회원 정보 업데이트
+    - 만약 사진 정보가 같다면 업데이트 x, 다르면 업데이트
+     */
+    public MemberResponseDto.MemberUpdateDto update(MemberRequestDto.MemberUpdateDto memberUpdateDto) throws IOException {
+        Member m = memberRepository.findByMemberId(memberUpdateDto.getMemberId())
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+        m.toUpdateAll(memberUpdateDto, passwordEncoder.encode(memberUpdateDto.getMemberPw()));
+        return MemberResponseDto.MemberUpdateDto.toDto(m);
     }
 }

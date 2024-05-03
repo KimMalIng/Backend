@@ -1,12 +1,15 @@
 package com.example.areyoup.member.domain;
 
 import com.example.areyoup.global.entity.BaseEntity;
+import com.example.areyoup.member.dto.MemberRequestDto;
 import com.example.areyoup.member.dto.MemberResponseDto;
 import com.example.areyoup.member.profileimage.domain.ProfileImage;
 import com.example.areyoup.member.profileimage.dto.ProfileImageResponseDto;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,17 +54,13 @@ public class Member extends BaseEntity{
         this.refreshToken = refreshToken;
     }
 
-    public MemberResponseDto.MemberJoinDto toDto(Member member){
-        ProfileImageResponseDto profileImageResponseDto =
-                new ProfileImageResponseDto(member.getProfileImg().getId(),
-                        ProfileImageResponseDto.convertByteArrayToBase64(member.getProfileImg().getData()));
-        return MemberResponseDto.MemberJoinDto.builder()
-                .memberId(member.getMemberId())
-                .name(member.getName())
-                .nickname(member.getNickname())
-                .image(profileImageResponseDto)
-                .loginType(member.getLoginType())
-                .build();
+    public void toUpdateAll(MemberRequestDto.MemberUpdateDto memberUpdateDto, String password) throws IOException {
+        if (memberUpdateDto.getImage().getBytes() != this.getProfileImg().getData()) {
+            this.getProfileImg().toUpdateData(memberUpdateDto.getImage().getBytes());
+        }
+        this.memberPw = password;
+        this.name = memberUpdateDto.getName();
+        this.nickname = memberUpdateDto.getNickname();
     }
 
 }
