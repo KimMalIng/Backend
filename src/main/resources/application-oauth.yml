@@ -10,6 +10,7 @@ spring:
             client-id: ${KAKAO_ID}
             client-secret: ${KAKAO_KEY}
             redirect-uri: https://server.kimmaling.com/login/oauth2/code/kakao
+            #실행하고 있는 서버 주소
             client-authentication-method: client_secret_post
             authorization-grant-type: authorization_code
             scope:
