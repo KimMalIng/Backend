@@ -123,6 +123,9 @@ public class MemberService {
 
 
     public String delete (Long id){
+        Member m = memberRepository.findById(id)
+                .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+        profileImageRepository.deleteById(m.getProfileImg().getId());
         memberRepository.deleteById(id);
         return "Delete Success";
     }
