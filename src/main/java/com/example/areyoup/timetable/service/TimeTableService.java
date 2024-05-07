@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class TimeTableService {
 
-    private static final String PATH = "..\\areyoup\\src\\main\\resources\\genetic_python\\";
+    private static final String PATH = "";
     private final EveryTimeJobRepository everyTimeJobRepository;
     private final CustomizeJobRepository customizeJobRepository;
     private final SeperatedJobRepository seperatedJobRepository;
@@ -210,7 +210,7 @@ public class TimeTableService {
 
 
     /*
-    유전 알고리즘 실행하여 조정된 일정 저장
+    유전 알고리즘 실행하여 조정된 일정 저
      */
     private JobResponseDto.AdjustmentDto genetic(Long memberId) {
         try {
