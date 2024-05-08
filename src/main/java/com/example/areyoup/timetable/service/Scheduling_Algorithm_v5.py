@@ -567,8 +567,8 @@ class Schedule:
 
 
 if __name__ == "__main__":
-    read_path = "..\\areyoup\\src\\main\\java\\com\\example\\areyoup\\timetable\\service\\data.json"
-    write_path = "..\\areyoup\\src\\main\\java\\com\\example\\areyoup\\timetable\\service\\data.json"
+    read_path = "/home/ubuntu/Backend/src/main/java/com/example/areyoup/timetable/service/data.json"
+    write_path = "/home/ubuntu/Backend/src/main/java/com/example/areyoup/timetable/service/data.json"
     #  read_path = "data.json"
     # write_path = "data.json"
     sch = Schedule(read_path)
