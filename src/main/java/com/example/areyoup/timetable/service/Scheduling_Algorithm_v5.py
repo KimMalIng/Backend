@@ -567,10 +567,10 @@ class Schedule:
 
 
 if __name__ == "__main__":
-    read_path = "..\\areyoup\\src\\main\\resources\\genetic_python\\data.json"
-    write_path = "..\\areyoup\\src\\main\\resources\\genetic_python\\data.json"
-    # read_path = "data.json"
-    # write_path = "data.json"
+    # read_path = "..\\areyoup\\src\\main\\resources\\genetic_python\\data.json"
+    # write_path = "..\\areyoup\\src\\main\\resources\\genetic_python\\data.json"
+    read_path = "data.json"
+    write_path = "data.json"
     sch = Schedule(read_path)
     sch.make_zero_dic()
     sch.assign_schedule()
