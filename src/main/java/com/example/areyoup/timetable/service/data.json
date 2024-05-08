@@ -1,0 +1,166 @@
+{
+	"week_day": [
+		"2024.04.30",
+		"2024.05.01",
+		"2024.05.02",
+		"2024.05.03",
+		"2024.05.04"
+	],
+	"schedule_startTime": "00:00",
+	"defaultJobs": [
+		{
+			"name": "수면",
+			"startTime": "23:00",
+			"endTime": "08:00",
+			"label": 0,
+			"estimatedTime": "09:00",
+			"fixed": true
+		},
+		{
+			"name": "아침",
+			"startTime": "08:00",
+			"endTime": "09:00",
+			"label": 0,
+			"estimatedTime": "01:00",
+			"fixed": true
+		},
+		{
+			"name": "점심",
+			"startTime": "12:00",
+			"endTime": "13:00",
+			"label": 0,
+			"estimatedTime": "01:00",
+			"fixed": true
+		},
+		{
+			"name": "저녁",
+			"startTime": "18:00",
+			"endTime": "19:00",
+			"label": 0,
+			"estimatedTime": "01:00",
+			"fixed": true
+		}
+	],
+	"schedule": [
+		{
+			"id": 3,
+			"name": "스타트업소셜벤처",
+			"label": 0,
+			"day": "2024.04.30",
+			"startTime": "12:00",
+			"endTime": "14:50",
+			"estimatedTime": "02:50",
+			"startDate": null,
+			"deadline": null,
+			"shouldClear": false
+		},
+		{
+			"id": 4,
+			"name": "컴퓨터네트워크",
+			"label": 0,
+			"day": "2024.04.30",
+			"startTime": "15:00",
+			"endTime": "17:45",
+			"estimatedTime": "02:45",
+			"startDate": null,
+			"deadline": null,
+			"shouldClear": false
+		},
+		{
+			"id": 5,
+			"name": "엔터테인먼트소프트웨어",
+			"label": 0,
+			"day": "2024.04.30",
+			"startTime": "18:00",
+			"endTime": "20:40",
+			"estimatedTime": "02:40",
+			"startDate": null,
+			"deadline": null,
+			"shouldClear": false
+		},
+		{
+			"id": 7,
+			"name": "배움특강",
+			"label": 0,
+			"day": "2024.05.01",
+			"startTime": "16:00",
+			"endTime": "17:50",
+			"estimatedTime": "01:50",
+			"startDate": null,
+			"deadline": null,
+			"shouldClear": false
+		},
+		{
+			"id": 8,
+			"name": "운동",
+			"label": 0,
+			"day": "2024.05.01",
+			"startTime": "18:00",
+			"endTime": "19:00",
+			"estimatedTime": "01:00",
+			"startDate": null,
+			"deadline": null,
+			"shouldClear": false
+		},
+		{
+			"id": 9,
+			"name": "근무",
+			"label": 0,
+			"day": "2024.05.02",
+			"startTime": "10:00",
+			"endTime": "14:00",
+			"estimatedTime": "04:00",
+			"startDate": null,
+			"deadline": null,
+			"shouldClear": false
+		},
+		{
+			"id": 10,
+			"name": "캡스톤디자인(1)",
+			"label": 0,
+			"day": "2024.05.02",
+			"startTime": "15:00",
+			"endTime": "17:50",
+			"estimatedTime": "02:50",
+			"startDate": null,
+			"deadline": null,
+			"shouldClear": false
+		},
+		{
+			"id": 11,
+			"name": "C++언어",
+			"label": 0,
+			"day": "2024.05.03",
+			"startTime": "10:00",
+			"endTime": "11:50",
+			"estimatedTime": "01:50",
+			"startDate": null,
+			"deadline": null,
+			"shouldClear": false
+		},
+		{
+			"id": 57,
+			"name": "testtest",
+			"label": 1,
+			"day": "2024.04.30",
+			"startTime": "14:50",
+			"endTime": "15:00",
+			"estimatedTime": "00:10",
+			"startDate": "2024.04.30",
+			"deadline": "2024.05.10 00:00",
+			"shouldClear": false
+		},
+		{
+			"id": 57,
+			"name": "testtest",
+			"label": 1,
+			"day": "2024.05.01",
+			"startTime": "09:00",
+			"endTime": "09:50",
+			"estimatedTime": "00:50",
+			"startDate": "2024.04.30",
+			"deadline": "2024.05.10 00:00",
+			"shouldClear": false
+		}
+	]
+}

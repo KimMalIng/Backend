@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[10]:
+# In[5]:
 
 
 import json
@@ -321,17 +321,37 @@ class Schedule:
                 piece_exec = estimated_time
             else:
                 piece_exec = int(self.day_unit / exec_period * estimated_time)
+                
+            if estimated_time > int(60/self.time_unit) and piece_exec < int(60/self.time_unit):
+                piece_exec = int(60/self.time_unit)
 
             for day in range(start_date, end_date):
-                if (self.total_zero[day]["daily_zero"] == 0):
+                if self.total_zero[day]["daily_zero"] == 0:
                     continue
+                    
+                if remain_time < int(60/self.time_unit):
+                    piece_exec = remain_time
 
                 piece_zero = self.total_zero[day]["piece_zero"]
                 subs_abs = []
+                subs_list = []
+                plus_count = 0
 
                 for i in range(len(piece_zero)):
-                    subs_abs.append(abs(piece_zero[i][0] - piece_exec))
-                min_idx = subs_abs.index(min(subs_abs))
+                    if piece_zero[i][0] - piece_exec < 0:
+                        subs_list.append(999)
+                        subs_abs.append(abs(piece_zero[i][0] - piece_exec))
+                    else:
+                        subs_list.append(piece_zero[i][0] - piece_exec)
+                        subs_abs.append(piece_zero[i][0] - piece_exec)
+                        plus_count += 1
+                    
+                min_idx = -1
+                if plus_count > 0:
+                    min_idx = subs_list.index(min(subs_list))
+                else:
+                    min_idx = subs_abs.index(min(subs_abs))
+                    
                 if piece_zero[min_idx][0] > piece_exec:
                     start = piece_zero[min_idx][1][0]
                     self.total_plan[k].append([day, [start, start + piece_exec - 1]])
@@ -356,11 +376,17 @@ class Schedule:
                     remain_time -= piece_zero[min_idx][0]
                     self.total_zero[day]["daily_zero"] -= piece_zero[min_idx][0]
                     del piece_zero[min_idx]
-            #             print(end_date)
+                    
+                if remain_time == 0:
+                    break
+                    
             while remain_time != 0:
                 for day in range(start_date, end_date + 1):
-                    if (self.total_zero[day]["daily_zero"] == 0):
+                    if self.total_zero[day]["daily_zero"] == 0:
                         continue
+                    if remain_time < int(60/self.time_unit):
+                        piece_exec = remain_time
+                    
                     piece_zero = self.total_zero[day]["piece_zero"]
                     subs_list = []
                     deadline_idx = -1
@@ -372,7 +398,6 @@ class Schedule:
                             break
                         else:
                             subs_list.append(piece_zero[i][0] - remain_time)
-                    #                     print(subs_list)
                     max_idx = subs_list.index(max(subs_list))
                     if deadline_idx == max_idx:
                         if subs_list[max_idx] > 0:
@@ -427,6 +452,9 @@ class Schedule:
                             remain_time -= piece_zero[max_idx][0]
                             self.total_zero[day]["daily_zero"] -= piece_zero[max_idx][0]
                             del piece_zero[max_idx]
+                    
+                    if remain_time == 0:
+                        break
 
     def fill_plan(self):
         for k, v in self.total_plan.items():
@@ -538,11 +566,6 @@ class Schedule:
             json.dump(json_dic, fw, indent='\t', ensure_ascii=False)
 
 
-#         for i in range(len(json_dic["schedule"])):
-#             if json_dic["schedule"][i]["name"] == "자바 스터디":
-#                 print(json_dic["schedule"][i]["estimatedTime"])
-
-import os
 if __name__ == "__main__":
     read_path = "..\\areyoup\\src\\main\\resources\\genetic_python\\data.json"
     write_path = "..\\areyoup\\src\\main\\resources\\genetic_python\\data.json"
