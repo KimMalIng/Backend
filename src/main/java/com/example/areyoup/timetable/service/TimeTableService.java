@@ -30,6 +30,7 @@ import org.apache.tomcat.util.json.ParseException;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
+import java.nio.file.Path;
 import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -40,7 +41,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class TimeTableService {
 
-    private static final String PATH = "/home/ubuntu/Backend/src/main/java/com/example/areyoup/timetable/service/";
+    private static final String PATH = System.getProperty("user.dir")+"/Algo/";
     private final EveryTimeJobRepository everyTimeJobRepository;
     private final CustomizeJobRepository customizeJobRepository;
     private final SeperatedJobRepository seperatedJobRepository;
@@ -214,13 +215,16 @@ public class TimeTableService {
      */
     private JobResponseDto.AdjustmentDto genetic(Long memberId) {
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder("python", PATH + "Scheduling_Algorithm_v5.py");
+            String python = "Scheduling_Algorithm_v5.py";
+//            ProcessBuilder processBuilder = new ProcessBuilder("/usr/bin/python", "python", PATH + python);
+            ProcessBuilder processBuilder = new ProcessBuilder().inheritIO().command("/usr/bin/python3",
+                    PATH+python);
+
 
             Process process = processBuilder.start();
             int exitCode = process.waitFor();
             log.info("Exited with error code " + exitCode);
             //python 파일 실행
-            log.info("python build");
             Thread.sleep(500);
             FileReader fr = new FileReader(PATH + "data.json");
             JSONParser parser = new JSONParser(fr);
