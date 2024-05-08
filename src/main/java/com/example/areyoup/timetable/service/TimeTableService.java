@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class TimeTableService {
 
-    private static final String PATH = "";
+    private static final String PATH = "..\\areyoup\\src\\main\\java\\com\\example\\areyoup\\timetable\\service\\";
     private final EveryTimeJobRepository everyTimeJobRepository;
     private final CustomizeJobRepository customizeJobRepository;
     private final SeperatedJobRepository seperatedJobRepository;
@@ -214,7 +214,7 @@ public class TimeTableService {
      */
     private JobResponseDto.AdjustmentDto genetic(Long memberId) {
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder("python", "Scheduling_Algorithm_v5.py");
+            ProcessBuilder processBuilder = new ProcessBuilder("python", PATH+ "Scheduling_Algorithm_v5.py");
 
             Process process = processBuilder.start();
             int exitCode = process.waitFor();
@@ -222,7 +222,7 @@ public class TimeTableService {
             //python 파일 실행
             log.info("python build");
             Thread.sleep(500);
-            FileReader fr = new FileReader("data.json");
+            FileReader fr = new FileReader(PATH + "data.json");
             JSONParser parser = new JSONParser(fr);
             ObjectMapper mapper = new ObjectMapper();
             Object obj = parser.parse();
@@ -283,7 +283,7 @@ public class TimeTableService {
             mapper.setSerializationInclusion(JsonInclude.Include.ALWAYS);
             String jsonString = mapper.writeValueAsString(hashMap);
 
-            FileWriter file = new FileWriter("data.json");
+            FileWriter file = new FileWriter(PATH + "data.json");
             file.write(jsonString);
             file.flush();
             file.close();
