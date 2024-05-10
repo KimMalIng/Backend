@@ -1,7 +1,9 @@
 package com.example.areyoup.global.jwt;
 
+import com.example.areyoup.errors.errorcode.MemberErrorCode;
 import com.example.areyoup.errors.exception.MemberException;
 import com.example.areyoup.global.jwt.dto.JwtTokenDto;
+import com.example.areyoup.member.domain.Member;
 import com.example.areyoup.member.repository.MemberRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -145,19 +147,18 @@ public class JwtTokenProvider {
             return true;
         } catch(SecurityException | MalformedJwtException e){
             log.info("Invalid JWT token", e);
-            e.getMessage();
+            throw new MemberException(MemberErrorCode.INVALID_TOKEN);
         } catch(ExpiredJwtException e){
             log.info("Expired JWT Token", e);
-            e.getMessage();
+            throw new MemberException(MemberErrorCode.EXPIRED_TOKEN);
         } catch(UnsupportedJwtException e){
             log.info("Unsupported JWT Token", e);
-            e.getMessage();
+            throw new MemberException(MemberErrorCode.UNSUPPORTED_JWT_EXCEPTION);
         } catch(IllegalArgumentException e){
             //토큰이 올바른 형식이 아니거나 claim이 비어있는 경우
             log.info("JWT claims string is empty", e);
-            e.getMessage();
+            throw new MemberException((MemberErrorCode.ILLEGAL_ARGUMENT_EXCEPTION));
         }
-        return false;
     }
 
     //클레임(Claims) : 토큰에서 사용할 정보의 조각
@@ -227,7 +228,7 @@ public class JwtTokenProvider {
                 return claims.getSubject(); //사용자 id를 subject에 넣어놨기에 가져오기!
             }
         } catch (Exception e){
-            log.info("엑세스 토큰이 유효하지 않습니다.");
+            throw new MemberException(MemberErrorCode.INVALID_TOKEN);
         }
         return null;
     }
