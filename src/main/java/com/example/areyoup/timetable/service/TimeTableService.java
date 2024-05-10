@@ -131,7 +131,14 @@ public class TimeTableService {
     private List<JobResponseDto.FixedJobResponseDto> getCustomizeJobs(LocalDate start, LocalDate end, Long memberId) {
         List<CustomizeJob> customizeJobs =  customizeJobRepository.findByStartDateBetweenAndIsFixedIsTrue(start, end, memberId);
 
-        return customizeJobs.stream()
+        List<CustomizeJob> noAdjustJobs = new ArrayList<>();
+        for (CustomizeJob customizeJob : customizeJobs) {
+            if (customizeJob.getStartTime() != null) {
+                noAdjustJobs.add(customizeJob);
+            }
+        }
+
+        return noAdjustJobs.stream()
                 .map(CustomizeJob::toCustomizeJobDto)
                 .toList();
     }
