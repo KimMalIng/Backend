@@ -215,7 +215,7 @@ public class TimeTableService {
      */
     private JobResponseDto.AdjustmentDto genetic(Long memberId) {
         try {
-            String python = "Scheduling_Algorithm_v5.py";
+            String python = "Scheduling_Algorithm_v7.py";
 //            ProcessBuilder processBuilder = new ProcessBuilder("/usr/bin/python", "python", PATH + python);
             ProcessBuilder processBuilder = new ProcessBuilder().inheritIO().command("/usr/bin/python3",
                     PATH+python);
