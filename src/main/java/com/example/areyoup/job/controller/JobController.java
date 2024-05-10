@@ -45,7 +45,7 @@ public class JobController {
     @GetMapping("/complete/{job_id}")
     @Transactional
     public ResponseEntity<JobResponseDto.AdjustJobResponseDto> getCompletion(@PathVariable("job_id") Long job_id,
-                                                             @RequestParam(value = "completion") Integer completion){
+                                                             @RequestParam(value = "completion", required = false) Integer completion){
         return ResponseEntity.ok()
                 .body(jobService.getCompletion(job_id, completion));
     }
