@@ -7,9 +7,24 @@ import org.springframework.http.HttpStatus;
 @Getter
 @AllArgsConstructor
 public enum CommonErrorCode implements ErrorCode{
-    INVALID_TOKEN(HttpStatus.NOT_FOUND, "Token이 유효하지 않습니다."),
-    ACCESS_DENIED(HttpStatus.FORBIDDEN, "접근 권한이 없습니다.");
+
+    IO_EXCEPTION(HttpStatus.BAD_REQUEST, ""),
+    PARSE_EXCEPTION(HttpStatus.BAD_REQUEST, ""),
+    INTERRUPT_EXCEPTION(HttpStatus.BAD_REQUEST, "");
 
     private final HttpStatus httpStatus;
-    private final String message;
+    private static String message;
+
+    CommonErrorCode(HttpStatus httpStatus, String message) {
+        this.httpStatus = httpStatus;
+        DateErrorCode.setMessage(message);
+    }
+
+    public static void setMessage(String message) {
+        CommonErrorCode.message = message;
+    }
+
+    public String getMessage() {
+        return message;
+    }
 }
