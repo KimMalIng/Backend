@@ -17,8 +17,13 @@ public interface CustomizeJobRepository extends JpaRepository<CustomizeJob, Long
             @Param("id") Long memberId
     );
 
-    @Query("SELECT cj FROM CustomizeJob cj WHERE cj.startTime IS NULL AND cj.isFixed = false And cj.member.id = :id")
-    List<CustomizeJob> findAdjustJob(@Param("id") Long memberId);
+    @Query("SELECT cj FROM CustomizeJob cj WHERE cj.startTime IS NULL " +
+            "AND cj.startDate BETWEEN :start AND :end AND cj.isFixed = false And cj.member.id = :id")
+    List<CustomizeJob> findAdjustJob(
+            @Param("start") LocalDate start,
+            @Param("end") LocalDate end,
+            @Param("id") Long memberId
+    );
 
     @Query("SELECT cj FROM CustomizeJob cj WHERE cj.startTime IS NOT NULL " +
             "AND cj.startDate BETWEEN :start AND :end " +

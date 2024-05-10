@@ -10,7 +10,8 @@ public enum CommonErrorCode implements ErrorCode{
 
     IO_EXCEPTION(HttpStatus.BAD_REQUEST, ""),
     PARSE_EXCEPTION(HttpStatus.BAD_REQUEST, ""),
-    INTERRUPT_EXCEPTION(HttpStatus.BAD_REQUEST, "");
+    INTERRUPT_EXCEPTION(HttpStatus.BAD_REQUEST, ""),
+    NON_UNIQUE_RESULT_EXCEPTION(HttpStatus.BAD_REQUEST, "");
 
     private final HttpStatus httpStatus;
     private static String message;

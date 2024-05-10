@@ -11,6 +11,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import org.attoparser.ParseException;
+import org.hibernate.NonUniqueResultException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -68,6 +69,12 @@ public class CustomExceptionHandler {
     @ExceptionHandler({SecurityException.class, MalformedJwtException.class, ExpiredJwtException.class, UnsupportedJwtException.class, IllegalArgumentException.class})
     protected ResponseEntity<ErrorResponseEntity> handleJWTException(MemberException e){
         return ErrorResponseEntity.toResponseEntity(e.getErrorCode());
+    }
+
+    @ExceptionHandler(NonUniqueResultException.class)
+    protected ResponseEntity<ErrorResponseEntity> handleQueryException(NonUniqueResultException e){
+        DateErrorCode.setMessage(e.getMessage());
+        return ErrorResponseEntity.toResponseEntity(CommonErrorCode.NON_UNIQUE_RESULT_EXCEPTION);
     }
 
 }

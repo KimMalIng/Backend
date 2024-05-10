@@ -253,6 +253,7 @@ public class JobResponseDto {
 
     @Data
     public static class AdjustmentDto{
+        private String stateMessage;
         private List<String> Week_day;
         private String schedule_startTime;
         private List<ScheduleDto> Schedule;

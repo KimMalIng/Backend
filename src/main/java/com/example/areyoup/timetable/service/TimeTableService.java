@@ -186,7 +186,7 @@ public class TimeTableService {
         List<ScheduleDto> adjustJobs = getAdjustJobs(result.start(), result.end(), result.datesBetween(), result.memberId(), 1, null);
         result.timeLine().setSchedule(adjustJobs); //스케줄 세팅
 
-        saveFile(result.timeLine()); //data.json에 저장
+        saveFile(result.timeLine()); //read.json에 저장
 
         return genetic(result.memberId());
 
@@ -209,7 +209,7 @@ public class TimeTableService {
         List<ScheduleDto> adjustJobs = getAdjustJobs(result.start(), result.end(), result.datesBetween(), result.memberId(), 3, null);
         result.timeLine().setSchedule(adjustJobs); //스케줄 세팅
 
-        saveFile(result.timeLine()); //data.json에 저장
+        saveFile(result.timeLine()); //read.json에 저장
 
         genetic(result.memberId());
     }
@@ -221,6 +221,7 @@ public class TimeTableService {
     유전 알고리즘 실행하여 조정된 일정 저
      */
     private JobResponseDto.AdjustmentDto genetic(Long memberId) {
+        JobResponseDto.AdjustmentDto adjustmentDto = new JobResponseDto.AdjustmentDto();
         try {
             String python = "Scheduling_Algorithm_v7.py";
 //            ProcessBuilder processBuilder = new ProcessBuilder("/usr/bin/python", "python", PATH + python);
@@ -233,15 +234,15 @@ public class TimeTableService {
             log.info("Exited with error code " + exitCode);
             //python 파일 실행
             Thread.sleep(500);
-            FileReader fr = new FileReader(PATH + "data.json");
+            FileReader fr = new FileReader(PATH + "write.json");
             JSONParser parser = new JSONParser(fr);
             ObjectMapper mapper = new ObjectMapper();
             Object obj = parser.parse();
             fr.close();
             String jsonStr = mapper.writeValueAsString(obj);
-            JobResponseDto.AdjustmentDto adjustmentDto = mapper.readValue(jsonStr, JobResponseDto.AdjustmentDto.class);
+            adjustmentDto = mapper.readValue(jsonStr, JobResponseDto.AdjustmentDto.class);
 
-            //data.json에서 가져와서 adjustmentdto에 넣어주는 과정
+            //write.json에서 가져와서 adjustmentdto에 넣어주는 과정
 
             if (exitCode == 0){
                 List<ScheduleDto> replace = new ArrayList<>();
@@ -262,25 +263,30 @@ public class TimeTableService {
                     }
                 }
                 adjustmentDto.setSchedule(replace); //대체한 scheduleDtofh 처리한다
+                adjustmentDto.setStateMessage("스케줄링 완료");
                 log.info("Success save seperatedJobs");
             } else if (exitCode == 1) {
                 log.warn("There's no adjustJob / Read, Write Path in Python Error");
+                adjustmentDto.setStateMessage("스케줄링된 일정이 없거나 Python 내에 문제 발생");
+
             }else if (exitCode == 2) {
                 log.warn("Path in Java Error");
+                adjustmentDto.setStateMessage("Spring에서의 오류로 스케줄링 실패 (ex 경로 설정)");
             }
-
             return adjustmentDto;
 
         } catch (IOException e) {
             log.error("IOException " + e.getMessage());
+            adjustmentDto.setStateMessage("IOException " + e.getMessage());
         } catch (ParseException | InterruptedException e) {
             log.error("python 실행 및 json 에러", e.getMessage());
+            adjustmentDto.setStateMessage("python 실행 오류로 읽을 json이 없음" + e.getMessage());
         }
-        return null;
+        return adjustmentDto;
     }
 
     /*
-    data.json 파일에 저장
+    read.json 파일에 저장
      */
     private void saveFile(JobResponseDto.AdjustmentDto timeLine){
         try {
@@ -289,17 +295,19 @@ public class TimeTableService {
             hashMap.put("schedule_startTime", timeLine.getSchedule_startTime());
             hashMap.put("schedule", timeLine.getSchedule());
             hashMap.put("defaultJobs", timeLine.getDefaultJobs());
+            hashMap.put("stateMessage", timeLine.getStateMessage());
+
 
             ObjectMapper mapper = new ObjectMapper();
             mapper.setSerializationInclusion(JsonInclude.Include.ALWAYS);
             String jsonString = mapper.writeValueAsString(hashMap);
 
-            FileWriter file = new FileWriter(PATH + "data.json");
+            FileWriter file = new FileWriter(PATH + "read.json");
             file.write(jsonString);
             file.flush();
             file.close();
 
-            log.info("Save File in {}data.json", PATH);
+            log.info("Save File in {}read.json", PATH);
         }
         catch (IOException e){
             log.error("IOException", e.getMessage());
@@ -332,7 +340,7 @@ public class TimeTableService {
 
         if (classify == 1) { //처음 스케줄링 할 때
             //시작 시간이 null, 고정 X 일정 -> 조정해야 하는 일정들
-            List<CustomizeJob> adjustJobs = customizeJobRepository.findAdjustJob(memberId);
+            List<CustomizeJob> adjustJobs = customizeJobRepository.findAdjustJob(start, end, memberId);
             adjust = adjustJobs.stream()
                     .map(ScheduleDto::toScheduleDto)
                     .toList();
@@ -488,7 +496,7 @@ public class TimeTableService {
         List<ScheduleDto> adjustJobs = getAdjustJobs(result.start(), result.end(), result.datesBetween(), result.memberId(), 2, cj);
         result.timeLine().setSchedule(adjustJobs); //스케줄 세팅
 
-        saveFile(result.timeLine()); //data.json에 저장
+        saveFile(result.timeLine()); //read.json에 저장
 
         return genetic(result.memberId());
 
