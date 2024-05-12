@@ -350,7 +350,7 @@ public class TimeTableService {
             SeperatedJob sj = seperatedJobRepository.findById(seperatedJobId)
                     .orElseThrow(() -> new JobException(JobErrorCode.JOB_NOT_FOUND));
             log.info("seperatedJob" + sj);
-            seperatedJobRepository.deleteAllByDayAfterAndNameAndMemberId(sj.getDay(), cj.getName(), memberId);
+            seperatedJobRepository.deleteAllByDayIsGreaterThanEqualAndNameAndMemberIdAndIsCompleteIsFalse(sj.getDay(), cj.getName(), memberId);
             log.info("delete all seperatedJOb");
             Integer totalMinutes = jobRepository.getTotalEstimatedTimeOfSeperatedJobByNameAndIsCompleteFalse(cj.getName(), memberId);
             log.info("estimatedTime" + totalMinutes);
