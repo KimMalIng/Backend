@@ -7,6 +7,7 @@ import com.example.areyoup.everytime.dto.EveryTimeResponseDto;
 import com.example.areyoup.global.function.DateTimeHandler;
 import com.example.areyoup.job.domain.CustomizeJob;
 import com.example.areyoup.job.domain.DefaultJob;
+import com.example.areyoup.job.domain.Job;
 import com.example.areyoup.job.domain.SeperatedJob;
 import com.example.areyoup.job.dto.JobRequestDto;
 import com.example.areyoup.job.dto.JobResponseDto;
@@ -16,7 +17,6 @@ import com.example.areyoup.job.repository.CustomizeJobRepository;
 import com.example.areyoup.job.repository.DefaultJobRepository;
 import com.example.areyoup.job.repository.JobRepository;
 import com.example.areyoup.job.repository.SeperatedJobRepository;
-import com.example.areyoup.job.service.JobService;
 import com.example.areyoup.member.domain.Member;
 import com.example.areyoup.member.service.MemberService;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -30,7 +30,6 @@ import org.apache.tomcat.util.json.ParseException;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
-import java.nio.file.Path;
 import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -49,8 +48,6 @@ public class TimeTableService {
     private final JobRepository jobRepository;
 
     private final MemberService memberService;
-    private final JobService jobService;
-
     private final HttpServletRequest request;
     private final HttpSession httpSession;
 
@@ -183,7 +180,7 @@ public class TimeTableService {
         SettingBeforeAdjust result = getSettingbeforeAdjust(periodDto.getStartDate(), periodDto.getEndDate());
 
         //주어진 기간안에 일정들 가져오기
-        List<ScheduleDto> adjustJobs = getAdjustJobs(result.start(), result.end(), result.datesBetween(), result.memberId(), 1, null);
+        List<ScheduleDto> adjustJobs = getAdjustJobs(result.start(), result.end(), result.datesBetween(), result.memberId(), 1, null, null);
         result.timeLine().setSchedule(adjustJobs); //스케줄 세팅
 
         saveFile(result.timeLine()); //read.json에 저장
@@ -206,7 +203,7 @@ public class TimeTableService {
         SettingBeforeAdjust result = getSettingbeforeAdjust(DateTimeHandler.dateToStr(now), DateTimeHandler.dateToStr(Saturday));
 
         //주어진 기간안에 일정들 가져오기
-        List<ScheduleDto> adjustJobs = getAdjustJobs(result.start(), result.end(), result.datesBetween(), result.memberId(), 3, null);
+        List<ScheduleDto> adjustJobs = getAdjustJobs(result.start(), result.end(), result.datesBetween(), result.memberId(), 3, null, null);
         result.timeLine().setSchedule(adjustJobs); //스케줄 세팅
 
         saveFile(result.timeLine()); //read.json에 저장
@@ -317,7 +314,7 @@ public class TimeTableService {
     /*
     조정할 때 필요한 일정들을 모두 가져옴
      */
-    private List<ScheduleDto> getAdjustJobs(LocalDate start, LocalDate end, List<LocalDate> datesBetween, Long memberId, int classify, CustomizeJob cj) {
+    private List<ScheduleDto> getAdjustJobs(LocalDate start, LocalDate end, List<LocalDate> datesBetween, Long memberId, int classify, CustomizeJob cj, Long seperatedJobId) {
         List<ScheduleDto> result = new ArrayList<>();
         for (LocalDate localDate : datesBetween){
             int dayOfWeek = localDate.getDayOfWeek().getValue()-1; //월요일 1부터 시작해서 -1 처리
@@ -350,10 +347,16 @@ public class TimeTableService {
 
             //고정 안된 SeperatedJob들 지우고 고정된 SeperatedJob들의 시간들만 가져온다.
             //그리고 CustomizeJob의 예정소요 시간에서 뺀 값을 python에 보내준다. (update는 아님)
-            seperatedJobRepository.deleteAllByNameAndMemberIdAndIsFixedIsFalse(cj.getName(), memberId);
+            SeperatedJob sj = seperatedJobRepository.findById(seperatedJobId)
+                    .orElseThrow(() -> new JobException(JobErrorCode.JOB_NOT_FOUND));
+            log.info("seperatedJob" + sj);
+            seperatedJobRepository.deleteAllByDayAfterAndNameAndMemberId(sj.getDay(), cj.getName(), memberId);
+            log.info("delete all seperatedJOb");
             Integer totalMinutes = jobRepository.getTotalEstimatedTimeOfSeperatedJobByNameAndIsCompleteFalse(cj.getName(), memberId);
+            log.info("estimatedTime" + totalMinutes);
             if (totalMinutes != null) {
                 String estimatedTime = String.format("%02d:%02d", (totalMinutes / 60), (totalMinutes % 60));
+                log.info(estimatedTime);
                 LocalTime cjEstimatedTime = DateTimeHandler.strToTime(cj.getEstimatedTime());
                 LocalTime sjEstimatedTime = DateTimeHandler.strToTime(estimatedTime);
                 Duration duration = Duration.between(sjEstimatedTime, cjEstimatedTime);
@@ -484,16 +487,23 @@ public class TimeTableService {
     public JobResponseDto.AdjustmentDto arrangeSeperatedJob() {
         LocalDate current = LocalDate.now();
         String now = DateTimeHandler.dateToStr(current);
-        String Sat = DateTimeHandler.dateToStr(current.with(DayOfWeek.SATURDAY));
+//        String Sat = DateTimeHandler.dateToStr(current.with(DayOfWeek.SATURDAY));
         Long jobId = (Long) httpSession.getAttribute("modifyCompletion");
+        Long SeperatedJobId  = (Long) httpSession.getAttribute("seperated");
         //수정한 일정에 대한 내용을 세션에 저장
-        jobService.fixJob(jobId);
+
+        Job j = jobRepository.findById(jobId)
+                .orElseThrow(() -> new JobException(JobErrorCode.JOB_NOT_FOUND));
+        if (j.isFixed()) log.info("Job {} unfixed", jobId);
+        else log.info("Job {} fixed", jobId);
+        j.toFixUpdate(j.isFixed());
         //완료도 수정한 jobId를 가지고 고정 풀어주기
-        SettingBeforeAdjust result = getSettingbeforeAdjust(now, Sat);
         //스케줄링에 필요한 고정된 job들 및 설정
         CustomizeJob cj = customizeJobRepository.findById(jobId)
                 .orElseThrow(() -> new JobException(JobErrorCode.JOB_NOT_FOUND));
-        List<ScheduleDto> adjustJobs = getAdjustJobs(result.start(), result.end(), result.datesBetween(), result.memberId(), 2, cj);
+        SettingBeforeAdjust result = getSettingbeforeAdjust(now, cj.getDeadline().substring(0,10));
+        List<ScheduleDto> adjustJobs = getAdjustJobs(result.start(), result.end(), result.datesBetween(), result.memberId(), 2, cj, SeperatedJobId);
+
         result.timeLine().setSchedule(adjustJobs); //스케줄 세팅
 
         saveFile(result.timeLine()); //read.json에 저장
