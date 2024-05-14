@@ -149,4 +149,10 @@ public class MemberService {
         m.toUpdateAll(memberUpdateDto, passwordEncoder.encode(memberUpdateDto.getMemberPw()));
         return MemberResponseDto.MemberUpdateDto.toDto(m);
     }
+
+    public MemberResponseDto.MemberImageUpdateDto updateImage(HttpServletRequest request, MemberRequestDto.MemberImageUpdateDto updateDto) throws IOException {
+        Member m = findMember(request);
+        m.getProfileImg().toUpdateData(updateDto.getImage().getBytes());
+        return MemberResponseDto.MemberImageUpdateDto.toDto(m);
+    }
 }

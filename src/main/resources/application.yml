@@ -12,7 +12,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${DB.USER}
     password: ${DB.PW}
-    url: jdbc:mysql://${DB.HOST}:3306/areyoup?useSSL=false&serverTimezone=Asia/Seoul
+    url: jdbc:mysql://${DB.HOST}:3306/areyoup?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Seoul
   jpa:
     defer-datasource-initialization: true #data.sql operated before hibernate initialization "true"
     hibernate:
