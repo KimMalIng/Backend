@@ -2,6 +2,7 @@ package com.example.areyoup.member.dto;
 
 import com.example.areyoup.member.domain.Member;
 import com.example.areyoup.member.profileimage.dto.ProfileImageResponseDto;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -103,6 +104,22 @@ public class MemberResponseDto {
                     .nickname(m.getNickname())
                     .loginType(m.getLoginType())
                     .build();
+        }
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class MemberImageUpdateDto{
+        private ProfileImageResponseDto image;
+
+        public static MemberImageUpdateDto toDto(Member m) {
+            ProfileImageResponseDto profileImageResponseDto = new ProfileImageResponseDto(
+                    m.getProfileImg().getId(),
+                    ProfileImageResponseDto.convertByteArrayToBase64(m.getProfileImg().getData())
+            );
+
+            return new MemberImageUpdateDto(profileImageResponseDto);
+
         }
     }
 }

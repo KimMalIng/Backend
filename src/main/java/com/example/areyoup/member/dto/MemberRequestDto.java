@@ -35,11 +35,19 @@ public class MemberRequestDto {
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class MemberUpdateDto{
+    public static class MemberUpdateDto {
         private String memberId;
         private String memberPw;
         private String name;
         private String nickname;
+        private MultipartFile image;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class MemberImageUpdateDto {
         private MultipartFile image;
     }
 

@@ -1,5 +1,6 @@
 package com.example.areyoup.member.controller;
 
+import com.example.areyoup.member.domain.Member;
 import com.example.areyoup.member.dto.MemberRequestDto;
 import com.example.areyoup.member.dto.MemberResponseDto;
 import com.example.areyoup.member.service.MemberService;
@@ -73,6 +74,16 @@ public class MemberController {
     public ResponseEntity<MemberResponseDto.MemberUpdateDto> update(@ModelAttribute MemberRequestDto.MemberUpdateDto updateDto) throws IOException {
         return ResponseEntity.ok()
                 .body(memberService.update(updateDto));
+    }
+
+    /*
+    회원 프로필 사진 수정
+     */
+    @Transactional
+    @PatchMapping("/update/image")
+    public ResponseEntity<MemberResponseDto.MemberImageUpdateDto> updateImage(HttpServletRequest request, @ModelAttribute MemberRequestDto.MemberImageUpdateDto updateDto) throws IOException {
+        return ResponseEntity.ok()
+                .body(memberService.updateImage(request, updateDto));
     }
 
 }
