@@ -144,7 +144,7 @@ public class MemberService {
 
     /*
     회원 정보 업데이트
-    - 만약 사진 정보가 같다면 업데이트 x, 다르면 업데이트
+    이미지 처리는 따로
      */
     public MemberResponseDto.MemberUpdateDto update(MemberRequestDto.MemberUpdateDto memberUpdateDto) throws IOException {
         Member m = memberRepository.findByMemberId(memberUpdateDto.getMemberId())

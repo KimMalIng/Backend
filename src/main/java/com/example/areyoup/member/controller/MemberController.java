@@ -71,7 +71,7 @@ public class MemberController {
      */
     @Transactional
     @PutMapping("/update")
-    public ResponseEntity<MemberResponseDto.MemberUpdateDto> update(@ModelAttribute MemberRequestDto.MemberUpdateDto updateDto) throws IOException {
+    public ResponseEntity<MemberResponseDto.MemberUpdateDto> update(@RequestBody MemberRequestDto.MemberUpdateDto updateDto) throws IOException {
         return ResponseEntity.ok()
                 .body(memberService.update(updateDto));
     }
