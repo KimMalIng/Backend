@@ -54,8 +54,10 @@ public class Member extends BaseEntity{
         this.refreshToken = refreshToken;
     }
 
-    public void toUpdateAll(MemberRequestDto.MemberUpdateDto memberUpdateDto, String password) throws IOException {
-        this.memberPw = password;
+    public void toUpdateAll(MemberRequestDto.MemberUpdateDto memberUpdateDto, PasswordEncoder passwordEncoder) throws IOException {
+        if (!memberPw.equals(memberUpdateDto.getMemberPw())){
+            this.memberPw = passwordEncoder.encode(memberUpdateDto.getMemberPw());
+        }
         this.name = memberUpdateDto.getName();
         this.nickname = memberUpdateDto.getNickname();
     }

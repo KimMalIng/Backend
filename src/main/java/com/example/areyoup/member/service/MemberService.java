@@ -149,7 +149,7 @@ public class MemberService {
     public MemberResponseDto.MemberUpdateDto update(MemberRequestDto.MemberUpdateDto memberUpdateDto) throws IOException {
         Member m = memberRepository.findByMemberId(memberUpdateDto.getMemberId())
                 .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
-        m.toUpdateAll(memberUpdateDto, passwordEncoder.encode(memberUpdateDto.getMemberPw()));
+        m.toUpdateAll(memberUpdateDto, passwordEncoder);
         return MemberResponseDto.MemberUpdateDto.toDto(m);
     }
 
