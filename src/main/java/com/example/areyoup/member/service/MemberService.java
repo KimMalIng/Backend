@@ -124,12 +124,12 @@ public class MemberService {
     }
 
 
-    public String delete (Long id){
-        Member m = memberRepository.findById(id)
+    public String delete (Long memberId){
+        Member m = memberRepository.findById(memberId)
                 .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
         profileImageRepository.deleteById(m.getProfileImg().getId());
-        jobRepository.deleteAllByMemberId(id);
-        memberRepository.deleteById(id);
+        jobRepository.deleteAllByMemberId(m.getId());
+        memberRepository.deleteById(m.getId());
         return "Delete Success";
     }
 
