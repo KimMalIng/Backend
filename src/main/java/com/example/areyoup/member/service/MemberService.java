@@ -6,6 +6,7 @@ import com.example.areyoup.global.cookie.CookieUtils;
 import com.example.areyoup.global.jwt.JwtTokenProvider;
 import com.example.areyoup.global.jwt.TokenService;
 import com.example.areyoup.global.jwt.dto.JwtTokenDto;
+import com.example.areyoup.job.repository.JobRepository;
 import com.example.areyoup.member.domain.Member;
 import com.example.areyoup.member.profileimage.domain.ProfileImage;
 import com.example.areyoup.member.dto.MemberRequestDto;
@@ -33,6 +34,7 @@ import java.util.Collections;
 public class MemberService {
     private final MemberRepository memberRepository;
     private final ProfileImageRepository profileImageRepository;
+    private final JobRepository jobRepository;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
     private final JwtTokenProvider jwtTokenProvider;
@@ -126,6 +128,7 @@ public class MemberService {
         Member m = memberRepository.findById(id)
                 .orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
         profileImageRepository.deleteById(m.getProfileImg().getId());
+        jobRepository.deleteAllByMemberId(id);
         memberRepository.deleteById(id);
         return "Delete Success";
     }

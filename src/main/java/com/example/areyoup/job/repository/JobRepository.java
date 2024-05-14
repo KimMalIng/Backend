@@ -39,4 +39,5 @@ public interface JobRepository extends JpaRepository<Job, Long> {
     String getDtypeFromJob(@Param("id") Long jobId);
 
 
+    void deleteAllByMemberId(Long memberId);
 }
