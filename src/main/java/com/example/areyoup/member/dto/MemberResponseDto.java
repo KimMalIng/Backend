@@ -2,10 +2,7 @@ package com.example.areyoup.member.dto;
 
 import com.example.areyoup.member.domain.Member;
 import com.example.areyoup.member.profileimage.dto.ProfileImageResponseDto;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 @Data
@@ -87,20 +84,20 @@ public class MemberResponseDto {
 
     }
 
-    @SuperBuilder
-    public static class MemberUpdateDto extends MemberResponseDto{
+    @Builder
+    @Getter
+    public static class MemberUpdateDto{
+        private String memberId;
+        private String name;
+        private String nickname;
+        private String loginType;
         private String memberPw;
 
         public static MemberUpdateDto toDto(Member m) {
-            ProfileImageResponseDto profileImageResponseDto = new ProfileImageResponseDto(
-                    m.getProfileImg().getId(),
-                    ProfileImageResponseDto.convertByteArrayToBase64(m.getProfileImg().getData())
-            );
             return MemberUpdateDto.builder()
                     .memberId(m.getMemberId())
                     .memberPw(m.getMemberPw())
                     .name(m.getName())
-                    .image(profileImageResponseDto)
                     .nickname(m.getNickname())
                     .loginType(m.getLoginType())
                     .build();

@@ -55,9 +55,6 @@ public class Member extends BaseEntity{
     }
 
     public void toUpdateAll(MemberRequestDto.MemberUpdateDto memberUpdateDto, String password) throws IOException {
-        if (memberUpdateDto.getImage().getBytes() != this.getProfileImg().getData()) {
-            this.getProfileImg().toUpdateData(memberUpdateDto.getImage().getBytes());
-        }
         this.memberPw = password;
         this.name = memberUpdateDto.getName();
         this.nickname = memberUpdateDto.getNickname();
