@@ -40,7 +40,6 @@ public class MemberRequestDto {
         private String memberPw;
         private String name;
         private String nickname;
-        private MultipartFile image;
     }
 
     @Getter
