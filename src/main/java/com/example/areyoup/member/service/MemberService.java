@@ -152,7 +152,7 @@ public class MemberService {
 
     public MemberResponseDto.MemberImageUpdateDto updateImage(HttpServletRequest request, MemberRequestDto.MemberImageUpdateDto updateDto) throws IOException {
         Member m = findMember(request);
-        if (updateDto.getImage().getBytes() == null){
+        if (updateDto.getImage().getBytes().length == 0){
             //이미지 파일이 없는 경우 기본 이미지 가져와서 저장
             ClassPathResource resource = new ClassPathResource(PROFILE);
             byte[] file = StreamUtils.copyToByteArray(resource.getInputStream());
