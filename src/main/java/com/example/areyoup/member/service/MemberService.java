@@ -152,7 +152,14 @@ public class MemberService {
 
     public MemberResponseDto.MemberImageUpdateDto updateImage(HttpServletRequest request, MemberRequestDto.MemberImageUpdateDto updateDto) throws IOException {
         Member m = findMember(request);
-        m.getProfileImg().toUpdateData(updateDto.getImage().getBytes());
+        if (updateDto.getImage().getBytes() == null){
+            //이미지 파일이 없는 경우 기본 이미지 가져와서 저장
+            ClassPathResource resource = new ClassPathResource(PROFILE);
+            byte[] file = StreamUtils.copyToByteArray(resource.getInputStream());
+            m.getProfileImg().toUpdateData(file);
+        } else{
+            m.getProfileImg().toUpdateData(updateDto.getImage().getBytes());
+        }
         return MemberResponseDto.MemberImageUpdateDto.toDto(m);
     }
 }
