@@ -61,9 +61,9 @@ public class MemberController {
      */
     @Transactional
     @DeleteMapping("/delete/{member_id}")
-    public ResponseEntity<?> delete(@PathVariable(value = "member_id") Long id){
+    public ResponseEntity<?> delete(@PathVariable(value = "member_id") Long memberId){
         return ResponseEntity.ok()
-                .body(memberService.delete(id));
+                .body(memberService.delete(memberId));
     }
 
     /*
