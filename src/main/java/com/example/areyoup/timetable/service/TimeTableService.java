@@ -40,7 +40,9 @@ import java.util.stream.Collectors;
 @Slf4j
 public class TimeTableService {
 
-    private static final String PATH = System.getProperty("user.dir")+"/Algo/";
+//    private static final String PATH = System.getProperty("user.dir")+"/Algo/";
+    private static final String PATH = "/home/ubuntu/Algo/";
+
     private final EveryTimeJobRepository everyTimeJobRepository;
     private final CustomizeJobRepository customizeJobRepository;
     private final SeperatedJobRepository seperatedJobRepository;
