@@ -1,10 +1,9 @@
 package com.example.areyoup.member.domain;
 
 import com.example.areyoup.global.entity.BaseEntity;
+import com.example.areyoup.fcm.domain.fcmEntity;
 import com.example.areyoup.member.dto.MemberRequestDto;
-import com.example.areyoup.member.dto.MemberResponseDto;
 import com.example.areyoup.member.profileimage.domain.ProfileImage;
-import com.example.areyoup.member.profileimage.dto.ProfileImageResponseDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -37,7 +36,6 @@ public class Member extends BaseEntity{
     private String everyTimePw;
 
     private String refreshToken;
-    private String fcmToken;
 
     @Builder.Default
     @ElementCollection(fetch=FetchType.EAGER)
@@ -49,6 +47,9 @@ public class Member extends BaseEntity{
 
     @OneToOne(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private ProfileImage profileImg;
+
+    @OneToOne(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private fcmEntity fcm;
 
     public void toUpdateRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
@@ -62,4 +63,7 @@ public class Member extends BaseEntity{
         this.nickname = memberUpdateDto.getNickname();
     }
 
+    public void toUpdateFcm(fcmEntity fcm){
+        this.fcm = fcm;
+    }
 }

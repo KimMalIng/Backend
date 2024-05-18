@@ -40,4 +40,13 @@ public interface JobRepository extends JpaRepository<Job, Long> {
 
 
     void deleteAllByMemberId(Long memberId);
+
+    @Query(value = "SELECT * FROM job j WHERE j.day = :day AND j.start_time = :startTime", nativeQuery = true)
+    List<Job> findAllByDayAndStartTimeEquals(@Param("day") LocalDate day, @Param("startTime") String startTime);
+
+    @Query(value = "SELECT * FROM job j WHERE j.day = :day AND j.end_time = :endTime", nativeQuery = true)
+
+    List<Job> findAllByDayAndEndTimeEquals(@Param("day") LocalDate day, @Param("endTime")String endTime);
+
+
 }
