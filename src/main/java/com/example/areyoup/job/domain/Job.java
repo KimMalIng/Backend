@@ -28,7 +28,7 @@ public abstract class Job extends BaseEntity {
     protected boolean isFixed; //일정 고정 여부
     protected boolean isComplete; //일정 완료 여부
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     protected Member member;
 
     public void toFixUpdate(boolean isFixed) {

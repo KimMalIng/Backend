@@ -48,7 +48,7 @@ public class Member extends BaseEntity{
     @OneToOne(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private ProfileImage profileImg;
 
-    @OneToOne(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     private fcmEntity fcm;
 
     public void toUpdateRefreshToken(String refreshToken) {
