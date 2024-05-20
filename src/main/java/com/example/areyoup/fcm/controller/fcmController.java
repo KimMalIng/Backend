@@ -5,10 +5,9 @@ import com.example.areyoup.fcm.service.fcmService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,5 +21,12 @@ public class fcmController {
     public ResponseEntity<?> updateToken(@RequestBody FcmMessage.UpdateDto updateDto){
         return ResponseEntity.ok()
                 .body(fcmService.updateToken(updateDto));
+    }
+
+    @PostMapping("/message/send")
+    public ResponseEntity<?> sendMessage(@ModelAttribute FcmMessage.RequestDto requestDto) throws IOException {
+        return ResponseEntity.ok()
+                .body(fcmService.sendMessageTo(requestDto.getFcmToken(),
+                        requestDto.getTitle(), requestDto.getMessage()));
     }
 }
