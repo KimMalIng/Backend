@@ -114,11 +114,12 @@ public class JobService {
     사용자가 등록한 일정 가져오기
      */
     private HashMap<String, List> getCustomizeJobs(Long memberId) {
-        List<CustomizeJob> seperatedJobs= customizeJobRepository.findAllByMemberId(memberId);
+        List<CustomizeJob> customizeJobs= customizeJobRepository.findAllByMemberId(memberId);
+        List<SeperatedJob> seperatedJobList = seperatedJobRepository.findAllByMemberId(memberId);
         HashMap<String, List> jobs = new HashMap<>();
         List<CustomizeJob> fixedJobs = new ArrayList<>();
         List<CustomizeJob> adjustJobs = new ArrayList<>();
-        for (CustomizeJob c : seperatedJobs){
+        for (CustomizeJob c : customizeJobs){
             if (c.getStartTime() != null){ //고정된 일정만 넣기
                 fixedJobs.add(c);
             } else{
@@ -131,6 +132,9 @@ public class JobService {
                 .toList());
         jobs.put("AdjustJob", adjustJobs.stream()
                 .map(CustomizeJob::toCustomizeJobDto)
+                .toList());
+        jobs.put("SeperatedJob", seperatedJobList.stream()
+                .map(SeperatedJob::toSeperatedJobDto)
                 .toList());
         //Dto 변환 작업 후 return
         return jobs;
