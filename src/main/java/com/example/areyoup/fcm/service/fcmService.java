@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -22,6 +23,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class fcmService {
 
     private final String API_URL = "https://data.kimmaling.com/fcm/send";
@@ -43,30 +45,33 @@ public class fcmService {
         LocalDateTime now = LocalDateTime.now();
         List<Job> startJobs = jobRepository.findAllByDayAndStartTimeEquals(now.toLocalDate(), String.valueOf(now.toLocalTime()).substring(0,5));
         List<Job> endJobs = jobRepository.findAllByDayAndEndTimeEquals(now.toLocalDate(), String.valueOf(now.toLocalTime()).substring(0,5));
-
+        log.info("Alarm On");
         for (Job startJob : startJobs){
+            log.info("Alarm for startJob");
             sendMessageTo(startJob.getMember().getFcm().getFcmToken(), startJob.getName()+START_TITLE, startJob.getEstimatedTime()+START_BODY);
         }
         for (Job endJob : endJobs){
+            log.info("Alarm for endJob");
             sendMessageTo(endJob.getMember().getFcm().getFcmToken(), endJob.getName()+END_TITLE, END_BODY);
         }
     }
 
-    public void sendMessageTo(String fcmToken, String title, String body) throws IOException {
+    public String sendMessageTo(String fcmToken, String title, String body) throws IOException {
+        log.info("fcmToken : " + fcmToken + ", title :"+ title + ", body :" + body);
         String message = makeMessage(fcmToken, title, body);
 
         OkHttpClient client = new OkHttpClient();
         RequestBody requestBody = RequestBody.create(message,
-                MediaType.get("application/x-www-form-urlencoded; charset=utf-8"));
+                MediaType.get("application/json; charset=utf-8"));
         Request request = new Request.Builder()
                 .url(API_URL)
                 .post(requestBody)
-                .addHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded; UTF-8")
+                .addHeader(HttpHeaders.CONTENT_TYPE, "application/json; charset=utf-8")
                 .build();
 
         Response response = client.newCall(request).execute();
 
-        System.out.println(response.body().string());
+        return response.body().string();
     }
 
     private String makeMessage(String fcmToken, String title, String message) throws JsonProcessingException {

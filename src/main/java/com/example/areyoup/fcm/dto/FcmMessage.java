@@ -1,9 +1,6 @@
 package com.example.areyoup.fcm.dto;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @RequiredArgsConstructor
 @Getter
@@ -19,6 +16,8 @@ public class FcmMessage {
     @Builder
     @Getter
     @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class RequestDto{
         private String fcmToken;
         private String title;
