@@ -13,10 +13,10 @@ public class MvcController {
     @Autowired
     MvcService mvcService;
 
-    @GetMapping("/logincheck")
-    public String loginCheck(){
-        return "logincheck";
-    }
+//    @GetMapping("/logincheck")
+//    public String loginCheck(){
+//        return "logincheck";
+//    }
 
     @GetMapping("/mvc/profile")
     public String profileAll(Model model){
