@@ -355,7 +355,7 @@ public class TimeTableService {
             seperatedJobRepository.deleteAllByDayIsGreaterThanEqualAndNameAndMemberIdAndIsCompleteIsFalse(sj.getDay(), cj.getName(), memberId);
             log.info("delete all seperatedJOb");
             Integer totalMinutes = jobRepository.getTotalEstimatedTimeOfSeperatedJobByNameAndIsCompleteFalse(cj.getName(), memberId);
-            log.info("estimatedTime" + totalMinutes);
+            log.info("estimatedTime " + totalMinutes);
             if (totalMinutes != null) {
                 String estimatedTime = String.format("%02d:%02d", (totalMinutes / 60), (totalMinutes % 60));
                 log.info(estimatedTime);
@@ -486,7 +486,7 @@ public class TimeTableService {
     -고정 되어 있는 seperatedJob는 그대로 (조정할 estimatedTime에서 빼기)
     -고정 되어 있지 않은 seperatedJob를 제거 후
      */
-    public JobResponseDto.AdjustmentDto arrangeSeperatedJob() {
+    public void arrangeSeperatedJob(Integer completion) {
         LocalDate current = LocalDate.now();
         String now = DateTimeHandler.dateToStr(current);
 //        String Sat = DateTimeHandler.dateToStr(current.with(DayOfWeek.SATURDAY));
@@ -510,7 +510,12 @@ public class TimeTableService {
 
         saveFile(result.timeLine()); //read.json에 저장
 
-        return genetic(result.memberId());
+        genetic(result.memberId());
 
+        List<SeperatedJob> newSeperatedJob = seperatedJobRepository.findAllByNameAndMemberId(cj.getName(), result.memberId());
+
+        for (SeperatedJob s : newSeperatedJob){
+            s.toUpdateCompletion(completion);
+        }
     }
 }

@@ -31,11 +31,11 @@ public class CalTime {
     /*
     완료도 받아서 예상 소요 시간 줄이기
      */
-    public static String cal_estimatedTime(Integer completion, String custom_et) {
+    public static String cal_estimatedTime(Integer completion, Integer custom_et) {
         float percent = (float) completion/100;
-        LocalTime custom = DateTimeHandler.strToTime(custom_et);
+        LocalTime custom = LocalTime.of(custom_et / 60, custom_et % 60 );
 
-        long complete_minute = ((long) (( custom.toSecondOfDay() / 60) * percent));
+        long complete_minute = (long) (custom_et * percent);
         //완료한 만큼의 시간(분) 계산하기
         LocalTime result = custom.minusMinutes(complete_minute);
         //진행한 만큼 뺀다.

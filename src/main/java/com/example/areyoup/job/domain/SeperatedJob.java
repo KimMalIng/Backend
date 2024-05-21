@@ -20,9 +20,8 @@ public class SeperatedJob extends Job{
 
     //CustomizeJob에서 조정된 일정
     private LocalDate day; //일정이 배치된 날짜
-    private Integer completion; //완료도
 
-    public void toUpdateCompletion(Integer completion, boolean isComplete){
+    public void toUpdateCompletionAndComplete(Integer completion, boolean isComplete){
         this.completion = completion;
         this.isComplete = isComplete;
     }
@@ -41,5 +40,9 @@ public class SeperatedJob extends Job{
         this.day = DateTimeHandler.strToDate(updateJob.getDay());
         this.completion = updateJob.getCompletion();
         this.isFixed = updateJob.isFixed();
+    }
+
+    public void toUpdateCompletion(Integer completion) {
+        this.completion = completion;
     }
 }

@@ -59,33 +59,36 @@ public class JobService {
 
     public JobResponseDto.AdjustJobResponseDto getCompletion(Long jobId, Integer completion) {
         Member m = memberService.findMember(request);
-        CustomizeJob customizeJob;
-        if (completion == null) { //조정 일정부분
-            completion = 100;
+        if (completion == -1){
+             Job job = jobRepository.findById(jobId)
+                    .orElseThrow(() -> new JobException(JobErrorCode.JOB_NOT_FOUND));
+            job.toUpdateComplete(job.isComplete());
+            jobRepository.save(job);
+            if (job.isComplete()) log.info("'{}' Complete Cancel", job.getName());
+            else log.info("'{}' Complete", job.getName());
+            return JobResponseDto.AdjustJobResponseDto.toDto(job);
         }
-        Optional<SeperatedJob> seperatedJob = seperatedJobRepository.findById(jobId);
-        if (seperatedJob.isPresent()) {
-            seperatedJob.get().toUpdateCompletion(completion, true); //완료도와 완료 여부 업데이트
+        else{
+            SeperatedJob seperatedJob = seperatedJobRepository.findById(jobId)
+                    .orElseThrow(() -> new JobException(JobErrorCode.JOB_NOT_FOUND));
+            CustomizeJob customizeJob;
+            seperatedJob.toUpdateCompletionAndComplete(completion, true); //완료도와 완료 여부 업데이트
 
-            customizeJob = customizeJobRepository.findByNameAndMemberId(seperatedJob.get().getName(), m.getId());
-                     //원래 일정의 소요시간
-            String estimatedTime = CalTime.cal_estimatedTime(seperatedJob.get().getCompletion(), customizeJob.getEstimatedTime());
+            customizeJob = customizeJobRepository.findByNameAndMemberId(seperatedJob.getName(), m.getId());
+            //customizeJob의 getCompletion은 원래 일정의 소요시간
+            String estimatedTime = CalTime.cal_estimatedTime(seperatedJob.getCompletion(), customizeJob.getCompletion());
             customizeJob.toUpdateEstimatedTime(estimatedTime); //예정 소요시간 업데이트
 
             httpSession.setAttribute("modifyCompletion", customizeJob.getId());
             httpSession.setAttribute("seperated", jobId);
-            log.info("{} - '{}' , {}% Complete", seperatedJob.get().getDay(), seperatedJob.get().getName(), completion);
+            log.info("{} - '{}' , {}% Complete", seperatedJob.getDay(), seperatedJob.getName(), completion);
             log.info("Left Time of '{}' : {}", customizeJob.getName(), customizeJob.getEstimatedTime());
-            timeTableService.arrangeSeperatedJob();
+            timeTableService.arrangeSeperatedJob(seperatedJob.getCompletion());
+
+            return JobResponseDto.AdjustJobResponseDto.toDto(customizeJob);
+
         }
-        else {
-            customizeJob = customizeJobRepository.findById(jobId)
-                    .orElseThrow(() -> new JobException(JobErrorCode.JOB_NOT_FOUND));
-            customizeJob.toUpdateComplete(customizeJob.isComplete());
-            customizeJobRepository.save(customizeJob);
-            log.info("{} - '{}' Complete", customizeJob.getStartDate(), customizeJob.getName());
-        }
-        return JobResponseDto.AdjustJobResponseDto.toDto(customizeJob);
+
 
     }
 

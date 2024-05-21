@@ -27,11 +27,17 @@ public abstract class Job extends BaseEntity {
     protected String estimatedTime; //예상 소요 시간
     protected boolean isFixed; //일정 고정 여부
     protected boolean isComplete; //일정 완료 여부
+    protected Integer completion; //완료도
+
 
     @ManyToOne(fetch = FetchType.EAGER)
     protected Member member;
 
     public void toFixUpdate(boolean isFixed) {
         this.isFixed = !isFixed;
+    }
+
+    public void toUpdateComplete(boolean complete) {
+        this.isComplete = !complete;
     }
 }

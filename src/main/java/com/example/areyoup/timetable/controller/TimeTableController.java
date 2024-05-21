@@ -56,11 +56,11 @@ public class TimeTableController {
     /*
     남은 시간 재조정
      */
-    @GetMapping("/readjustment")
-    public ResponseEntity<JobResponseDto.AdjustmentDto> reAdjustSchedule() throws IOException {
-        return ResponseEntity.ok()
-                .body(timeTableService.arrangeSeperatedJob());
-    }
+//    @GetMapping("/readjustment")
+//    public ResponseEntity<JobResponseDto.AdjustmentDto> reAdjustSchedule() throws IOException {
+//        return ResponseEntity.ok()
+//                .body(timeTableService.arrangeSeperatedJob(null));
+//    }
 
     /*
     매주 일요일 자정마다 자동 스케줄링 진행
