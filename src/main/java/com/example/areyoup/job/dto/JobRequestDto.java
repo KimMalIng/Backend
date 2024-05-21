@@ -77,7 +77,7 @@ public class JobRequestDto {
                     .isComplete(false)
                     .isFixed(true)
                     .member(m)
-//                    .completion(0)
+                    .completion(-1)
                     .startTime(fixedJob.getStartTime())
                     .endTime(fixedJob.getEndTime())
                     .shouldClear(fixedJob.isShouldClear())
@@ -104,7 +104,7 @@ public class JobRequestDto {
                     .isComplete(false)
                     .isFixed(false)
                     .member(m)
-//                    .completion(0)
+                    .completion(DateTimeHandler.strToTime(adjustJob.getEstimatedTime()).toSecondOfDay()/60)
                     .build();
         }
     }

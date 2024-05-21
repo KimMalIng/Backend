@@ -99,6 +99,7 @@ public class JobResponseDto {
         private final String deadline;
         private final boolean isFixed;
         private final boolean shouldClear;
+        private final Integer completion;
 
         // CustomizeJob Entity -> Dto
         public static AdjustJobResponseDto toDto(CustomizeJob j){
@@ -116,6 +117,17 @@ public class JobResponseDto {
                     .build();
         }
 
+        public static AdjustJobResponseDto toDto(Job j) {
+            return AdjustJobResponseDto.builder()
+                    .id(j.getId())
+                    .name(j.getName())
+                    .label(j.getLabel())
+                    .estimatedTime(j.getEstimatedTime())
+                    .isComplete(j.isComplete())
+                    .isFixed(j.isFixed())
+                    .completion(j.getCompletion())
+                    .build();
+        }
     }
 
     @Getter
