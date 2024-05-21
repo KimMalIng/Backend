@@ -11,8 +11,10 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
 import static com.example.areyoup.global.function.CalTime.cal_estimatedTime;
@@ -53,12 +55,25 @@ public class JobRequestDto {
         private boolean shouldClear;
 
         public static CustomizeJob toEntity(JobRequestDto.FixedJobRequestDto fixedJob, Member m){
+            String estimatedTime = "";
+            if (fixedJob.isShouldClear()){
+                String startTime = fixedJob.getStartTime();
+                LocalDateTime start = LocalDateTime.of(2024, 5,22,Integer.parseInt(startTime.split(":")[0]), Integer.parseInt(startTime.split(":")[1]));
+                LocalDateTime end = LocalDateTime.of(2024,5,23,0,0);
+                Duration duration = Duration.between(start, end);
+                long hours = duration.toHours();
+                long minutes = duration.toMinutes() % 60;
+
+                estimatedTime = String.format("%02d:%02d", hours, minutes);
+            } else{
+                estimatedTime = CalTime.cal_Time(fixedJob.getStartTime(), fixedJob.getEndTime());
+            }
             return CustomizeJob.builder()
                     .name(fixedJob.getName())
                     .label(fixedJob.getLabel())
                     .startDate(DateTimeHandler.strToDate(fixedJob.getStartDate()))
                     .deadline(fixedJob.getEndDate())
-                    .estimatedTime(CalTime.cal_Time(fixedJob.getStartTime(), fixedJob.getEndTime()))
+                    .estimatedTime(estimatedTime)
                     .isComplete(false)
                     .isFixed(true)
                     .member(m)
