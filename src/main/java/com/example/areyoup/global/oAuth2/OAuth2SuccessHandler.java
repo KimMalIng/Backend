@@ -49,7 +49,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
 
 //    Map<String, String> env = getenv();
-    String host = "https://server.kimmaling.com";
+    String host = "https://kimmaling.com";
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
             throws IOException {
