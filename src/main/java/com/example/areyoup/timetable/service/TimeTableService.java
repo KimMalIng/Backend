@@ -58,7 +58,7 @@ public class TimeTableService {
     }
 
     //SettingBeforeAdjust 객체를 반환 해주는 함수
-    private SettingBeforeAdjust getSettingbeforeAdjust(String startDate, String endDate) {
+    private SettingBeforeAdjust getSettingbeforeAdjust(String startDate, String endDate, String endTime) {
         JobResponseDto.AdjustmentDto timeLine = new JobResponseDto.AdjustmentDto();
         Long memberId = memberService.findMember(request).getId();
 
@@ -69,8 +69,14 @@ public class TimeTableService {
 
         //1. 스케줄 시작 시간 세팅
         if (now.toLocalDate().equals(start)){ //시작하는 날짜와 현재 날짜가 같다면
-            timeLine.setSchedule_startTime(String.valueOf(now.toLocalTime()).substring(0,5));
+            log.info(endTime);
+            if (endTime == null) {
+                timeLine.setSchedule_startTime(String.valueOf(now.toLocalTime()).substring(0,5));
+            }
             //조정하는 현 시각부터 스케줄링 시작
+            else {
+                timeLine.setSchedule_startTime(endTime);
+            }
         } else { //다르다면 시작하는 날짜의 00시부터 시작
             timeLine.setSchedule_startTime("00:00");
         }
@@ -179,7 +185,7 @@ public class TimeTableService {
     일정 조정 메소드
      */
     public JobResponseDto.AdjustmentDto adjustSchedule(JobRequestDto.PeriodRequestDto periodDto){
-        SettingBeforeAdjust result = getSettingbeforeAdjust(periodDto.getStartDate(), periodDto.getEndDate());
+        SettingBeforeAdjust result = getSettingbeforeAdjust(periodDto.getStartDate(), periodDto.getEndDate(), null);
 
         //주어진 기간안에 일정들 가져오기
         List<ScheduleDto> adjustJobs = getAdjustJobs(result.start(), result.end(), result.datesBetween(), result.memberId(), 1, null, null);
@@ -202,7 +208,7 @@ public class TimeTableService {
             Saturday = Saturday.plusDays(1);
         }
 
-        SettingBeforeAdjust result = getSettingbeforeAdjust(DateTimeHandler.dateToStr(now), DateTimeHandler.dateToStr(Saturday));
+        SettingBeforeAdjust result = getSettingbeforeAdjust(DateTimeHandler.dateToStr(now), DateTimeHandler.dateToStr(Saturday), null);
 
         //주어진 기간안에 일정들 가져오기
         List<ScheduleDto> adjustJobs = getAdjustJobs(result.start(), result.end(), result.datesBetween(), result.memberId(), 3, null, null);
@@ -503,7 +509,7 @@ public class TimeTableService {
         //스케줄링에 필요한 고정된 job들 및 설정
         CustomizeJob cj = customizeJobRepository.findById(jobId)
                 .orElseThrow(() -> new JobException(JobErrorCode.JOB_NOT_FOUND));
-        SettingBeforeAdjust result = getSettingbeforeAdjust(now, cj.getDeadline().substring(0,10));
+        SettingBeforeAdjust result = getSettingbeforeAdjust(DateTimeHandler.dateToStr(cj.getStartDate()), cj.getDeadline().substring(0,10), cj.getEndTime());
         List<ScheduleDto> adjustJobs = getAdjustJobs(result.start(), result.end(), result.datesBetween(), result.memberId(), 2, cj, SeperatedJobId);
 
         result.timeLine().setSchedule(adjustJobs); //스케줄 세팅
