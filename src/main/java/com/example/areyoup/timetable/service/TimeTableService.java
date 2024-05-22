@@ -500,6 +500,9 @@ public class TimeTableService {
         Long SeperatedJobId  = (Long) httpSession.getAttribute("seperated");
         //수정한 일정에 대한 내용을 세션에 저장
 
+        SeperatedJob sj = seperatedJobRepository.findById(SeperatedJobId)
+                .orElseThrow(() -> new JobException(JobErrorCode.JOB_NOT_FOUND));
+
         Job j = jobRepository.findById(jobId)
                 .orElseThrow(() -> new JobException(JobErrorCode.JOB_NOT_FOUND));
         if (j.isFixed()) log.info("Job {} unfixed", jobId);
@@ -509,7 +512,7 @@ public class TimeTableService {
         //스케줄링에 필요한 고정된 job들 및 설정
         CustomizeJob cj = customizeJobRepository.findById(jobId)
                 .orElseThrow(() -> new JobException(JobErrorCode.JOB_NOT_FOUND));
-        SettingBeforeAdjust result = getSettingbeforeAdjust(DateTimeHandler.dateToStr(cj.getStartDate()), cj.getDeadline().substring(0,10), cj.getEndTime());
+        SettingBeforeAdjust result = getSettingbeforeAdjust(DateTimeHandler.dateToStr(cj.getStartDate()), cj.getDeadline().substring(0,10), sj.getEndTime());
         List<ScheduleDto> adjustJobs = getAdjustJobs(result.start(), result.end(), result.datesBetween(), result.memberId(), 2, cj, SeperatedJobId);
 
         result.timeLine().setSchedule(adjustJobs); //스케줄 세팅
