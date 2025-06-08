@@ -2,7 +2,7 @@
 <table border="0" cellpadding="0" cellspacing="0">
   <tr>
    <td>
-      <img src="https://github.com/user-attachments/assets/55e87115-7705-4a06-96a4-ff32ea7b5821" width="250">
+      <img src="https://github.com/user-attachments/assets/55e87115-7705-4a06-96a4-ff32ea7b5821" width="200">
    </td>
     <td>
       <h3>
@@ -168,6 +168,7 @@
 </a>
 
 
-## 팀 소개
+## 팀 소개 👤
 
-![image](https://github.com/user-attachments/assets/edc314ef-cb95-4563-8a08-7aaf3363dfde)
+<img src="https://github.com/user-attachments/assets/edc314ef-cb95-4563-8a08-7aaf3363dfde" width="700">
+
