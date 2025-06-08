@@ -65,7 +65,7 @@
   </tr>
   <tr>
     <td><strong>프론트엔드</strong></td>
-    <td>Next.js, React</td>
+    <td>Next.js, React, React-Native </td>
     <td>
       주요 라이브러리: Axios, React-Hook-Form
     </td>
