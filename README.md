@@ -72,7 +72,7 @@
   </tr>
   <tr>
     <td><strong>협업</strong></td>
-    <td>Notion, Postmanr</td>
+    <td>Notion, Postman</td>
     <td>협업 툴로 프로젝트 관리 및 API 문서화</td>
   </tr>
 </table>
